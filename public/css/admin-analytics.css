@@ -1,0 +1,106 @@
+/* Admin Analytics Dashboard Styles */
+.analytics-dashboard {
+    background-color: #111827;
+    min-height: calc(100vh - 64px);
+    color: #e2e8f0;
+}
+
+.analytics-dashboard__header {
+    background-color: #1f2937;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.analytics-dashboard__header-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.analytics-dashboard__kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+    .analytics-dashboard__kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .analytics-dashboard__kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.analytics-dashboard__kpi-card {
+    background-color: #1f2937;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #374151;
+}
+
+.analytics-dashboard__kpi-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.analytics-dashboard__kpi-card-title {
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+
+.analytics-dashboard__kpi-card-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 0.5rem;
+}
+
+.analytics-dashboard__kpi-card-trend--up {
+    color: #22c55e;
+}
+
+.analytics-dashboard__kpi-card-trend--down {
+    color: #ef4444;
+}
+
+.analytics-dashboard__charts-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .analytics-dashboard__charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.analytics-dashboard__chart-card {
+    background-color: #1f2937;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #374151;
+}
+
+.analytics-dashboard__chart-card-header {
+    background-color: #111827;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #374151;
+}
+
+.analytics-dashboard__chart-card-body {
+    padding: 1.5rem;
+    height: 300px;
+    position: relative;
+}

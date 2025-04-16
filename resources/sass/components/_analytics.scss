@@ -1,0 +1,167 @@
+// Variables
+$card-bg: #1e293b;
+$card-border: #334155;
+$primary: #3b82f6;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$text-primary: #f1f5f9;
+$text-secondary: #94a3b8;
+
+// Mixins
+@mixin card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Analytics Dashboard Styles
+.analytics-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #0f172a, #1e293b);
+
+  // Header
+  &__header {
+    @include flex-center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba($card-border, 0.5);
+
+    &-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $text-primary;
+
+      @media (max-width: 640px) {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  // KPI Cards
+  &__kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  &__kpi-card {
+    @include card-hover;
+    background: $card-bg;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid $card-border;
+
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    &-title {
+      color: $text-secondary;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    &-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin-top: 0.5rem;
+    }
+
+    &-trend {
+      &--up { color: $success; }
+      &--down { color: $danger; }
+    }
+  }
+
+  // Charts
+  &__charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr));
+    gap: 1.5rem;
+  }
+
+  &__chart-card {
+    @include card-hover;
+    background: $card-bg;
+    border-radius: 1rem;
+    border: 1px solid $card-border;
+    overflow: hidden;
+
+    &-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid $card-border;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &-body {
+      padding: 1.5rem;
+      height: 300px;
+    }
+  }
+}
+
+// Loading Animation
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading-overlay {
+  @include flex-center;
+  position: fixed;
+  inset: 0;
+  background: rgba(#0f172a, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $card-border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Custom Scrollbar
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba($text-primary, 0.1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($text-primary, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba($text-primary, 0.3);
+    }
+  }
+}

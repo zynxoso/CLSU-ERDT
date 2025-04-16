@@ -1,0 +1,116 @@
+/* Scholar Analytics Styles */
+.scholar-dashboard {
+    @apply min-h-screen;
+}
+
+.scholar-header {
+    @apply bg-white shadow-sm;
+}
+
+.scholar-content {
+    @apply p-6;
+}
+
+/* Profile Section */
+.profile-section {
+    @apply bg-white rounded-lg shadow-sm p-6 mb-6;
+}
+
+.profile-header {
+    @apply flex items-center space-x-4 mb-6;
+}
+
+.profile-avatar {
+    @apply w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600;
+}
+
+.profile-info {
+    @apply flex-1;
+}
+
+.profile-name {
+    @apply text-xl font-semibold text-gray-900;
+}
+
+.profile-role {
+    @apply text-sm text-gray-500;
+}
+
+/* Documents Section */
+.documents-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6;
+}
+
+.document-card {
+    @apply bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-200;
+}
+
+.document-header {
+    @apply flex items-center justify-between mb-2;
+}
+
+.document-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.document-status {
+    @apply text-xs font-medium px-2 py-1 rounded-full;
+}
+
+/* Fund Requests */
+.request-card {
+    @apply bg-white rounded-lg shadow-sm p-4 mb-4;
+}
+
+.request-header {
+    @apply flex items-center justify-between mb-2;
+}
+
+.request-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.request-amount {
+    @apply text-sm font-semibold text-gray-900;
+}
+
+.request-status {
+    @apply text-xs font-medium px-2 py-1 rounded-full;
+}
+
+/* Timeline */
+.timeline {
+    @apply space-y-4;
+}
+
+.timeline-item {
+    @apply relative pl-8 pb-4;
+}
+
+.timeline-item::before {
+    content: '';
+    @apply absolute left-0 top-0 w-0.5 h-full bg-gray-200;
+}
+
+.timeline-dot {
+    @apply absolute left-0 top-0 w-3 h-3 rounded-full bg-primary-500;
+}
+
+.timeline-content {
+    @apply text-sm text-gray-600;
+}
+
+.timeline-date {
+    @apply text-xs text-gray-500 mt-1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .documents-grid {
+        @apply grid-cols-1;
+    }
+
+    .profile-header {
+        @apply flex-col items-start space-x-0 space-y-4;
+    }
+}
