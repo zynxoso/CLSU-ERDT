@@ -52,7 +52,7 @@
             text-align: center;
         }
 
-        .status-active {
+        .status-verified {
             background-color: #dcfce7;
             color: #166534;
         }
@@ -62,14 +62,14 @@
             color: #92400e;
         }
 
-        .status-graduated {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-discontinued {
+        .status-rejected {
             background-color: #fee2e2;
             color: #b91c1c;
+        }
+
+        /* Extra small text */
+        .text-xs {
+            font-size: 9px;
         }
 
         /* Copyright text */
@@ -82,48 +82,48 @@
     </style>
 </head>
 <body>
-    <!-- Scholar Table -->
+    <!-- Documents Table -->
     @if(count($data) > 0)
         <table>
             <thead>
                 <tr>
-                    <th width="18%">Name</th>
-                    <th width="22%">Email</th>
-                    <th width="20%">Program</th>
-                    <th width="15%">University</th>
-                    <th width="8%">Status</th>
-                    <th width="8%">Start Date</th>
-                    <th width="9%">Expected Completion</th>
+                    <th width="20%">Document Title</th>
+                    <th width="20%">Scholar</th>
+                    <th width="15%">Document Type</th>
+                    <th width="10%">File Type</th>
+                    <th width="12%">Status</th>
+                    <th width="12%">Submitted</th>
+                    <th width="11%">Verified</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $scholar)
+                @foreach($data as $document)
                     <tr>
+                        <td>{{ $document->title }}</td>
                         <td>
-                            <strong>{{ $scholar->user ? $scholar->user->name : 'Unknown' }}</strong>
+                            <strong>{{ $document->scholarProfile && $document->scholarProfile->user ? $document->scholarProfile->user->name : 'Unknown' }}</strong>
+                            <div class="text-xs">{{ $document->scholarProfile && $document->scholarProfile->user ? $document->scholarProfile->user->email : 'N/A' }}</div>
                         </td>
-                        <td>{{ $scholar->user ? $scholar->user->email : 'N/A' }}</td>
-                        <td>{{ $scholar->program ?? 'N/A' }}</td>
-                        <td>{{ $scholar->university ?? 'N/A' }}</td>
+                        <td>{{ $document->document_type }}</td>
+                        <td>{{ strtoupper(pathinfo($document->file_path, PATHINFO_EXTENSION)) }}</td>
                         <td>
                             <span class="status-badge
-                                @if($scholar->status == 'Active') status-active
-                                @elseif($scholar->status == 'Pending') status-pending
-                                @elseif($scholar->status == 'Graduated') status-graduated
-                                @elseif($scholar->status == 'Discontinued') status-discontinued
+                                @if($document->status == 'Verified') status-verified
+                                @elseif($document->status == 'Pending') status-pending
+                                @elseif($document->status == 'Rejected') status-rejected
                                 @endif">
-                                {{ $scholar->status }}
+                                {{ $document->status }}
                             </span>
                         </td>
-                        <td>{{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'N/A' }}</td>
-                        <td>{{ $scholar->expected_completion_date ? date('M d, Y', strtotime($scholar->expected_completion_date)) : 'N/A' }}</td>
+                        <td>{{ $document->created_at->format('M d, Y') }}</td>
+                        <td>{{ $document->status != 'Pending' ? $document->updated_at->format('M d, Y') : 'N/A' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @else
         <div style="text-align: center; padding: 20px; color: #666; background-color: #f9f9f9; border-radius: 8px;">
-            No scholars found matching your criteria.
+            No documents found matching your criteria.
         </div>
     @endif
 

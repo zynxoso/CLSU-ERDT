@@ -94,7 +94,7 @@
         </div>
 
         <!-- Documents Grid -->
-        <div id="documents-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="documents-container" class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
             @include('admin.documents._document_list')
         </div>
 

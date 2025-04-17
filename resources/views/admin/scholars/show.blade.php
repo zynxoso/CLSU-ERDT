@@ -281,7 +281,11 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($scholar->manuscripts as $manuscript)
                                         <tr>
-                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $manuscript->title }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                <div class="truncate max-w-xs" title="{{ $manuscript->title }}">
+                                                    {{ Str::limit($manuscript->title, 50, '...') }}
+                                                </div>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $manuscript->manuscript_type }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 text-xs rounded-full
@@ -328,7 +332,11 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($scholar->documents as $document)
                                         <tr>
-                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $document->title }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                <div class="truncate max-w-xs" title="{{ $document->title }}">
+                                                    {{ Str::limit($document->title, 50, '...') }}
+                                                </div>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $document->type }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 text-xs rounded-full

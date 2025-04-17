@@ -52,7 +52,7 @@
             text-align: center;
         }
 
-        .status-active {
+        .status-approved {
             background-color: #dcfce7;
             color: #166534;
         }
@@ -62,14 +62,14 @@
             color: #92400e;
         }
 
-        .status-graduated {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-discontinued {
+        .status-rejected {
             background-color: #fee2e2;
             color: #b91c1c;
+        }
+
+        /* Extra small text */
+        .text-xs {
+            font-size: 9px;
         }
 
         /* Copyright text */
@@ -82,48 +82,48 @@
     </style>
 </head>
 <body>
-    <!-- Scholar Table -->
+    <!-- Funds Table -->
     @if(count($data) > 0)
         <table>
             <thead>
                 <tr>
-                    <th width="18%">Name</th>
-                    <th width="22%">Email</th>
-                    <th width="20%">Program</th>
-                    <th width="15%">University</th>
-                    <th width="8%">Status</th>
-                    <th width="8%">Start Date</th>
-                    <th width="9%">Expected Completion</th>
+                    <th width="12%">Reference</th>
+                    <th width="20%">Scholar</th>
+                    <th width="20%">Purpose</th>
+                    <th width="12%">Amount</th>
+                    <th width="12%">Status</th>
+                    <th width="12%">Submitted</th>
+                    <th width="12%">Processed</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $scholar)
+                @foreach($data as $fund)
                     <tr>
+                        <td>{{ $fund->reference_number ?? 'N/A' }}</td>
                         <td>
-                            <strong>{{ $scholar->user ? $scholar->user->name : 'Unknown' }}</strong>
+                            <strong>{{ $fund->user->name ?? 'Unknown' }}</strong>
+                            <div class="text-xs">{{ $fund->user->email ?? 'N/A' }}</div>
                         </td>
-                        <td>{{ $scholar->user ? $scholar->user->email : 'N/A' }}</td>
-                        <td>{{ $scholar->program ?? 'N/A' }}</td>
-                        <td>{{ $scholar->university ?? 'N/A' }}</td>
+                        <td>{{ $fund->purpose }}</td>
+                        <td>₱{{ number_format($fund->amount, 2) }}</td>
                         <td>
                             <span class="status-badge
-                                @if($scholar->status == 'Active') status-active
-                                @elseif($scholar->status == 'Pending') status-pending
-                                @elseif($scholar->status == 'Graduated') status-graduated
-                                @elseif($scholar->status == 'Discontinued') status-discontinued
+                                @if($fund->status == 'Approved') status-approved
+                                @elseif($fund->status == 'Pending') status-pending
+                                @elseif($fund->status == 'Rejected') status-rejected
                                 @endif">
-                                {{ $scholar->status }}
+                                {{ $fund->status }}
                             </span>
                         </td>
-                        <td>{{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'N/A' }}</td>
-                        <td>{{ $scholar->expected_completion_date ? date('M d, Y', strtotime($scholar->expected_completion_date)) : 'N/A' }}</td>
+                        <td>{{ $fund->created_at->format('M d, Y') }}</td>
+                        <td>{{ $fund->status != 'Pending' ? $fund->updated_at->format('M d, Y') : 'N/A' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @else
         <div style="text-align: center; padding: 20px; color: #666; background-color: #f9f9f9; border-radius: 8px;">
-            No scholars found matching your criteria.
+            No fund requests found matching your criteria.
         </div>
     @endif
 

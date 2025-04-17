@@ -146,7 +146,6 @@
                         <div>
                             <label for="format" class="block text-sm font-medium text-gray-700 mb-1">Format</label>
                             <select id="format" name="format" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="html">View in Browser</option>
                                 <option value="pdf">PDF</option>
                                 <option value="csv">CSV</option>
                             </select>
@@ -186,9 +185,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scholar</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purpose</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                                 </tr>
@@ -196,24 +193,10 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($recentFundRequests as $request)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                                    @if($request->user && $request->user->profile_photo)
-                                                        <img src="{{ asset('storage/' . $request->user->profile_photo) }}" alt="{{ $request->user->name }}" class="h-8 w-8 rounded-full">
-                                                    @else
-                                                        <i class="fas fa-user text-gray-400"></i>
-                                                    @endif
-                                                </div>
-                                                <div class="ml-3">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $request->user->name ?? 'Unknown' }}</div>
-                                                    <div class="text-xs text-gray-500">{{ $request->scholarProfile->program ?? 'N/A' }}</div>
-                                                </div>
-                                            </div>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {{ $request->user->name ?? 'Unknown' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $request->purpose }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₱{{ number_format($request->amount, 2) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $request->created_at->format('M d, Y') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 py-1 text-xs rounded-full
                                                 @if($request->status == 'Approved') bg-green-100 text-green-800

@@ -12,8 +12,8 @@
                 </svg>
                 <span class="ml-1">Back to Documents</span>
             </a>
-            <h1 class="text-2xl font-bold text-gray-800">Document Details</h1>
         </div>
+
 
         <div x-data="{ showGuide: false }" class="relative">
             <button @mouseenter="showGuide = true" @mouseleave="showGuide = false"
@@ -41,6 +41,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
         <!-- Left column - Document actions -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">

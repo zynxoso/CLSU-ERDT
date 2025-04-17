@@ -3,46 +3,53 @@
         <table class="min-w-full divide-y divide-gray-700">
             <thead>
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Scholar</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Program</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">University</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Start Date</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Progress</th>
-                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Scholar</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Program</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">University</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Start Date</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Progress</th>
+                    <th scope="col" class="px-4 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-700">
                 @foreach($scholars as $scholar)
                     <tr class="hover:bg-gray-50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 py-2 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden shadow-sm border border-blue-100">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden shadow-sm border border-blue-100">
                                     @if($scholar->user->profile_photo)
-                                        <img src="{{ asset('storage/' . $scholar->user->profile_photo) }}" alt="{{ $scholar->user->name }}" class="h-10 w-10 rounded-full object-cover transition-transform duration-200 hover:scale-110">
+                                        <img src="{{ asset('storage/' . $scholar->user->profile_photo) }}" alt="{{ $scholar->user->name }}" class="h-8 w-8 rounded-full object-cover">
                                     @else
-                                        <i class="fas fa-user text-blue-400"></i>
+                                        <i class="fas fa-user text-blue-400 text-xs"></i>
                                     @endif
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-600">{{ $scholar->user->name }}</div>
-                                    <div class="text-sm text-gray-600">{{ $scholar->user->email }}</div>
+                                <div class="ml-2">
+                                    <div class="text-xs font-medium text-gray-600 truncate max-w-[120px]" title="{{ $scholar->user->name }}">{{ $scholar->user->name }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $scholar->program }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $scholar->university }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'Not set' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 text-xs rounded-full transition-all duration-300 hover:shadow-md
-                                @if($scholar->status == 'Active' || $scholar->status == 'Ongoing') bg-green-500 bg-opacity-20 text-green-400 hover:bg-opacity-30
-                                @elseif($scholar->status == 'Inactive' || $scholar->status == 'Terminated') bg-red-500 bg-opacity-20 text-red-400 hover:bg-opacity-30
-                                @elseif($scholar->status == 'Completed' || $scholar->status == 'Graduated') bg-blue-500 bg-opacity-20 text-blue-400 hover:bg-opacity-30
-                                @else bg-yellow-500 bg-opacity-20 text-yellow-400 hover:bg-opacity-30 @endif">
+                        <td class="px-4 py-2 whitespace-nowrap">
+                            <div class="text-xs text-gray-600 truncate max-w-[80px]" title="{{ $scholar->program }}">
+                                {{ Str::limit($scholar->program, 15, '...') }}
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap">
+                            <div class="text-xs text-gray-600 truncate max-w-[80px]" title="{{ $scholar->university }}">
+                                {{ Str::limit($scholar->university, 12, '...') }}
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-600">{{ $scholar->start_date ? date('M Y', strtotime($scholar->start_date)) : '-' }}</td>
+                        <td class="px-4 py-2 whitespace-nowrap">
+                            <span class="px-2 py-0.5 text-xs rounded-full
+                                @if($scholar->status == 'Active' || $scholar->status == 'Ongoing') bg-green-500 bg-opacity-20 text-green-400
+                                @elseif($scholar->status == 'Inactive' || $scholar->status == 'Terminated') bg-red-500 bg-opacity-20 text-red-400
+                                @elseif($scholar->status == 'Completed' || $scholar->status == 'Graduated') bg-blue-500 bg-opacity-20 text-blue-400
+                                @else bg-yellow-500 bg-opacity-20 text-yellow-400 @endif">
                                 {{ $scholar->status }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 py-2 whitespace-nowrap">
                             @php
                                 $progress = 0;
                                 if($scholar->start_date && $scholar->expected_completion_date) {
@@ -56,26 +63,19 @@
                                     $progress = $totalDays > 0 ? min(100, round(($daysPassed / $totalDays) * 100)) : 0;
                                 }
                             @endphp
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                                <div class="bg-blue-600 h-2.5 rounded-full text-gray-600" style="width: {{ $progress }}%"></div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $progress }}%"></div>
                             </div>
-                            <span class="text-xs text-gray-500 mt-1">{{ $progress }}%</span>
+                            <span class="text-xs text-gray-500">{{ $progress }}%</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                            <div class="flex justify-center items-center space-x-4">
-                                <a href="{{ route('admin.scholars.show', $scholar->id) }}" class="text-blue-400 hover:text-blue-300 transition-all duration-200 hover:scale-125 inline-flex items-center justify-center h-8 w-8" title="View Scholar">
-                                    <i class="fas fa-eye"></i>
+                        <td class="px-2 py-2 whitespace-nowrap text-center">
+                            <div class="flex justify-center items-center space-x-1">
+                                <a href="{{ route('admin.scholars.show', $scholar->id) }}" class="text-blue-400 hover:text-blue-300 transition-all hover:scale-110 inline-flex items-center justify-center h-7 w-7 bg-blue-50 rounded-full" title="View Scholar">
+                                    <i class="fas fa-eye text-xs"></i>
                                 </a>
-                                <a href="{{ route('admin.scholars.edit', $scholar->id) }}" class="text-yellow-400 hover:text-yellow-300 transition-all duration-200 hover:scale-125 inline-flex items-center justify-center h-8 w-8" title="Edit Scholar">
-                                    <i class="fas fa-edit"></i>
+                                <a href="{{ route('admin.scholars.edit', $scholar->id) }}" class="text-yellow-400 hover:text-yellow-300 transition-all hover:scale-110 inline-flex items-center justify-center h-7 w-7 bg-yellow-50 rounded-full" title="Edit Scholar">
+                                    <i class="fas fa-edit text-xs"></i>
                                 </a>
-                                <button type="button"
-                                    class="text-red-400 hover:text-red-300 transition-all duration-200 hover:scale-125 delete-scholar-btn inline-flex items-center justify-center h-8 w-8"
-                                    data-id="{{ $scholar->id }}"
-                                    data-name="{{ $scholar->user->name }}"
-                                    title="Delete Scholar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
                             </div>
                         </td>
                     </tr>

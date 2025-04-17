@@ -327,9 +327,10 @@ class ManuscriptController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Manuscript $manuscript)
+    public function show($id)
     {
         $user = Auth::user();
+        $manuscript = Manuscript::findOrFail($id);
 
         // Check if user is authorized to view this manuscript
         if (Auth::user()->role !== 'admin') {
@@ -343,9 +344,10 @@ class ManuscriptController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Manuscript $manuscript)
+    public function edit($id)
     {
         $user = Auth::user();
+        $manuscript = Manuscript::findOrFail($id);
 
         // Check if user is authorized to edit this manuscript
         if (Auth::user()->role !== 'admin') {
@@ -365,9 +367,10 @@ class ManuscriptController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Manuscript $manuscript)
+    public function update(Request $request, $id)
     {
         $user = Auth::user();
+        $manuscript = Manuscript::findOrFail($id);
 
         // Check if user is admin
         if (Auth::user()->role !== 'admin') {
@@ -414,9 +417,10 @@ class ManuscriptController extends Controller
     /**
      * Submit the manuscript for review.
      */
-    public function submit(Manuscript $manuscript)
+    public function submit($id)
     {
         $user = Auth::user();
+        $manuscript = Manuscript::findOrFail($id);
 
         // Check if user is authorized to submit this manuscript
         if (Auth::user()->role !== 'admin') {
@@ -853,8 +857,16 @@ class ManuscriptController extends Controller
             ->with('success', 'Manuscript submitted successfully');
     }
 
-    public function approve(Manuscript $manuscript)
+    /**
+     * Approve a manuscript.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function approve($id)
     {
+        $manuscript = Manuscript::findOrFail($id);
+
         // Check if user is admin
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('admin.manuscripts.show', $manuscript->id)

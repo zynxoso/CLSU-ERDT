@@ -36,7 +36,13 @@
             <div class="border-t border-gray-200 pt-4">
                 <h3 class="font-medium text-gray-700 mb-2">Abstract</h3>
                 <div class="bg-gray-50 p-4 rounded-lg mb-4 text-gray-700">
-                    {{ $manuscript->abstract }}
+                    {{ Str::limit($manuscript->abstract, 400, '...') }}
+                    @if(strlen($manuscript->abstract) > 400)
+                        <button class="text-blue-600 hover:text-blue-800 text-sm mt-2 show-more" data-target="abstract-full">Show more</button>
+                        <div id="abstract-full" class="hidden mt-2">
+                            {{ $manuscript->abstract }}
+                        </div>
+                    @endif
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -81,7 +87,13 @@
                 @if($manuscript->admin_notes)
                 <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <h3 class="font-medium text-yellow-800 mb-1">Admin Notes</h3>
-                    <p class="text-yellow-700">{{ $manuscript->admin_notes }}</p>
+                    <p class="text-yellow-700">{{ Str::limit($manuscript->admin_notes, 250, '...') }}</p>
+                    @if(strlen($manuscript->admin_notes) > 250)
+                        <button class="text-blue-600 hover:text-blue-800 text-sm mt-2 show-more" data-target="notes-full">Show more</button>
+                        <div id="notes-full" class="hidden mt-2">
+                            <p class="text-yellow-700">{{ $manuscript->admin_notes }}</p>
+                        </div>
+                    @endif
                 </div>
                 @endif
             </div>
@@ -145,4 +157,28 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showMoreButtons = document.querySelectorAll('.show-more');
+
+        showMoreButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement.classList.contains('hidden')) {
+                    targetElement.classList.remove('hidden');
+                    this.textContent = 'Show less';
+                } else {
+                    targetElement.classList.add('hidden');
+                    this.textContent = 'Show more';
+                }
+            });
+        });
+    });
+</script>
+@endpush
+
 @endsection

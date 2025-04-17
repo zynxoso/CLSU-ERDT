@@ -169,9 +169,11 @@ class ReportController extends Controller
 
             case 'pdf':
                 try {
-                    // Use dedicated PDF templates for the reports
+                    // Use dedicated PDF templates for all the reports
                     $pdfView = $reportType === 'scholars' ? 'admin.reports.scholars-pdf' :
-                              ($reportType === 'manuscripts' ? 'admin.reports.manuscripts-pdf' : $view);
+                              ($reportType === 'manuscripts' ? 'admin.reports.manuscripts-pdf' :
+                              ($reportType === 'funds' ? 'admin.reports.funds-pdf' :
+                              ($reportType === 'documents' ? 'admin.reports.documents-pdf' : $view)));
 
                     $pdf = PDF::loadView($pdfView, [
                         'data' => $data,
@@ -182,7 +184,7 @@ class ReportController extends Controller
                     ]);
 
                     // Set landscape orientation for certain reports
-                    if ($reportType === 'manuscripts' || $reportType === 'scholars') {
+                    if ($reportType === 'manuscripts' || $reportType === 'scholars' || $reportType === 'funds') {
                         $pdf->setPaper('a4', 'landscape');
                     }
 

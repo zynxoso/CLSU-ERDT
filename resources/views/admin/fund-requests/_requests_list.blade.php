@@ -27,11 +27,13 @@
                                 </div>
                                 <div class="ml-3">
                                     <div class="text-sm font-medium text-gray-900">{{ $request->scholarProfile->user->name }}</div>
-                                    <div class="text-xs text-gray-500">{{ $request->scholarProfile->program }}</div>
+                                    <div class="text-xs text-gray-500 max-w-xs truncate">{{ Str::limit($request->scholarProfile->program, 25, '.....') }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $request->purpose }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            <div class="max-w-xs" title="{{ $request->purpose }}">{{ Str::limit($request->purpose, 30, '.....') }}</div>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₱{{ number_format($request->amount, 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $request->created_at->format('M d, Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -43,11 +45,11 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('admin.fund-requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <a href="{{ route('admin.fund-requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-900 mr-3" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
                             @if($request->status == 'Pending')
-                                <a href="{{ route('admin.fund-requests.edit', $request->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">
+                                <a href="{{ route('admin.fund-requests.edit', $request->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3" title="Edit Request">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             @endif

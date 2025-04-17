@@ -76,7 +76,13 @@
                 <div class="mb-6">
                     <h2 class="text-lg font-semibold mb-2">Abstract</h2>
                     <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-gray-700 whitespace-pre-line">{{ $manuscript->abstract }}</p>
+                        <p class="text-gray-700 whitespace-pre-line">{{ Str::limit($manuscript->abstract, 500, '...') }}</p>
+                        @if(strlen($manuscript->abstract) > 500)
+                            <button class="text-blue-600 hover:text-blue-800 text-sm mt-2 show-more" data-target="abstract-full">Show more</button>
+                            <div id="abstract-full" class="hidden mt-2">
+                                <p class="text-gray-700 whitespace-pre-line">{{ $manuscript->abstract }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -84,7 +90,13 @@
                 <div class="mb-6">
                     <h2 class="text-lg font-semibold mb-2">Admin Notes</h2>
                     <div class="bg-yellow-50 p-4 rounded-lg">
-                        <p class="text-gray-700 whitespace-pre-line">{{ $manuscript->admin_notes }}</p>
+                        <p class="text-gray-700 whitespace-pre-line">{{ Str::limit($manuscript->admin_notes, 300, '...') }}</p>
+                        @if(strlen($manuscript->admin_notes) > 300)
+                            <button class="text-blue-600 hover:text-blue-800 text-sm mt-2 show-more" data-target="notes-full">Show more</button>
+                            <div id="notes-full" class="hidden mt-2">
+                                <p class="text-gray-700 whitespace-pre-line">{{ $manuscript->admin_notes }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 @endif
@@ -125,4 +137,28 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showMoreButtons = document.querySelectorAll('.show-more');
+
+        showMoreButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement.classList.contains('hidden')) {
+                    targetElement.classList.remove('hidden');
+                    this.textContent = 'Show less';
+                } else {
+                    targetElement.classList.add('hidden');
+                    this.textContent = 'Show more';
+                }
+            });
+        });
+    });
+</script>
+@endpush
+
 @endsection
