@@ -41,13 +41,17 @@
                         </td>
                         <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-600">{{ $scholar->start_date ? date('M Y', strtotime($scholar->start_date)) : '-' }}</td>
                         <td class="px-4 py-2 whitespace-nowrap">
-                            <span class="px-2 py-0.5 text-xs rounded-full
-                                @if($scholar->status == 'Active' || $scholar->status == 'Ongoing') bg-green-500 bg-opacity-20 text-green-400
-                                @elseif($scholar->status == 'Inactive' || $scholar->status == 'Terminated') bg-red-500 bg-opacity-20 text-red-400
-                                @elseif($scholar->status == 'Completed' || $scholar->status == 'Graduated') bg-blue-500 bg-opacity-20 text-blue-400
-                                @else bg-yellow-500 bg-opacity-20 text-yellow-400 @endif">
-                                {{ $scholar->status }}
-                            </span>
+                            <div class="flex justify-center">
+                                <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full
+                                    @if($scholar->status == 'Active' || $scholar->status == 'Ongoing') bg-green-600 text-white
+                                    @elseif($scholar->status == 'Inactive' || $scholar->status == 'Terminated') bg-red-600 text-white
+                                    @elseif($scholar->status == 'Completed' || $scholar->status == 'Graduated') bg-blue-600 text-white
+                                    @elseif($scholar->status == 'On Extension') bg-purple-600 text-white
+                                    @elseif($scholar->status == 'New') bg-indigo-600 text-white
+                                    @else bg-yellow-500 text-white @endif">
+                                    {{ $scholar->status }}
+                                </span>
+                            </div>
                         </td>
                         <td class="px-4 py-2 whitespace-nowrap">
                             @php

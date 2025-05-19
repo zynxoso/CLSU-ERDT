@@ -54,13 +54,7 @@ class FundRequest extends Model
         return $this->belongsTo(RequestType::class);
     }
 
-    /**
-     * Get the documents for the fund request.
-     */
-    public function documents()
-    {
-        return $this->hasMany(Document::class);
-    }
+
 
     /**
      * Get the disbursements for the fund request.
@@ -91,5 +85,13 @@ class FundRequest extends Model
             'scholar_profile_id', // Local key on fund_requests table
             'user_id' // Local key on scholar_profiles table
         );
+    }
+    
+    /**
+     * Get the documents for the fund request.
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
     }
 }

@@ -277,10 +277,10 @@ class ManuscriptController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'abstract' => 'required|string',
-            'manuscript_type' => 'required|string|in:journal,conference,thesis,book,other',
+            'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
             'co_authors' => 'nullable|string|max:255',
             'keywords' => 'required|string|max:255',
-            'status' => 'required|string|in:draft,submitted,under_review,revision_required,accepted,rejected,published',
+            'status' => 'required|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
             'scholar_id' => 'required|exists:scholar_profiles,id',
             'admin_notes' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf|max:10240',
@@ -304,14 +304,18 @@ class ManuscriptController extends Controller
         // Handle file upload if present
         if ($request->hasFile('file')) {
             $file = $request->file('file');
+            $originalName = $file->getClientOriginalName();
             $path = $file->store('manuscripts', 'public');
 
             // Create a document entry for this file
             $document = new \App\Models\Document([
                 'scholar_profile_id' => $validated['scholar_id'],
                 'title' => $manuscript->title . ' - Manuscript File',
+                'file_name' => $originalName, // Add the file_name field
                 'file_path' => $path,
-                'document_type' => 'manuscript',
+                'file_size' => $file->getSize(), // Add the file size
+                'file_type' => 'manuscript',
+                'category' => 'manuscript', // Add the category field
                 'status' => 'verified',
             ]);
 
@@ -355,10 +359,20 @@ class ManuscriptController extends Controller
                 ->with('error', 'Unauthorized access');
         }
 
-        // Only draft or revision_required manuscripts can be edited
-        if (!in_array($manuscript->status, ['draft', 'revision_required'])) {
-            return redirect()->route('admin.manuscripts.show', $manuscript->id)
-                ->with('error', 'Only draft or manuscripts requiring revision can be edited');
+        // Allow admin to edit manuscripts in most active states, not just draft/revision
+        // Consider if specific statuses should prevent editing by admin (e.g., 'Published', 'Rejected')
+        // For now, allowing edit if not in a final uneditable state
+        $uneditableStatuses = ['Published', 'Rejected']; // Example final states
+        if (in_array($manuscript->status, $uneditableStatuses) && Auth::user()->role === 'admin') {
+             // Potentially allow even these for admin, or add specific logic.
+             // For now, this example keeps them uneditable via this general edit form.
+             // If admins need to change 'Published' status, a dedicated action might be better.
+        } else if (!in_array($manuscript->status, ['Draft', 'Revision Requested', 'Submitted', 'Under Review', 'Accepted'])) {
+            // More refined check based on workflow needs
+             if ($manuscript->status !== 'Draft' && $manuscript->status !== 'Revision Requested' && $manuscript->status !== 'Submitted') {
+                return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', 'Manuscript in status ' . $manuscript->status . ' cannot be edited through this form.');
+             }
         }
 
         return view('admin.manuscripts.edit', compact('manuscript'));
@@ -378,19 +392,22 @@ class ManuscriptController extends Controller
                 ->with('error', 'Unauthorized access');
         }
 
-        // Only draft or revision_required manuscripts can be updated
-        if (!in_array($manuscript->status, ['draft', 'revision_required'])) {
-            return redirect()->route('admin.manuscripts.show', $manuscript->id)
-                ->with('error', 'Only draft or manuscripts requiring revision can be updated');
+        // Allow admin to update manuscripts in most active states
+        // This check might need further refinement based on exact admin capabilities desired for each status
+        $nonUpdatableStatusesByAdminForm = []; // e.g. ['Published', 'Rejected'] if they have separate admin actions
+        if (in_array($manuscript->status, $nonUpdatableStatusesByAdminForm)) {
+             return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', 'Manuscript in status ' . $manuscript->status . ' cannot be updated through this form.');
         }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'abstract' => 'required|string',
-            'manuscript_type' => 'required|string|in:journal,conference,thesis,book,other',
+            'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
             'co_authors' => 'nullable|string|max:255',
             'keywords' => 'required|string|max:255',
-            'status' => 'sometimes|in:draft,submitted'
+            // Allow admin to set any valid status from the form
+            'status' => 'sometimes|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected'
         ]);
 
         $oldValues = $manuscript->toArray();
@@ -401,9 +418,9 @@ class ManuscriptController extends Controller
         $manuscript->co_authors = $validated['co_authors'];
         $manuscript->keywords = $validated['keywords'];
 
-        // If submitting the manuscript
-        if (isset($validated['status']) && $validated['status'] === 'submitted') {
-            $manuscript->status = 'submitted';
+        // Update status if it's provided and validated
+        if (isset($validated['status'])) {
+            $manuscript->status = $validated['status'];
         }
 
         $manuscript->save();
@@ -429,14 +446,14 @@ class ManuscriptController extends Controller
         }
 
         // Only draft or revision_required manuscripts can be submitted
-        if (!in_array($manuscript->status, ['draft', 'revision_required'])) {
+        if (!in_array($manuscript->status, ['Draft', 'Revision Requested'])) {
             return redirect()->route('admin.manuscripts.show', $manuscript->id)
                 ->with('error', 'Only draft or manuscripts requiring revision can be submitted');
         }
 
         $oldValues = $manuscript->toArray();
 
-        $manuscript->status = 'submitted';
+        $manuscript->status = 'Submitted';
         $manuscript->save();
 
         $this->auditService->logCustomAction('submitted', 'Manuscript', $manuscript->id);
@@ -530,7 +547,6 @@ class ManuscriptController extends Controller
             'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
             'co_authors' => 'nullable|string|max:255',
             'keywords' => 'nullable|string|max:255',
-            'progress' => 'nullable|integer|min:0|max:100',
             'notes' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf|max:10240'
         ], [
@@ -556,7 +572,7 @@ class ManuscriptController extends Controller
         $manuscript->manuscript_type = $validated['manuscript_type'];
         $manuscript->co_authors = $validated['co_authors'];
         $manuscript->keywords = $validated['keywords'] ?? null;
-        $manuscript->status = 'Draft';
+        $manuscript->status = 'Submitted';
         $manuscript->save();
 
         // Generate reference number after saving
@@ -572,9 +588,13 @@ class ManuscriptController extends Controller
 
             // Create document record
             $document = new \App\Models\Document();
+            $document->scholar_profile_id = $scholarProfile->id;
             $document->title = $originalName;
+            $document->file_name = $originalName; // Add the file_name field
             $document->file_path = $filePath;
+            $document->file_size = $file->getSize(); // Add the file size
             $document->file_type = 'manuscript';
+            $document->category = 'manuscript'; // Add the category field
             $document->entity_type = 'manuscript';
             $document->entity_id = $manuscript->id;
             $document->uploaded_by = $user->id;
@@ -607,7 +627,7 @@ class ManuscriptController extends Controller
 
         // Check if user is authorized to view this manuscript
         if ($user->scholarProfile->id !== $manuscript->scholar_profile_id) {
-            return redirect()->route('manuscripts.index')
+            return redirect()->route('scholar.manuscripts.index')
                 ->with('error', 'You are not authorized to view this manuscript');
         }
 
@@ -632,13 +652,13 @@ class ManuscriptController extends Controller
 
         // Check if user is authorized to edit this manuscript
         if ($user->scholarProfile->id !== $manuscript->scholar_profile_id) {
-            return redirect()->route('manuscripts.index')
+            return redirect()->route('scholar.manuscripts.index')
                 ->with('error', 'You are not authorized to edit this manuscript');
         }
 
-        // Only draft or revision_required manuscripts can be edited
-        if (!in_array($manuscript->status, ['draft', 'revision_required'])) {
-            return redirect()->route('manuscripts.show', $manuscript->id)
+        // Only Draft or Revision Requested manuscripts can be edited
+        if (!in_array(strtolower($manuscript->status), ['draft', 'revision requested'])) {
+            return redirect()->route('scholar.manuscripts.show', $manuscript->id)
                 ->with('error', 'Only draft or manuscripts requiring revision can be edited');
         }
 
@@ -682,7 +702,7 @@ class ManuscriptController extends Controller
             }
 
             // Only draft or revision_required manuscripts can be updated
-            if (!in_array($manuscript->status, ['Draft', 'Revision Requested'])) {
+            if (!in_array(strtolower($manuscript->status), ['draft', 'revision requested'])) {
                 \Illuminate\Support\Facades\Log::warning('Unauthorized update attempt - wrong status', [
                     'manuscript_id' => $id,
                     'current_status' => $manuscript->status
@@ -745,9 +765,13 @@ class ManuscriptController extends Controller
 
                 // Create document record
                 $document = new \App\Models\Document();
+                $document->scholar_profile_id = $user->scholarProfile->id; // Add scholar_profile_id
                 $document->title = $originalName;
+                $document->file_name = $originalName; // Add file_name
                 $document->file_path = $filePath;
+                $document->file_size = $file->getSize(); // Add the file size
                 $document->file_type = 'manuscript';
+                $document->category = 'manuscript'; // Add the category field
                 $document->entity_type = 'manuscript';
                 $document->entity_id = $manuscript->id;
                 $document->uploaded_by = $user->id;
@@ -873,20 +897,122 @@ class ManuscriptController extends Controller
                 ->with('error', 'Unauthorized access');
         }
 
-        // Only draft or revision_required manuscripts can be approved
-        if (!in_array($manuscript->status, ['draft', 'revision_required'])) {
+        // Only Draft or Revision Requested manuscripts can be approved
+        if (!in_array($manuscript->status, ['Draft', 'Revision Requested'])) {
             return redirect()->route('admin.manuscripts.show', $manuscript->id)
                 ->with('error', 'Only draft or manuscripts requiring revision can be approved');
         }
 
         $oldValues = $manuscript->toArray();
 
-        $manuscript->status = 'accepted';
+        $manuscript->status = 'Accepted';
         $manuscript->save();
 
         $this->auditService->logCustomAction('approved', 'Manuscript', $manuscript->id);
 
         return redirect()->route('admin.manuscripts.show', $manuscript->id)
             ->with('success', 'Manuscript approved successfully');
+    }
+    
+    /**
+     * Update the status of a manuscript.
+     *
+     * @param  int  $id
+     * @param  string  $status
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus($id, $status)
+    {
+        $manuscript = Manuscript::findOrFail($id);
+
+        // Check if user is admin
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', 'Unauthorized access');
+        }
+        
+        // Validate the status
+        $validStatuses = ['Draft', 'Submitted', 'Under Review', 'Revision Requested', 'Accepted', 'Published', 'Rejected'];
+        if (!in_array($status, $validStatuses)) {
+            return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', 'Invalid status');
+        }
+        
+        // Check if the status transition is valid
+        $validTransitions = [
+            'Submitted' => ['Under Review', 'Accepted', 'Rejected'],
+            'Under Review' => ['Revision Requested', 'Accepted', 'Rejected'],
+            'Revision Requested' => ['Under Review', 'Accepted', 'Rejected'],
+            'Accepted' => ['Published'],
+        ];
+        
+        if (!isset($validTransitions[$manuscript->status]) || !in_array($status, $validTransitions[$manuscript->status])) {
+            return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', "Cannot change status from '{$manuscript->status}' to '{$status}'");
+        }
+
+        $oldValues = $manuscript->toArray();
+        $oldStatus = $manuscript->status;
+
+        $manuscript->status = $status;
+        $manuscript->save();
+
+        $this->auditService->logCustomAction("status_change_from_{$oldStatus}_to_{$status}", 'Manuscript', $manuscript->id);
+
+        return redirect()->route('admin.manuscripts.show', $manuscript->id)
+            ->with('success', "Manuscript status updated to '{$status}' successfully");
+    }
+    
+    /**
+     * Update just the status and notes of a manuscript and notify the scholar.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatusAndNotes(Request $request, $id)
+    {
+        $manuscript = Manuscript::findOrFail($id);
+
+        // Check if user is admin
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', 'Unauthorized access');
+        }
+        
+        $validated = $request->validate([
+            'status' => 'required|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
+            'admin_notes' => 'nullable|string',
+            'notify_scholar' => 'sometimes|boolean'
+        ]);
+        
+        $oldValues = $manuscript->toArray();
+        $oldStatus = $manuscript->status;
+        
+        // Update manuscript status and notes
+        // Ensure the status is properly quoted by using the setAttribute method
+        $manuscript->setAttribute('status', $validated['status']);
+        $manuscript->admin_notes = $validated['admin_notes'] ?? $manuscript->admin_notes;
+        $manuscript->save();
+        
+        // Log the status change
+        $this->auditService->logCustomAction("status_change_from_{$oldStatus}_to_{$validated['status']}", 'Manuscript', $manuscript->id);
+        
+        // Notify scholar if requested
+        if ($request->has('notify_scholar') && $request->notify_scholar) {
+            // Get the scholar user
+            $scholarProfile = $manuscript->scholarProfile;
+            if ($scholarProfile && $scholarProfile->user) {
+                $scholarProfile->user->notify(new \App\Notifications\ManuscriptStatusChanged(
+                    $manuscript,
+                    $oldStatus,
+                    $validated['status'],
+                    $validated['admin_notes'] ?? null
+                ));
+            }
+        }
+        
+        return redirect()->route('admin.manuscripts.show', $manuscript->id)
+            ->with('success', "Manuscript status updated and scholar will be notified.");
     }
 }

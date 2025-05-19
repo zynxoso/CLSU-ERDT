@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\FundRequest;
 use App\Models\RequestType;
 use App\Models\ScholarProfile;
+
 use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FundRequestController extends Controller
 {
@@ -152,6 +154,30 @@ class FundRequestController extends Controller
             'pagination' => $pagination
         ]);
     }
+    
+    /**
+     * Get documents for a fund request (AJAX)
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getDocuments($id)
+    {
+        // Check if user is admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
+        $fundRequest = FundRequest::findOrFail($id);
+        
+        // Load documents with their details
+        $documents = $fundRequest->documents()->get();
+        
+        return response()->json([
+            'success' => true,
+            'documents' => $documents
+        ]);
+    }
 
     /**
      * Display a listing of fund requests for scholar.
@@ -216,8 +242,14 @@ class FundRequestController extends Controller
     {
         $user = Auth::user();
         $requestTypes = RequestType::where('is_active', true)->get();
-
+        
         if ($user->role === 'scholar') {
+            // Get scholar profile
+            $scholarProfile = $user->scholarProfile;
+            if (!$scholarProfile) {
+                return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
+            }
+                
             return view('scholar.fund-requests.create', compact('requestTypes'));
         }
 
@@ -232,8 +264,9 @@ class FundRequestController extends Controller
         $validated = $request->validate([
             'request_type_id' => 'required|exists:request_types,id',
             'amount' => 'required|numeric|min:0',
-            'purpose' => 'required|string|max:1000',
-            'status' => 'sometimes|in:Draft,Submitted'
+            'admin_remarks' => 'nullable|string',
+            'status' => 'sometimes|in:Draft,Submitted',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ]);
 
         $user = Auth::user();
@@ -242,25 +275,121 @@ class FundRequestController extends Controller
         if (!$profile) {
             return redirect()->route('home')->with('error', 'Scholar profile not found');
         }
-
-        $fundRequest = new FundRequest();
-        $fundRequest->scholar_profile_id = $profile->id;
-        $fundRequest->request_type_id = $validated['request_type_id'];
-        $fundRequest->amount = $validated['amount'];
-        $fundRequest->purpose = $validated['purpose'];
-        $fundRequest->status = $validated['status'] ?? 'Draft';
-        $fundRequest->save();
-
-        $this->auditService->logCreate('FundRequest', $fundRequest->id, $fundRequest->toArray());
-
-        if ($user->role === 'scholar') {
-            return redirect()->route('scholar.fund-requests.show', $fundRequest->id)
-                ->with('success', 'Fund request created successfully');
+        
+        // Validate amount against limits based on request type and program level
+        $requestTypeId = $validated['request_type_id'];
+        $amount = $validated['amount'];
+        $isDoctoralProgram = stripos($profile->program, 'doctoral') !== false || stripos($profile->program, 'phd') !== false;
+        
+        // Get the request type name
+        $requestType = RequestType::find($requestTypeId);
+        if (!$requestType) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['request_type_id' => 'Invalid request type.']);
         }
-
-        return redirect()->route('fund-requests.show', $fundRequest->id)
-            ->with('success', 'Fund request created successfully');
+        
+        // Define amount limits based on the entitlements table
+        $requestTypeLimits = [
+            1 => [ // Tuition Fee
+                'name' => 'Tuition Fee',
+                'masters' => null, // Actual as billed
+                'doctoral' => null, // Actual as billed
+            ],
+            2 => [ // Living Allowance/Stipend
+                'name' => 'Living Allowance/Stipend',
+                'masters' => 30000,
+                'doctoral' => 38000,
+            ],
+            3 => [ // Learning Materials
+                'name' => 'Learning Materials',
+                'masters' => 20000,
+                'doctoral' => 20000,
+            ],
+            4 => [ // Thesis/Dissertation Grant
+                'name' => 'Thesis/Dissertation Grant',
+                'masters' => 60000,
+                'doctoral' => 100000,
+            ],
+            5 => [ // Research Grant
+                'name' => 'Research Grant',
+                'masters' => 225000,
+                'doctoral' => 475000,
+            ],
+            6 => [ // Research Dissemination
+                'name' => 'Research Dissemination',
+                'masters' => 75000,
+                'doctoral' => 150000,
+            ],
+            7 => [ // Mentor's Fee
+                'name' => "Mentor's Fee",
+                'masters' => 36000,
+                'doctoral' => 72000,
+            ],
+        ];
+        
+        // Check if the request type has a limit
+        if (isset($requestTypeLimits[$requestTypeId])) {
+            $programType = $isDoctoralProgram ? 'doctoral' : 'masters';
+            $limit = $requestTypeLimits[$requestTypeId][$programType];
+            $typeName = $requestTypeLimits[$requestTypeId]['name'];
+            
+            // If there's a limit (not null) and amount exceeds it
+            if ($limit !== null && $amount > $limit) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['amount' => "The maximum amount allowed for {$typeName} is ₱" . number_format($limit, 2) . ".\nYour {$programType} program has a limit of ₱" . number_format($limit, 2) . "."]);
+            }
+        }
+        
+        try {
+            // Create the fund request
+            $fundRequest = new FundRequest();
+            $fundRequest->scholar_profile_id = $profile->id;
+            $fundRequest->request_type_id = $validated['request_type_id'];
+            $fundRequest->amount = $validated['amount'];
+            $fundRequest->purpose = $requestType->name; // Use the request type name as the purpose
+            $fundRequest->admin_remarks = $validated['admin_remarks'] ?? null;
+            $fundRequest->status = $validated['status'] ?? 'Draft';
+            $fundRequest->save();
+            
+            // Handle document upload
+            if ($request->hasFile('document')) {
+                $file = $request->file('document');
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->store('documents/fund-requests/' . $fundRequest->id, 'public');
+                
+                // Create document record
+                $document = new \App\Models\Document();
+                $document->scholar_profile_id = $profile->id;
+                $document->fund_request_id = $fundRequest->id;
+                $document->file_name = $fileName;
+                $document->file_path = $filePath;
+                $document->file_type = $file->getClientMimeType();
+                $document->file_size = $file->getSize();
+                $document->category = 'Fund Request';
+                $document->title = 'Fund Request Document - ' . $fundRequest->purpose;
+                $document->save();
+            }
+            
+            $this->auditService->logCreate('FundRequest', $fundRequest->id, $fundRequest->toArray());
+            
+            if ($user->role === 'scholar') {
+                return redirect()->route('scholar.fund-requests.show', $fundRequest->id)
+                    ->with('success', 'Fund request created successfully. Your request will be reviewed by an administrator.');
+            }
+            
+            return redirect()->route('fund-requests.show', $fundRequest->id)
+                ->with('success', 'Fund request created successfully');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to create fund request: ' . $e->getMessage())
+                ->withInput();
+        }
     }
+    
+
 
     /**
      * Display the specified resource.
@@ -284,7 +413,7 @@ class FundRequestController extends Controller
         if ($user->role === 'scholar') {
             return view('scholar.fund-requests.show', compact('fundRequest'));
         } else {
-            return view('fund-requests.show', compact('fundRequest'));
+            return view('admin.fund-requests.show', compact('fundRequest'));
         }
     }
 

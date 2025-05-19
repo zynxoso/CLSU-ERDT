@@ -23,11 +23,55 @@
     }
 
     /* Ensure all button icons have white color */
-    a.bg-yellow-600 i,
+    a.bg-blue-600 i,
     a.bg-gray-600 i,
     a.bg-blue-500 i,
     button.bg-blue-500 i {
         color: white !important;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .flex-col-mobile {
+            flex-direction: column;
+        }
+        
+        .w-full-mobile {
+            width: 100%;
+        }
+        
+        .mt-4-mobile {
+            margin-top: 1rem;
+        }
+        
+        .space-x-4-mobile > * + * {
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+        
+        .justify-between-to-start {
+            justify-content: flex-start;
+        }
+        
+        .flex-wrap-mobile {
+            flex-wrap: wrap;
+        }
+        
+        .tab-overflow {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px;
+        }
+        
+        .tab-overflow::-webkit-scrollbar {
+            height: 3px;
+        }
+        
+        .tab-overflow::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
     }
 </style>
 @endsection
@@ -35,16 +79,16 @@
 @section('content')
 <div class="min-h-screen">
     <div class="container mx-auto px-4 py-6">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Scholar Details</h1>
                 <p class="text-gray-600">View detailed information about this scholar</p>
             </div>
-            <div class="flex space-x-4">
-                <a href="{{ route('admin.scholars.edit', $scholar->id) }}" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                <a href="{{ route('admin.scholars.edit', $scholar->id) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 text-center">
                     <i class="fas fa-edit mr-2 text-white" style="color: white !important;"></i> Edit Scholar
                 </a>
-                <a href="{{ route('admin.scholars.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                <a href="{{ route('admin.scholars.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-center">
                     <i class="fas fa-arrow-left mr-2 text-white" style="color: white !important;"></i> Back to List
                 </a>
             </div>
@@ -79,18 +123,18 @@
 
             <!-- Scholar Details Tabs -->
             <div class="border-b border-gray-200">
-                <nav class="flex flex-wrap">
-                    <button class="px-6 py-3 border-b-2 border-blue-500 font-medium text-sm leading-5 text-blue-600 focus:outline-none transition-all duration-200 hover:bg-blue-50" id="profile-tab">
-                        Profile
+                <nav class="flex flex-wrap tab-overflow">
+                    <button class="px-4 sm:px-6 py-3 border-b-2 border-blue-500 font-medium text-xs sm:text-sm leading-5 text-blue-600 focus:outline-none transition-all duration-200 hover:bg-blue-50 whitespace-nowrap" id="profile-tab">
+                        <i class="fas fa-user mr-1 sm:mr-2 hidden sm:inline-block"></i>Profile
                     </button>
-                    <button class="px-6 py-3 border-b-2 border-transparent font-medium text-sm leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition-all duration-200 hover:bg-gray-50" id="fund-requests-tab">
-                        Fund Requests
+                    <button class="px-4 sm:px-6 py-3 border-b-2 border-transparent font-medium text-xs sm:text-sm leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition-all duration-200 hover:bg-gray-50 whitespace-nowrap" id="fund-requests-tab">
+                        <i class="fas fa-money-bill-wave mr-1 sm:mr-2 hidden sm:inline-block"></i>Fund Requests
                     </button>
-                    <button class="px-6 py-3 border-b-2 border-transparent font-medium text-sm leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition-all duration-200 hover:bg-gray-50" id="manuscripts-tab">
-                        Manuscripts
+                    <button class="px-4 sm:px-6 py-3 border-b-2 border-transparent font-medium text-xs sm:text-sm leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition-all duration-200 hover:bg-gray-50 whitespace-nowrap" id="manuscripts-tab">
+                        <i class="fas fa-file-alt mr-1 sm:mr-2 hidden sm:inline-block"></i>Manuscripts
                     </button>
-                    <button class="px-6 py-3 border-b-2 border-transparent font-medium text-sm leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition-all duration-200 hover:bg-gray-50" id="documents-tab">
-                        Documents
+                    <button class="px-4 sm:px-6 py-3 border-b-2 border-transparent font-medium text-xs sm:text-sm leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition-all duration-200 hover:bg-gray-50 whitespace-nowrap" id="documents-tab">
+                        <i class="fas fa-folder mr-1 sm:mr-2 hidden sm:inline-block"></i>Documents
                     </button>
                 </nav>
             </div>
@@ -104,21 +148,21 @@
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Personal Information</h3>
                                 <div class="mt-4 space-y-4">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Full Name:</span>
-                                        <span class="text-gray-900 font-medium">{{ $scholar->first_name }} {{ $scholar->middle_name }} {{ $scholar->last_name }}</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Full Name:</span>
+                                        <span class="text-gray-900 break-words">{{ $scholar->first_name }} {{ $scholar->middle_name }} {{ $scholar->last_name }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Email:</span>
-                                        <span class="text-gray-900">{{ $scholar->user->email }}</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Email:</span>
+                                        <span class="text-gray-900 break-words">{{ $scholar->user->email }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Contact Number:</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Contact Number:</span>
                                         <span class="text-gray-900">{{ $scholar->contact_number ?? 'Not provided' }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Address:</span>
-                                        <span class="text-gray-900">{{ $scholar->address ?? 'Not provided' }}</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Address:</span>
+                                        <span class="text-gray-900 break-words">{{ $scholar->address ?? 'Not provided' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -126,17 +170,13 @@
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Account Information</h3>
                                 <div class="mt-4 space-y-4">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">User ID:</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">User ID:</span>
                                         <span class="text-gray-900">{{ $scholar->user->id }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Role:</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Role:</span>
                                         <span class="text-gray-900">{{ ucfirst($scholar->user->role) }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Joined Date:</span>
-                                        <span class="text-gray-900">{{ $scholar->user->created_at->format('M d, Y') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -146,21 +186,17 @@
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Academic Information</h3>
                                 <div class="mt-4 space-y-4">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">University:</span>
-                                        <span class="text-gray-900">{{ $scholar->university }}</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">University:</span>
+                                        <span class="text-gray-900 break-words">Central Luzon State University</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Department:</span>
-                                        <span class="text-gray-900">{{ $scholar->department }}</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Department:</span>
+                                        <span class="text-gray-900 break-words">Agricultural and Biosystems Engineering</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Program:</span>
-                                        <span class="text-gray-900">{{ $scholar->program }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Research Area:</span>
-                                        <span class="text-gray-900">{{ $scholar->research_area ?? 'Not specified' }}</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Program:</span>
+                                        <span class="text-gray-900 break-words">Agricultural Engineering</span>
                                     </div>
                                 </div>
                             </div>
@@ -168,44 +204,75 @@
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Program Information</h3>
                                 <div class="mt-4 space-y-4">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Status:</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Status:</span>
                                         <span class="text-gray-900">{{ $scholar->status }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Start Date:</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Enrollment Type:</span>
+                                        <span class="text-gray-900">{{ $scholar->enrollment_type ?? 'Not specified' }}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Study Time:</span>
+                                        <span class="text-gray-900">{{ $scholar->study_time ?? 'Not specified' }}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Scholarship Duration:</span>
+                                        <span class="text-gray-900">{{ $scholar->scholarship_duration ? $scholar->scholarship_duration . ' months' : 'Not specified' }}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Start Date:</span>
                                         <span class="text-gray-900">{{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'Not set' }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Expected Completion:</span>
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <span class="text-gray-600 font-medium mb-1 sm:mb-0">Expected Completion:</span>
                                         <span class="text-gray-900">{{ $scholar->expected_completion_date ? date('M d, Y', strtotime($scholar->expected_completion_date)) : 'Not set' }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Progress:</span>
-                                        <div class="w-1/2">
-                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $scholar->progress ?? 0 }}%"></div>
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                                        <span class="text-gray-600 font-medium mb-3 sm:mb-0">Progress:</span>
+                                        <div class="w-full sm:w-3/5">
+                                            @php
+                                                $progress = $scholar->progress ?? 0;
+                                                $progressColor = 'bg-blue-600';
+                                                $textColor = 'text-blue-700';
+                                                
+                                                if ($progress < 25) {
+                                                    $progressColor = 'bg-red-500';
+                                                    $textColor = 'text-red-700';
+                                                } elseif ($progress < 50) {
+                                                    $progressColor = 'bg-yellow-500';
+                                                    $textColor = 'text-yellow-700';
+                                                } elseif ($progress < 75) {
+                                                    $progressColor = 'bg-blue-500';
+                                                    $textColor = 'text-blue-700';
+                                                } else {
+                                                    $progressColor = 'bg-green-500';
+                                                    $textColor = 'text-green-700';
+                                                }
+                                            @endphp
+                                            
+                                            <div class="relative pt-1">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div>
+                                                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full {{ $textColor }} bg-opacity-20">
+                                                            {{ $progress }}% Complete
+                                                        </span>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <span class="text-xs font-semibold inline-block {{ $textColor }}">
+                                                            @if($scholar->start_date && $scholar->expected_completion_date)
+                                                                {{ \Carbon\Carbon::parse($scholar->start_date)->format('M Y') }} - {{ \Carbon\Carbon::parse($scholar->expected_completion_date)->format('M Y') }}
+                                                            @else
+                                                                Timeline not set
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="overflow-hidden h-2 mb-1 text-xs flex rounded-full bg-gray-200 shadow-inner">
+                                                    <div style="width: {{ $progress }}%" class="{{ $progressColor }} shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center transition-all duration-500"></div>
+                                                </div>
                                             </div>
-                                            <span class="text-xs text-gray-500 mt-1">{{ $scholar->progress ?? 0 }}%</span>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Previous Education</h3>
-                                <div class="mt-4 space-y-4">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Bachelor Degree:</span>
-                                        <span class="text-gray-900">{{ $scholar->bachelor_degree ?? 'Not provided' }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">University:</span>
-                                        <span class="text-gray-900">{{ $scholar->bachelor_university ?? 'Not provided' }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Graduation Year:</span>
-                                        <span class="text-gray-900">{{ $scholar->bachelor_graduation_year ?? 'Not provided' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -317,7 +384,7 @@
                 <div id="documents-content" class="tab-content hidden">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Documents</h3>
 
-                    @if($scholar->documents->count() > 0)
+                    @if(isset($scholar->documents) && $scholar->documents->count() > 0)
                         <div class="overflow-x-auto rounded-lg border border-gray-200">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">

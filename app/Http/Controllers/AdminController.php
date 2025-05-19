@@ -60,7 +60,7 @@ class AdminController extends Controller
         $fundRequests = FundRequest::all();
         $pendingFundRequests = $fundRequests->where('status', 'Pending')->count();
         $approvedRequests = $fundRequests->where('status', 'Approved')->count();
-        $recentRequests = $fundRequests->sortByDesc('created_at')->take(5);
+        $recentRequests = $fundRequests->sortByDesc('created_at')->take(3);
         $recentFundRequests = $recentRequests; // Alias for the view
         $pendingRequests = $pendingFundRequests + $pendingDocuments; // Total of all pending requests
         $totalDisbursed = $fundRequests->where('status', 'Approved')->sum('amount');
@@ -79,11 +79,31 @@ class AdminController extends Controller
         $recentManuscripts = $manuscripts->sortByDesc('created_at')->take(5);
 
         // Completion metrics
-        $completionRate = $scholars->count() > 0 ? round(($scholars->where('status', 'Completed')->count() / $scholars->count()) * 100) : 0;
+        $completionRate = $scholars->count() > 0 ? round(($scholars->where('status', 'Graduated')->count() / $scholars->count()) * 100) : 0;
         $completionsThisYear = $scholars->where('status', 'Completed')
             ->filter(function($scholar) use ($currentYear) {
                 return \Carbon\Carbon::parse($scholar->updated_at)->year == $currentYear;
             })->count();
+            
+        // Calculate program distribution
+        $programCounts = collect();
+        $programGroups = $scholars->groupBy('program');
+        $totalScholars = $scholars->count();
+        
+        if ($totalScholars > 0) {
+            foreach ($programGroups as $program => $scholarsInProgram) {
+                $count = $scholarsInProgram->count();
+                $percentage = round(($count / $totalScholars) * 100);
+                $programCounts->push((object)[
+                    'program' => $program ?: 'Not Specified',
+                    'count' => $count,
+                    'percentage' => $percentage
+                ]);
+            }
+            
+            // Sort by count descending
+            $programCounts = $programCounts->sortByDesc('count')->values();
+        }
 
         // Scholar activity and notifications (placeholders)
         $notifications = collect([]);
@@ -92,7 +112,7 @@ class AdminController extends Controller
         // Fetch recent audit logs
         $recentLogs = AuditLog::with('user')
             ->orderBy('created_at', 'desc')
-            ->limit(5)
+            ->limit(3)
             ->get();
 
         return view('admin.dashboard', compact(
@@ -119,7 +139,8 @@ class AdminController extends Controller
             'completionsThisYear',
             'notifications',
             'recentScholarActivity',
-            'recentLogs'
+            'recentLogs',
+            'programCounts'
         ));
     }
 

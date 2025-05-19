@@ -24,12 +24,11 @@ class Document extends Model
         'file_type',
         'file_size',
         'category',
-        'description',
-        'status',
-        'admin_notes',
+        'is_verified',
         'verified_by',
         'verified_at',
-        'version',
+        'description',
+        'status',
     ];
 
     /**
@@ -38,9 +37,8 @@ class Document extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'file_size' => 'integer',
+        'is_verified' => 'boolean',
         'verified_at' => 'datetime',
-        'version' => 'integer',
     ];
 
     /**
@@ -68,7 +66,7 @@ class Document extends Model
     }
 
     /**
-     * Get the admin who verified the document.
+     * Get the user who verified the document.
      */
     public function verifiedBy()
     {
@@ -88,25 +86,5 @@ class Document extends Model
             'scholar_profile_id', // Local key on documents table
             'user_id' // Local key on scholar_profiles table
         );
-    }
-
-    /**
-     * Get the formatted file size.
-     *
-     * @return string
-     */
-    public function getFormattedFileSizeAttribute()
-    {
-        $bytes = $this->file_size;
-
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        } else {
-            return $bytes . ' bytes';
-        }
     }
 }

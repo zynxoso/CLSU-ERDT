@@ -58,7 +58,7 @@ class ScholarUpdateRequest extends FormRequest
             'status' => [
                 'required',
                 'string',
-                'in:New,Ongoing,On Extension,Graduated,Terminated,Deferred Repayment'
+                'in:New,Ongoing,On Extension,Graduated,Terminated'
             ],
             'start_date' => [
                 'required',

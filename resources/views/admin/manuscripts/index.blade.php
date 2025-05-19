@@ -26,20 +26,13 @@
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All Statuses</option>
-                        <option value="Approved Outline" {{ request('status') == 'Approved Outline' ? 'selected' : '' }}>Approved Outline</option>
-                        <option value="Submitted to Journal" {{ request('status') == 'Submitted to Journal' ? 'selected' : '' }}>Submitted to Journal</option>
+                        <option value="Draft" {{ request('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="Submitted" {{ request('status') == 'Submitted' ? 'selected' : '' }}>Submitted</option>
+                        <option value="Under Review" {{ request('status') == 'Under Review' ? 'selected' : '' }}>Under Review</option>
+                        <option value="Revision Requested" {{ request('status') == 'Revision Requested' ? 'selected' : '' }}>Revision Requested</option>
                         <option value="Accepted" {{ request('status') == 'Accepted' ? 'selected' : '' }}>Accepted</option>
                         <option value="Published" {{ request('status') == 'Published' ? 'selected' : '' }}>Published</option>
-                    </select>
-                </div>
-                <div class="flex-1 min-w-[200px]">
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select id="category" name="category" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Categories</option>
-                        <option value="Thesis" {{ request('category') == 'Thesis' ? 'selected' : '' }}>Thesis</option>
-                        <option value="Dissertation" {{ request('category') == 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
-                        <option value="Journal Article" {{ request('category') == 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
-                        <option value="Conference Paper" {{ request('category') == 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
+                        <option value="Rejected" {{ request('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                 </div>
                 <div class="flex-1 min-w-[200px]">

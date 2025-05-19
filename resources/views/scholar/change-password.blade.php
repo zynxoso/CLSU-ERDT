@@ -6,9 +6,12 @@
 <div class="min-h-screen">
     <div class="container mx-auto px-4 py-6">
         <div class="mb-6">
-            <a href="{{ route('scholar.profile') }}" class="text-blue-400 hover:text-blue-300">
-                <i class="fas fa-arrow-left mr-2"></i> Back to Profile
-            </a>
+            <!-- <a href="{{ route('scholar.settings') }}" class="text-blue-400 hover:text-blue-300 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Settings
+            </a> -->
             <h1 class="text-2xl font-bold text-gray-900 mt-2">Change Your Password</h1>
             <p class="text-gray-500 mt-1">Update your account password</p>
         </div>

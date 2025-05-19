@@ -49,6 +49,10 @@ class ScholarProfile extends Model
         'bachelor_graduation_year',
         'research_area',
         'notes',
+        'degree_level',
+        'enrollment_type',
+        'study_time',
+        'scholarship_duration',
     ];
 
     /**

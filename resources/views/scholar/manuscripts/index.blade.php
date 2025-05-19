@@ -18,7 +18,6 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -28,36 +27,48 @@
                     @foreach($manuscripts as $manuscript)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $manuscript->title }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $manuscript->progress }}%"></div>
-                                </div>
-                                <span class="text-xs text-gray-500 mt-1">{{ $manuscript->progress }}% Complete</span>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $manuscript->updated_at->format('M d, Y') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs rounded-full
-                                    @if($manuscript->status == 'Completed') bg-green-100 text-green-800
+                                <span class="px-2 py-1 text-xs rounded-full inline-flex items-center
+                                    @if($manuscript->status == 'Published') bg-green-100 text-green-800
+                                    @elseif($manuscript->status == 'Accepted') bg-green-100 text-green-700  {{-- Slightly different green for Accepted vs Published --}}
                                     @elseif($manuscript->status == 'Rejected') bg-red-100 text-red-800
                                     @elseif($manuscript->status == 'Under Review') bg-yellow-100 text-yellow-800
-                                    @else bg-blue-100 text-blue-600 @endif">
+                                    @elseif($manuscript->status == 'Revision Requested') bg-orange-100 text-orange-800
+                                    @elseif($manuscript->status == 'Submitted') bg-blue-100 text-blue-700
+                                    @else bg-gray-100 text-gray-600 @endif"> {{-- Default for Draft or other statuses --}}
+                                    @if($manuscript->status == 'Published')
+                                        <i class="fas fa-book mr-1" style="color: #065f46;"></i>
+                                    @elseif($manuscript->status == 'Accepted')
+                                        <i class="fas fa-check-circle mr-1" style="color: #065f46;"></i>
+                                    @elseif($manuscript->status == 'Rejected')
+                                        <i class="fas fa-times-circle mr-1" style="color: #7f1d1d;"></i>
+                                    @elseif($manuscript->status == 'Under Review')
+                                        <i class="fas fa-search mr-1" style="color: #92400e;"></i>
+                                    @elseif($manuscript->status == 'Revision Requested')
+                                        <i class="fas fa-exclamation-circle mr-1" style="color: #9a3412;"></i>
+                                    @elseif($manuscript->status == 'Submitted')
+                                        <i class="fas fa-file-alt mr-1" style="color: #1e40af;"></i>
+                                    @else
+                                        <i class="fas fa-pencil-alt mr-1" style="color: #4b5563;"></i>
+                                    @endif
                                     {{ $manuscript->status }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <a href="{{ route('scholar.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-eye" style="color: black;"></i>
                                 </a>
-                                <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">
-                                    <i class="fas fa-edit"></i>
+                                <!-- <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">
+                                    <i class="fas fa-edit" style="color: black;"></i>
                                 </a>
                                 <form action="{{ route('scholar.manuscripts.destroy', $manuscript->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this manuscript?')">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash" style="color: black;"></i>
                                     </button>
-                                </form>
+                                </form> -->
                             </td>
                         </tr>
                     @endforeach

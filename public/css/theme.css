@@ -148,15 +148,45 @@ body {
   color: var(--text-primary);
 }
 
-.pagination .page-link {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
+/* Pagination styles */
+.pagination .page-link,
+.pagination nav > div:last-child > *,
+.pagination button,
+.pagination span.cursor-default,
+.pagination .dark\:bg-gray-800 {
+  background-color: #ffffff !important;
+  border-color: #e0e7ff !important;
+  color: #4f46e5 !important;
 }
 
-.pagination .page-item.active .page-link {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+.pagination .page-item.active .page-link,
+.pagination span[aria-current="page"] span,
+.pagination span[aria-current="page"] .dark\:bg-gray-800 {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+/* Hover states */
+.pagination .page-link:hover,
+.pagination button:hover,
+.pagination .hover\:text-gray-500:hover {
+  background-color: #eef2ff !important;
+  color: #3730a3 !important;
+}
+
+/* SVG icons */
+.pagination svg {
+  color: #4f46e5 !important;
+}
+
+/* Text elements */
+.pagination .text-gray-700, 
+.pagination .text-gray-500, 
+.pagination .text-gray-600,
+.pagination .dark\:text-gray-400, 
+.pagination .dark\:text-gray-300 {
+  color: #4f46e5 !important;
 }
 
 /* Theme toggle button styles */

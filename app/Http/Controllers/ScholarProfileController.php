@@ -246,6 +246,16 @@ class ScholarProfileController extends Controller
     }
 
     /**
+     * Display the settings page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showSettings()
+    {
+        return view('scholar.settings');
+    }
+
+    /**
      * Display the password change form.
      *
      * @return \Illuminate\Contracts\Support\Renderable

@@ -3,12 +3,12 @@
 @section('title', 'Create Manuscript')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="mb-6">
+<div class="container mx-auto ">
+    <!-- <div class="mb-6">
         <a href="{{ route('admin.manuscripts.index') }}" class="text-blue-600 hover:text-blue-700">
             <i class="fas fa-arrow-left mr-2"></i>Back to Manuscripts
         </a>
-    </div>
+    </div> -->
 
     <div class="bg-white rounded-lg shadow-md p-6">
         <h1 class="text-2xl font-bold mb-6">Create Manuscript</h1>

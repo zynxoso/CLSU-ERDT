@@ -2,31 +2,54 @@
 
 @section('title', 'Login - CLSU-ERDT')
 
-@section('content')
-<div class="flex min-h-screen items-center justify-center bg-gray-900 px-4 py-12 sm:px-6 lg:px-8">
-    <div x-data="{ show: false }" x-init="setTimeout(() => show = true, 100)" class="w-full max-w-md space-y-8">
-        <div 
-            class="text-center transform transition-all duration-500 ease-out" 
-            :class="show ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'"
-        >
-            <h2 class="mt-6 text-3xl font-bold tracking-tight text-white">
-                Sign in to your account
-            </h2>
-            @if (session('status'))
-                <div class="mt-2 text-sm text-blue-400">
-                    {{ session('status') }}
-                </div>
-            @endif
-        </div>
+@push('styles')
+<style>
+    /* Only apply x-cloak when Alpine has loaded */
+    :root.alpine-ready [x-cloak] { display: none !important; }
+</style>
+@endpush
 
-        <div 
-            class="mt-8 bg-gray-800 px-6 py-8 shadow-lg rounded-lg transform transition-all duration-500 ease-out" 
-            :class="show ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'"
-        >
+@php
+    use App\Http\Controllers\Auth\LoginContentController;
+    $content = LoginContentController::getLoginPageContent();
+@endphp
+
+@section('content')
+<div x-data="tabNavigation()" class="min-h-screen bg-gradient-to-br from-clsu-maroon to-clsu-green flex flex-col">
+    <!-- Top Navigation -->
+    <nav class="bg-white/10 backdrop-blur-sm p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-10 mr-3">
+                <span class="text-white font-bold text-xl">CLSU-ERDT</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                @foreach($content['tabs'] as $tabKey => $tab)
+                <button @click="setActiveTab('{{ $tabKey }}')" 
+                        :class="activeTab === '{{ $tabKey }}' ? 'text-green-100 border-b-2 border-green-100' : 'text-white hover:text-green-100 border-b-2 border-transparent'"
+                        class="pb-1 transition-colors duration-200 font-medium" 
+                        style="color: white;" 
+                        data-tab="{{ $tabKey }}">{{ $tab['title'] }}</button>
+                @endforeach
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col md:flex-row p-4 md:p-8 container mx-auto">
+        <!-- Login Form Section -->
+        <div class="w-full md:w-2/5 mb-8 md:mb-0 flex justify-center">
+            <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    @if (session('status'))
+                        <div class="mb-4 p-3 bg-clsu-green text-white rounded-md text-sm">
+                            {{ session('status') }}
+                        </div>
+                    @endif
             <form x-data="{ 
                 loading: false, 
                 email: '{{ old('email') }}', 
-                password: '',
+                password: '',   
                 showPassword: false,
                 remember: {{ old('remember') ? 'true' : 'false' }},
                 emailError: '',
@@ -66,8 +89,13 @@
             }" class="space-y-6" method="POST" action="{{ route('login') }}" @submit.prevent="submit">
                 @csrf
 
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-300 transition-all duration-200" :class="{'text-blue-400': focusedInput === 'email'}">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                    <p class="text-gray-600">Sign in to your CLSU-ERDT account</p>
+                </div>
+
+                <div class="mb-5">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
                         Email address
                     </label>
                     <div class="mt-1 relative">
@@ -75,14 +103,13 @@
                                x-model="email"
                                @focus="focusedInput = 'email'"
                                @blur="focusedInput = null; validateEmail()"
-                               class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-blue-500 text-white sm:text-sm transition-all duration-200 ease-in-out"
+                               class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-clsu-green focus:ring-2 focus:ring-green-200 transition duration-200 text-sm"
                                :class="{ 
-                                   'border-red-500 bg-red-900/20': emailError || {{ $errors->has('email') ? 'true' : 'false' }}, 
-                                   'border-gray-700 bg-gray-700 focus:border-blue-500': !emailError && !{{ $errors->has('email') ? 'true' : 'false' }},
-                                   'border-green-500 bg-green-900/20': email && !emailError && !{{ $errors->has('email') ? 'true' : 'false' }},
-                                   'transform scale-105': focusedInput === 'email'
+                                   'border-red-500 bg-red-50': emailError || {{ $errors->has('email') ? 'true' : 'false' }}, 
+                                   'border-gray-300': !emailError && !{{ $errors->has('email') ? 'true' : 'false' }},
+                                   'border-clsu-green bg-green-50': email && !emailError && !{{ $errors->has('email') ? 'true' : 'false' }}
                                }"
-                               placeholder="you@example.com"
+                               placeholder="Enter your email"
                                autofocus>
                     </div>
                     <p x-show="emailError" 
@@ -97,7 +124,7 @@
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-300 transition-all duration-200" :class="{'text-blue-400': focusedInput === 'password'}">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
                         Password
                     </label>
                     <div class="mt-1 relative">
@@ -107,18 +134,18 @@
                                x-model="password"
                                @focus="focusedInput = 'password'"
                                @blur="focusedInput = null; validatePassword()"
-                               class="block w-full appearance-none rounded-md border pl-3 pr-10 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-blue-500 text-white sm:text-sm transition-all duration-200 ease-in-out"
+                               class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-clsu-green focus:ring-2 focus:ring-green-200 transition duration-200 pr-10 text-sm"
                                :class="{ 
-                                   'border-red-500 bg-red-900/20': passwordError || {{ $errors->has('password') ? 'true' : 'false' }}, 
-                                   'border-gray-700 bg-gray-700 focus:border-blue-500': !passwordError && !{{ $errors->has('password') ? 'true' : 'false' }},
-                                   'border-green-500 bg-green-900/20': password && !passwordError && !{{ $errors->has('password') ? 'true' : 'false' }},
-                                   'transform scale-105': focusedInput === 'password'
-                               }">
+                                   'border-red-500 bg-red-50': passwordError || {{ $errors->has('password') ? 'true' : 'false' }}, 
+                                   'border-gray-300': !passwordError && !{{ $errors->has('password') ? 'true' : 'false' }},
+                                   'border-clsu-green bg-green-50': password && !passwordError && !{{ $errors->has('password') ? 'true' : 'false' }}
+                               }"
+                               placeholder="Enter your password">
                         
                         <!-- Password visibility toggle -->
                         <button type="button" 
                                 @click="showPassword = !showPassword" 
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 mr-2 text-gray-400 hover:text-gray-300 focus:outline-none transition-colors duration-200"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-blue-500 focus:outline-none transition-colors duration-200"
                                 tabindex="-1">
                             <svg x-show="!showPassword" 
                                  x-transition:enter="transition ease-out duration-200"
@@ -149,32 +176,19 @@
                     @enderror
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="relative flex items-center">
-                            <input id="remember" name="remember" type="checkbox"
-                                   x-model="remember"
-                                   class="opacity-0 absolute h-4 w-4 cursor-pointer"
-                                   aria-labelledby="remember-label">
-                            <div class="bg-gray-700 border-2 rounded border-gray-600 w-4 h-4 flex flex-shrink-0 justify-center items-center mr-2 transition-colors duration-200"
-                                 :class="{'bg-blue-600 border-blue-500': remember}">
-                                <svg class="fill-current w-2 h-2 text-white pointer-events-none transition-transform duration-200 ease-in-out"
-                                     :class="{'opacity-100 scale-100': remember, 'opacity-0 scale-0': !remember}"
-                                     viewBox="0 0 20 20">
-                                    <path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/>
-                                </svg>
-                            </div>
-                            <label id="remember-label" for="remember" class="text-sm text-gray-300 select-none cursor-pointer">
-                                Remember me
-                            </label>
-                        </div>
-                    </div>
+                <div class="flex items-center justify-between mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" 
+                               x-model="remember"
+                               class="h-4 w-4 text-clsu-green focus:ring-clsu-green border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">Remember me</span>
+                    </label>
 
                     @if (Route::has('password.request'))
                     <div class="text-sm">
                         <a href="{{ route('password.request') }}" 
-                           class="font-medium text-blue-400 hover:text-blue-300 transition-all duration-200 hover:scale-105 inline-block transform">
-                            Forgot your password?
+                           class="font-medium text-clsu-green hover:text-green-700 transition-colors duration-200">
+                            Forgot password?
                         </a>
                     </div>
                     @endif
@@ -182,63 +196,183 @@
 
                 <div>
                     <button type="submit" 
-                            class="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 ease-in-out transform hover:scale-[1.02] active:scale-95"
+                            class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-clsu-maroon hover:bg-maroon-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-clsu-green transition-colors duration-200"
                             :class="{ 'opacity-75 cursor-not-allowed': loading }">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 transition-all duration-200 transform"
-                              :class="{'group-hover:scale-110': !loading}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 group-hover:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                            </svg>
-                        </span>
-                        <span x-show="!loading"
-                              x-transition:enter="transition ease-out duration-300"
-                              x-transition:enter-start="opacity-0"
-                              x-transition:enter-end="opacity-100">Sign in</span>
-                        <span x-show="loading" 
-                              x-transition:enter="transition ease-out duration-300"
-                              x-transition:enter-start="opacity-0"
-                              x-transition:enter-end="opacity-100"
-                              class="flex items-center justify-center">
-                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                        </span>
+                        <svg x-show="!loading"
+                             class="h-5 w-5 mr-1"
+                             xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 20 20"
+                             fill="currentColor">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span x-show="!loading">Sign in</span>
+                        <svg x-show="loading"
+                             class="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                             xmlns="http://www.w3.org/2000/svg"
+                             fill="none"
+                             viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span x-show="loading">Signing in...</span>
                     </button>
                 </div>
             </form>
+            </div>
+            </div>
         </div>
+        
+        <!-- Content Section -->
+        <div class="w-full md:w-3/5 md:pl-8 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-white mb-2">{{ $content['title'] }}</h3>
+                <!-- Mobile tab buttons (visible on small screens) -->
+                <div class="flex flex-wrap gap-2 sm:hidden">
+                    @foreach($content['tabs'] as $tabKey => $tab)
+                    <button type="button" 
+                            @click="setActiveTab('{{ $tabKey }}')"
+                            :class="activeTab === '{{ $tabKey }}' ? 'bg-white text-clsu-green' : 'bg-white/50 text-white hover:bg-white/70'"
+                            class="px-3 py-1 rounded-full text-sm font-medium transition-colors"
+                            data-tab="{{ $tabKey }}">
+                        {{ $tab['title'] }}
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+            
+            <p class="text-white mb-6">{{ $content['description'] }}</p>
+            
+            <div class="bg-white rounded-lg p-6 shadow-lg">
+                <!-- History Tab -->
+                <div x-show="activeTab === 'history'" class="text-gray-700" data-tab-content="history" :data-visible="activeTab === 'history' ? 'true' : 'false'" style="display: block;">
+                    <h3 class="text-lg font-semibold text-clsu-maroon mb-3">{{ $content['tabs']['history']['content']['heading'] }}</h3>
+                    
+                    @foreach($content['tabs']['history']['content']['paragraphs'] as $paragraph)
+                    <p class="mb-3">{{ $paragraph }}</p>
+                    @endforeach
+                </div>
 
-        {{-- <div class="mt-6 text-center">
-            <p class="text-sm text-gray-400">
-                Don't have an account?
-                <a href="{{ route('register') }}" class="font-medium text-blue-400 hover:text-blue-300">
-                    Register now
-                </a>
-            </p>
-        </div> --}}
+                <!-- About Tab -->
+                <div x-show="activeTab === 'about'" class="text-gray-700" data-tab-content="about" :data-visible="activeTab === 'about' ? 'true' : 'false'" style="display: none;">
+                    <h3 class="text-lg font-semibold text-clsu-maroon mb-3">{{ $content['tabs']['about']['content']['heading'] }}</h3>
+                    
+                    @foreach($content['tabs']['about']['content']['paragraphs'] as $paragraph)
+                    <p class="mb-3">{{ $paragraph }}</p>
+                    @endforeach
+                    
+                    <ul class="list-disc pl-5 space-y-2">
+                        @foreach($content['tabs']['about']['content']['list_items'] as $item)
+                        <li>{{ $item }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+
+                <!-- Apply Tab -->
+                <div x-show="activeTab === 'apply'" class="text-gray-700" data-tab-content="apply" :data-visible="activeTab === 'apply' ? 'true' : 'false'" style="display: none;">
+                    <h3 class="text-lg font-semibold text-clsu-maroon mb-3">{{ $content['tabs']['apply']['content']['heading'] }}</h3>
+                    
+                    @foreach($content['tabs']['apply']['content']['paragraphs'] as $paragraph)
+                    <p class="mb-3">{{ $paragraph }}</p>
+                    @endforeach
+                    
+                    <ol class="list-decimal pl-5 space-y-2">
+                        @foreach($content['tabs']['apply']['content']['list_items'] as $item)
+                        <li>{{ $item }}</li>
+                        @endforeach
+                    </ol>
+                    
+                    <p class="mt-3">{{ $content['tabs']['apply']['content']['footer'] }}</p>
+                </div>
+                
+                <div class="mt-6 pt-3 border-t border-gray-200">
+                    <p class="text-sm text-gray-500">
+                        {{ $content['contact']['text'] }} <span class="font-medium text-clsu-green">{{ $content['contact']['email'] }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        </div>
     </div>
+    
+    <!-- Footer -->
+    <footer class="bg-white/10 backdrop-blur-sm p-4 text-center text-white text-sm">
+        <p>&copy; {{ date('Y') }} Central Luzon State University - Engineering Research and Development for Technology</p>
+    </footer>
 </div>
-@endsection
 
-@section('styles')
-<style>
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        50% { transform: translateX(5px); }
-        75% { transform: translateX(-5px); }
-    }
+@push('scripts')
+<script>
+    // Debug the content data
+    console.log('Content data:', @json($content));
     
-    .animate-shake {
-        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-    }
+    // Add a class to the root element when Alpine is loaded
+    document.addEventListener('alpine:init', () => {
+        document.documentElement.classList.add('alpine-ready');
+        console.log('Alpine initialized, added alpine-ready class');
+    });
     
-    /* Checkbox focus ring */
-    input[type="checkbox"]:focus + div {
-        @apply ring-2 ring-blue-500 ring-offset-1 ring-offset-gray-800;
-    }
-</style>
+    // Define tabNavigation function globally so it's available immediately
+    window.tabNavigation = function() {
+        return {
+            activeTab: 'history',
+            init() {
+                console.log('Tab navigation initialized with activeTab:', this.activeTab);
+                
+                // Make sure initial tab content is visible by default (without waiting for Alpine)
+                document.querySelectorAll('[data-tab-content="history"]').forEach(el => {
+                    el.style.display = 'block';
+                });
+                
+                // Force Alpine to update the DOM to reflect the initial activeTab
+                this.$nextTick(() => {
+                    // Log tab button states
+                    document.querySelectorAll('[data-tab]').forEach(el => {
+                        console.log(`Tab button ${el.dataset.tab} active state:`, 
+                            el.dataset.tab === this.activeTab ? 'active' : 'inactive');
+                    });
+                    
+                    // Log tab content visibility
+                    document.querySelectorAll('[data-tab-content]').forEach(el => {
+                        console.log(`Tab content ${el.dataset.tabContent} visibility:`, 
+                            el.dataset.tabContent === this.activeTab ? 'visible' : 'hidden',
+                            'Display:', window.getComputedStyle(el).display
+                        );
+                    });
+                });
+            },
+            setActiveTab(tab) {
+                console.log('setActiveTab called with:', tab);
+                console.log('Previous activeTab was:', this.activeTab);
+                this.activeTab = tab;
+                console.log('New activeTab is:', this.activeTab);
+                
+                // Debug after tab change
+                this.$nextTick(() => {
+                    // Log updated tab button states
+                    document.querySelectorAll('[data-tab]').forEach(el => {
+                        console.log(`Tab button ${el.dataset.tab} active state:`, 
+                            el.dataset.tab === this.activeTab ? 'active' : 'inactive');
+                    });
+                    
+                    // Log updated tab content visibility
+                    document.querySelectorAll('[data-tab-content]').forEach(el => {
+                        console.log(`Tab content ${el.dataset.tabContent} visibility:`, 
+                            el.dataset.tabContent === this.activeTab ? 'visible' : 'hidden',
+                            'Display:', window.getComputedStyle(el).display
+                        );
+                    });
+                });
+            }
+        }
+    };
+    
+    // Additional debugging after DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded');
+        console.log('Tab buttons found:', document.querySelectorAll('[data-tab]').length);
+        console.log('Tab content divs found:', document.querySelectorAll('[data-tab-content]').length);
+    });
+</script>
+@endpush
+
 @endsection
- 

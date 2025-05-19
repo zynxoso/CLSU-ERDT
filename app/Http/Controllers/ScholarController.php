@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Http\Requests\ScholarCreateRequest;
 use App\Http\Requests\ScholarUpdateRequest;
 use Illuminate\Support\Facades\Schema;
+use App\Services\NotificationService;
 
 class ScholarController extends Controller
 {
@@ -46,98 +47,19 @@ class ScholarController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = ScholarProfile::query();
-
-        // Add filters if provided
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('program') && $request->program) {
-            $query->where('program', $request->program);
-        }
-
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('university', 'like', "%{$search}%");
-            });
-        }
-
-        $scholars = $query->orderBy('created_at', 'desc')->paginate(10);
-
-        return view('admin.scholars.index', compact('scholars'));
+        return view('admin.scholars.index');
     }
 
-    /**
-     * Handle AJAX filtering requests for scholars
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function ajaxFilter(Request $request)
-    {
-        // Check if user is admin
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $query = ScholarProfile::with('user');
-
-        // Add filters if provided
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('program') && $request->program) {
-            $query->where('program', $request->program);
-        }
-
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('university', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q) use ($search) {
-                      $q->where('email', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        // Get scholars data
-        $scholars = $query->orderBy('created_at', 'desc')->paginate(10);
-
-        // Get counts for status cards if needed
-        $activeCount = ScholarProfile::where('status', 'Active')->orWhere('status', 'Ongoing')->count();
-        $completedCount = ScholarProfile::where('status', 'Completed')->orWhere('status', 'Graduated')->count();
-        $inactiveCount = ScholarProfile::where('status', 'Inactive')->orWhere('status', 'Terminated')->count();
-
-        // Render the partial view with scholars data
-        $html = view('admin.scholars._scholar_list', compact('scholars'))->render();
-
-        // Return JSON response with HTML and pagination links
-        return response()->json([
-            'html' => $html,
-            'pagination' => $scholars->links()->toHtml(),
-            'counts' => [
-                'active' => $activeCount,
-                'completed' => $completedCount,
-                'inactive' => $inactiveCount
-            ]
-        ]);
-    }
+    // The AJAX filter functionality has been replaced by Livewire components
 
     /**
      * Show the scholar dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function dashboard()
+    public function dashboard(NotificationService $notificationService)
     {
         $user = Auth::user();
 
@@ -147,10 +69,12 @@ class ScholarController extends Controller
         if (!$scholarProfile) {
             // Create a dummy object for the view if no profile exists
             $scholarProfile = new \stdClass();
+            $scholarProfile->id = null; // Add id property to prevent undefined property error
             $scholarProfile->status = null;
             $scholarProfile->program = null;
             $scholarProfile->university = null;
             $scholarProfile->expected_completion_date = null;
+            $scholarProfile->start_date = null;
         }
 
         // Calculate scholarship progress and days remaining
@@ -202,9 +126,9 @@ class ScholarController extends Controller
             round($manuscripts->sum('progress') / $manuscripts->count()) : 0;
         $recentManuscripts = $manuscripts->sortByDesc('created_at')->take(3);
 
-        // Mock activities and notifications for the dashboard
-        $recentActivities = collect();
-        $notifications = collect();
+        // Get real notifications for the dashboard
+        $recentActivities = collect(); // Still using mock activities for now
+        $notifications = $notificationService->getRecentNotifications($user->id, 5);
 
         return view('scholar.dashboard', compact(
             'user',
@@ -482,9 +406,10 @@ class ScholarController extends Controller
      *
      * @param  \App\Http\Requests\ScholarUpdateRequest  $request
      * @param  int  $id
+     * @param  \App\Services\NotificationService  $notificationService
      * @return \Illuminate\Http\Response
      */
-    public function update(ScholarUpdateRequest $request, $id)
+    public function update(ScholarUpdateRequest $request, $id, NotificationService $notificationService)
     {
         // All validation is handled in the ScholarUpdateRequest
 
@@ -531,6 +456,15 @@ class ScholarController extends Controller
             $scholar->university = $request->university;
             $scholar->program = $request->program;
             $scholar->department = $request->department;
+            
+            // Debug logging for status update
+            \Illuminate\Support\Facades\Log::info('Scholar status update', [
+                'scholar_id' => $scholar->id,
+                'old_status' => $scholar->status,
+                'new_status' => $request->status,
+                'request_data' => $request->all()
+            ]);
+            
             $scholar->status = $request->status;
             $scholar->start_date = $request->start_date;
             $scholar->expected_completion_date = $request->expected_completion_date;
@@ -584,7 +518,40 @@ class ScholarController extends Controller
 
             // Create audit log for the update
             $this->createAuditLog('updated', 'scholar_profile', $scholar->id, $originalValues, $scholar->toArray());
-
+            
+            // Send notification to scholar if updated by admin
+            if (Auth::user()->role === 'admin' && $scholar->user_id) {
+                $changedFields = [];
+                $newValues = $scholar->toArray();
+                
+                // Determine which fields were changed
+                foreach ($originalValues as $field => $value) {
+                    if (isset($newValues[$field]) && $value !== $newValues[$field] && !in_array($field, ['updated_at'])) {
+                        $changedFields[] = str_replace('_', ' ', ucfirst($field));
+                    }
+                }
+                
+                if (!empty($changedFields)) {
+                    $changedFieldsText = count($changedFields) > 3 
+                        ? implode(', ', array_slice($changedFields, 0, 3)) . ' and others' 
+                        : implode(', ', $changedFields);
+                        
+                    $title = 'Profile Updated';
+                    $message = 'Your scholar profile has been updated by an administrator. The following information was changed: ' . $changedFieldsText;
+                    $link = '/scholar/profile';
+                    
+                    // Send in-app notification only (no email)
+                    $notificationService->notify(
+                        $scholar->user_id,
+                        $title,
+                        $message,
+                        'profile_update',
+                        $link,
+                        false // Don't send email notification
+                    );
+                }
+            }
+            
             // Commit transaction
             DB::commit();
 
@@ -592,8 +559,15 @@ class ScholarController extends Controller
                 ? 'admin.scholars.index'
                 : 'scholar.profile.show';
 
+            $successMessage = 'Scholar profile updated successfully. Status set to: ' . $scholar->status;
+            
+            // Add notification info to success message if admin updated a scholar
+            if (Auth::user()->role === 'admin' && $scholar->user_id) {
+                $successMessage .= '<br><br>A notification has been sent to the scholar about this update.';
+            }
+            
             return redirect()->route($successRoute)
-                ->with('success', 'Scholar profile updated successfully.');
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             // Rollback transaction if something goes wrong
@@ -603,6 +577,23 @@ class ScholarController extends Controller
                 ->withInput()
                 ->with('error', 'Failed to update scholar profile: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Display all notifications for the scholar.
+     *
+     * @param  \App\Services\NotificationService  $notificationService
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function notifications(NotificationService $notificationService)
+    {
+        $user = Auth::user();
+        $notifications = $notificationService->getRecentNotifications($user->id, 50);
+        
+        // Mark all notifications as read
+        $notificationService->markAllAsRead($user->id);
+        
+        return view('scholar.notifications', compact('notifications'));
     }
 
     /**

@@ -4,23 +4,23 @@
 
 @section('content')
 <div class="min-h-screen">
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto">
         <div class="mb-6">
-            <a href="{{ route('admin.scholars.index') }}" class="text-blue-400 hover:text-blue-300">
+            <!-- <a href="{{ route('admin.scholars.index') }}" class="text-blue-400 hover:text-blue-300">
                 <i class="fas fa-arrow-left mr-2"></i> Back to Scholars
-            </a>
+            </a> -->
             <h1 class="text-2xl font-bold text-gray-900 mt-2">Add New Scholar</h1>
-            <p class="text-gray-500 mt-1">ERDT PRISM: A Portal for a Responsive and Integrated Scholarship Management</p>
+            <!-- <p class="text-gray-500 mt-1">ERDT PRISM: A Portal for a Responsive and Integrated Scholarship Management</p> -->
         </div>
 
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
             <form action="{{ route('admin.scholars.store') }}" method="POST" id="create-scholar-form">
                 @csrf
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                 <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <h2 class="text-lg font-semibold text-blue-800 mb-2">
-                        <i class="fas fa-info-circle mr-2"></i> Scholar Login Information
+                        <i class="fas fa-info-circle mr-2" style="color: #1e40af;"></i> Scholar Login Information
                     </h2>
                     <p class="text-sm text-blue-700 mb-3">When you create a scholar account, the system will generate the following login credentials:</p>
 
@@ -40,7 +40,7 @@
                     </div>
 
                     <p class="text-sm text-blue-700 mt-3">
-                        <i class="fas fa-exclamation-triangle mr-1"></i> Important: Please inform the scholar about their default password. They should change it after their first login.
+                        <i class="fas fa-exclamation-triangle mr-1" style="color: #1e40af;"></i> Important: Please inform the scholar about their default password. They should change it after their first login.
                     </p>
                 </div>
 
@@ -146,13 +146,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="university" class="block text-sm font-medium text-gray-700 mb-1">University <span class="text-red-500">*</span></label>
-                            <select id="university" name="university" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Central Luzon State University" {{ old('university', 'Central Luzon State University') == 'Central Luzon State University' ? 'selected' : '' }}>Central Luzon State University (CLSU)</option>
-                                <option value="University of the Philippines Los Baños" {{ old('university') == 'University of the Philippines Los Baños' ? 'selected' : '' }}>University of the Philippines Los Baños</option>
-                                <option value="Bulacan State University" {{ old('university') == 'Bulacan State University' ? 'selected' : '' }}>Bulacan State University</option>
-                                <option value="Nueva Ecija University of Science and Technology" {{ old('university') == 'Nueva Ecija University of Science and Technology' ? 'selected' : '' }}>Nueva Ecija University of Science and Technology</option>
-                                <option value="Other" {{ old('university') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
+                            <input type="text" id="university" name="university" value="Central Luzon State University" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly required>
                             <p class="text-xs text-gray-500 mt-1">CLSU - Central Luzon State University</p>
                             @error('university')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -161,13 +155,8 @@
 
                         <div>
                             <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-red-500">*</span></label>
-                            <select id="department" name="department" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Engineering" {{ old('department', 'Engineering') == 'Engineering' ? 'selected' : '' }}>Engineering</option>
-                                <option value="Agricultural Engineering Department" {{ old('department') == 'Agricultural Engineering Department' ? 'selected' : '' }}>Agricultural Engineering Department</option>
-                                <option value="Department of Agricultural and Biosystems Engineering" {{ old('department') == 'Department of Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Department of Agricultural and Biosystems Engineering</option>
-                                <option value="College of Engineering" {{ old('department') == 'College of Engineering' ? 'selected' : '' }}>College of Engineering</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">Department offering BSABE at CLSU</p>
+                            <input type="text" id="department" name="department" value="Department of Agricultural and Biosystems Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly required>
+                            <p class="text-xs text-gray-500 mt-1">ABE Department at CLSU</p>
                             @error('department')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -175,12 +164,20 @@
 
                         <div>
                             <label for="program" class="block text-sm font-medium text-gray-700 mb-1">Program <span class="text-red-500">*</span></label>
-                            <select id="program" name="program" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Master in Agricultural and Biosystems Engineering" {{ old('program') == 'Master in Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Master in Agricultural and Biosystems Engineering</option>
-                                <option value="Master of Science in Agricultural and Biosystems Engineering" {{ old('program') == 'Master of Science in Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Master of Science in Agricultural and Biosystems Engineering</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">ABE Masteral Scholarship Program</p>
+                            <input type="text" id="program" name="program" value="Agricultural Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly required>
+                            <p class="text-xs text-gray-500 mt-1">Agricultural Engineering Program</p>
                             @error('program')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="degree_level" class="block text-sm font-medium text-gray-700 mb-1">Degree Level <span class="text-red-500">*</span></label>
+                            <select id="degree_level" name="degree_level" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="Masteral" {{ old('degree_level') == 'Masteral' ? 'selected' : '' }}>Masteral</option>
+                                <option value="PhD" {{ old('degree_level') == 'PhD' ? 'selected' : '' }}>PhD</option>
+                            </select>
+                            @error('degree_level')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -193,7 +190,6 @@
                                 <option value="On Extension" {{ old('status') == 'On Extension' ? 'selected' : '' }}>On Extension</option>
                                 <option value="Graduated" {{ old('status') == 'Graduated' ? 'selected' : '' }}>Graduated</option>
                                 <option value="Terminated" {{ old('status') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
-                                <option value="Deferred Repayment" {{ old('status') == 'Deferred Repayment' ? 'selected' : '' }}>Deferred Repayment</option>
                             </select>
                             @error('status')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -215,6 +211,36 @@
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        
+                        <div>
+                            <label for="scholarship_duration" class="block text-sm font-medium text-gray-700 mb-1">Scholarship Duration (months) <span class="text-red-500">*</span></label>
+                            <input type="number" id="scholarship_duration" name="scholarship_duration" value="{{ old('scholarship_duration') }}" min="1" max="60" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            @error('scholarship_duration')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="enrollment_type" class="block text-sm font-medium text-gray-700 mb-1">Enrollment Type <span class="text-red-500">*</span></label>
+                            <select id="enrollment_type" name="enrollment_type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="New" {{ old('enrollment_type') == 'New' ? 'selected' : '' }}>New</option>
+                                <option value="Lateral" {{ old('enrollment_type') == 'Lateral' ? 'selected' : '' }}>Lateral</option>
+                            </select>
+                            @error('enrollment_type')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="study_time" class="block text-sm font-medium text-gray-700 mb-1">Study Time <span class="text-red-500">*</span></label>
+                            <select id="study_time" name="study_time" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="Full-time" {{ old('study_time') == 'Full-time' ? 'selected' : '' }}>Full-time</option>
+                                <option value="Part-time" {{ old('study_time') == 'Part-time' ? 'selected' : '' }}>Part-time</option>
+                            </select>
+                            @error('study_time')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
@@ -224,13 +250,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="bachelor_degree" class="block text-sm font-medium text-gray-700 mb-1">Bachelor's Degree</label>
-                            <select id="bachelor_degree" name="bachelor_degree" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="BS in Agricultural and Biosystems Engineering" {{ old('bachelor_degree', 'BS in Agricultural and Biosystems Engineering') == 'BS in Agricultural and Biosystems Engineering' ? 'selected' : '' }}>BS in Agricultural and Biosystems Engineering (BSABE)</option>
-                                <option value="BS in Agricultural Engineering" {{ old('bachelor_degree') == 'BS in Agricultural Engineering' ? 'selected' : '' }}>BS in Agricultural Engineering</option>
-                                <option value="BS in Biosystems Engineering" {{ old('bachelor_degree') == 'BS in Biosystems Engineering' ? 'selected' : '' }}>BS in Biosystems Engineering</option>
-                                <option value="Other Engineering Degree" {{ old('bachelor_degree') == 'Other Engineering Degree' ? 'selected' : '' }}>Other Engineering Degree</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">BSABE is preferred for this scholarship program</p>
+                            <input type="text" id="bachelor_degree" name="bachelor_degree" value="BS in Agricultural and Biosystems Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly>
+                            <p class="text-xs text-gray-500 mt-1">BSABE is the standard qualification for this program</p>
                             @error('bachelor_degree')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -238,14 +259,8 @@
 
                         <div>
                             <label for="bachelor_university" class="block text-sm font-medium text-gray-700 mb-1">Bachelor's University</label>
-                            <select id="bachelor_university" name="bachelor_university" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="Central Luzon State University" {{ old('bachelor_university', 'Central Luzon State University') == 'Central Luzon State University' ? 'selected' : '' }}>Central Luzon State University (CLSU)</option>
-                                <option value="University of the Philippines Los Baños" {{ old('bachelor_university') == 'University of the Philippines Los Baños' ? 'selected' : '' }}>University of the Philippines Los Baños</option>
-                                <option value="Bulacan State University" {{ old('bachelor_university') == 'Bulacan State University' ? 'selected' : '' }}>Bulacan State University</option>
-                                <option value="Nueva Ecija University of Science and Technology" {{ old('bachelor_university') == 'Nueva Ecija University of Science and Technology' ? 'selected' : '' }}>Nueva Ecija University of Science and Technology</option>
-                                <option value="Other" {{ old('bachelor_university') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">CLSU graduates are given priority for this program</p>
+                            <input type="text" id="bachelor_university" name="bachelor_university" value="Central Luzon State University" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly>
+                            <p class="text-xs text-gray-500 mt-1">CLSU - Central Luzon State University</p>
                             @error('bachelor_university')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -255,24 +270,6 @@
                             <label for="bachelor_graduation_year" class="block text-sm font-medium text-gray-700 mb-1">Bachelor's Graduation Year</label>
                             <input type="number" id="bachelor_graduation_year" name="bachelor_graduation_year" value="{{ old('bachelor_graduation_year') }}" min="1950" max="{{ date('Y') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             @error('bachelor_graduation_year')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="research_area" class="block text-sm font-medium text-gray-700 mb-1">Research Area</label>
-                            <select id="research_area" name="research_area" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select Research Area</option>
-                                <option value="Agricultural Machinery and Equipment" {{ old('research_area') == 'Agricultural Machinery and Equipment' ? 'selected' : '' }}>Agricultural Machinery and Equipment</option>
-                                <option value="Irrigation and Water Resources" {{ old('research_area') == 'Irrigation and Water Resources' ? 'selected' : '' }}>Irrigation and Water Resources</option>
-                                <option value="Food Processing and Post-Harvest Technology" {{ old('research_area') == 'Food Processing and Post-Harvest Technology' ? 'selected' : '' }}>Food Processing and Post-Harvest Technology</option>
-                                <option value="Environmental Engineering" {{ old('research_area') == 'Environmental Engineering' ? 'selected' : '' }}>Environmental Engineering</option>
-                                <option value="Sustainable Agriculture" {{ old('research_area') == 'Sustainable Agriculture' ? 'selected' : '' }}>Sustainable Agriculture</option>
-                                <option value="Renewable Energy" {{ old('research_area') == 'Renewable Energy' ? 'selected' : '' }}>Renewable Energy</option>
-                                <option value="Precision Agriculture" {{ old('research_area') == 'Precision Agriculture' ? 'selected' : '' }}>Precision Agriculture</option>
-                                <option value="Other" {{ old('research_area') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            @error('research_area')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>

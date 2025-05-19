@@ -8,7 +8,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FundRequestController;
 use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\ManuscriptController;
-use App\Http\Controllers\DocumentController;
+
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ReportController;
@@ -16,6 +16,7 @@ use App\Http\Controllers\ScholarFundRequestController;
 use App\Http\Controllers\ScholarProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\DocumentController;
 
 // Redirect to login if not authenticated, otherwise to appropriate dashboard
 Route::get('/', function () {
@@ -34,13 +35,20 @@ require __DIR__.'/auth.php';
 // Scholar routes - only accessible to scholars
 Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function () {
     Route::get('/dashboard', [ScholarController::class, 'dashboard'])->name('dashboard');
+    Route::get('/notifications', [ScholarController::class, 'notifications'])->name('notifications');
+    
+    // Notification routes
+    Route::get('/notifications/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::get('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
 
     // Scholar profile routes
     Route::get('/profile', [ScholarProfileController::class, 'show'])->name('profile');
     Route::get('/profile/edit', [ScholarProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile/update', [ScholarProfileController::class, 'update'])->name('profile.update');
 
-    // Password change routes
+    // Settings and password change routes
+    Route::get('/settings', [ScholarProfileController::class, 'showSettings'])->name('settings');
     Route::get('/password/change', [ScholarProfileController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/password/update', [ScholarProfileController::class, 'changePassword'])->name('password.update');
 
@@ -55,14 +63,7 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::put('/fund-requests/{id}/submit', [FundRequestController::class, 'submit'])->name('fund-requests.submit');
     Route::delete('/fund-requests/{id}', [FundRequestController::class, 'destroy'])->name('fund-requests.destroy');
 
-    // Scholar-specific document routes
-    Route::get('/documents', [DocumentController::class, 'scholarIndex'])->name('documents.index');
-    Route::get('/documents/create', [DocumentController::class, 'scholarCreate'])->name('documents.create');
-    Route::post('/documents', [DocumentController::class, 'scholarStore'])->name('documents.store');
-    Route::get('/documents/{id}', [DocumentController::class, 'scholarShow'])->name('documents.show');
-    Route::get('/documents/{id}/edit', [DocumentController::class, 'scholarEdit'])->name('documents.edit');
-    Route::put('/documents/{id}', [DocumentController::class, 'scholarUpdate'])->name('documents.update');
-    Route::get('/documents/{id}/download', [DocumentController::class, 'scholarDownload'])->name('documents.download');
+
 
     // Scholar-specific manuscript routes
     Route::get('/manuscripts', [ManuscriptController::class, 'scholarIndex'])->name('manuscripts.index');
@@ -73,18 +74,30 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::put('/manuscripts/{id}', [ManuscriptController::class, 'scholarUpdate'])->name('manuscripts.update');
     Route::delete('/manuscripts/{id}', [ManuscriptController::class, 'scholarDestroy'])->name('manuscripts.destroy');
     Route::put('/manuscripts/{id}/submit', [ManuscriptController::class, 'scholarSubmit'])->name('manuscripts.submit');
+    
+    // Scholar-specific document routes
+    Route::get('/documents', [DocumentController::class, 'scholarIndex'])->name('documents.index');
+    Route::get('/documents/create', [DocumentController::class, 'scholarCreate'])->name('documents.create');
+    Route::post('/documents', [DocumentController::class, 'scholarStore'])->name('documents.store');
+    Route::post('/documents/ajax-upload', [DocumentController::class, 'ajaxUpload'])->name('documents.ajax-upload');
+    Route::get('/documents/json', [DocumentController::class, 'scholarFilesJson'])->name('documents.json');
+    Route::get('/documents/{id}', [DocumentController::class, 'scholarShow'])->name('documents.show');
+    Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
 });
 
 // Admin routes - only accessible to admins
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // Redis cached dashboard example
+    Route::get('/cached-dashboard', [\App\Http\Controllers\CachedDashboardController::class, 'index'])->name('cached-dashboard');
+    Route::post('/clear-cache', [\App\Http\Controllers\CachedDashboardController::class, 'clearCache'])->name('clear-cache');
 
     // Admin analytics
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
 
     // Admin scholar management
     Route::get('/scholars', [ScholarController::class, 'index'])->name('scholars.index');
-    Route::get('/scholars/filter', [ScholarController::class, 'ajaxFilter'])->name('scholars.filter');
     Route::get('/scholars/create', [ScholarController::class, 'create'])->name('scholars.create');
     Route::post('/scholars', [ScholarController::class, 'store'])->name('scholars.store');
     Route::get('/scholars/{id}', [ScholarController::class, 'show'])->name('scholars.show');
@@ -95,17 +108,19 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Admin fund request management
     Route::get('/fund-requests', [FundRequestController::class, 'adminIndex'])->name('fund-requests.index');
     Route::get('/fund-requests/filter', [FundRequestController::class, 'ajaxFilter'])->name('fund-requests.filter');
+    Route::get('/fund-requests/{id}/documents', [FundRequestController::class, 'getDocuments'])->name('fund-requests.documents');
     Route::get('/fund-requests/{id}', [FundRequestController::class, 'show'])->name('fund-requests.show');
     Route::put('/fund-requests/{id}/approve', [FundRequestController::class, 'approve'])->name('fund-requests.approve');
     Route::put('/fund-requests/{id}/reject', [FundRequestController::class, 'reject'])->name('fund-requests.reject');
-
-    // Admin document management
+    
+    // Document management routes
     Route::get('/documents', [DocumentController::class, 'adminIndex'])->name('documents.index');
-    Route::get('/documents/filter', [DocumentController::class, 'ajaxFilter'])->name('documents.filter');
-    Route::get('/documents/{id}', [DocumentController::class, 'show'])->name('documents.show');
-    Route::get('/documents/{id}/download', [DocumentController::class, 'scholarDownload'])->name('documents.download');
+    Route::get('/documents/{id}', [DocumentController::class, 'adminShow'])->name('documents.show');
     Route::put('/documents/{id}/verify', [DocumentController::class, 'verify'])->name('documents.verify');
     Route::put('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('documents.reject');
+    Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
+
+
 
     // Admin manuscript management
     Route::get('/manuscripts', [ManuscriptController::class, 'adminIndex'])->name('manuscripts.index');
@@ -117,13 +132,13 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/manuscripts/{id}/edit', [ManuscriptController::class, 'edit'])->name('manuscripts.edit');
     Route::put('/manuscripts/{id}', [ManuscriptController::class, 'update'])->name('manuscripts.update');
     Route::put('/manuscripts/{id}/approve', [ManuscriptController::class, 'approve'])->name('manuscripts.approve');
+    Route::put('/manuscripts/{id}/update-status/{status}', [ManuscriptController::class, 'updateStatus'])->name('manuscripts.update-status');
+    Route::put('/manuscripts/{id}/update-status-notes', [ManuscriptController::class, 'updateStatusAndNotes'])->name('manuscripts.update-status-notes');
     Route::delete('/manuscripts/{id}', [ManuscriptController::class, 'destroy'])->name('manuscripts.destroy');
 
     // Admin reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
-    Route::get('/reports/test-pdf', [ReportController::class, 'testPdf'])->name('reports.test-pdf');
-    Route::get('/reports/test-manuscript-pdf', [ReportController::class, 'testManuscriptPdf'])->name('reports.test-manuscript-pdf');
 
     // Admin audit logs
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
@@ -156,164 +171,3 @@ Route::get('/home', function() {
     }
     return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('home');
-
-// Debug route to check authentication and role
-Route::get('/debug-auth', function() {
-    $debug = [
-        'authenticated' => Auth::check(),
-        'user' => Auth::check() ? [
-            'id' => Auth::id(),
-            'name' => Auth::user()->name,
-            'email' => Auth::user()->email,
-            'role' => Auth::user()->role,
-            'created_at' => Auth::user()->created_at,
-        ] : null,
-        'session_id' => session()->getId(),
-        'cookies' => request()->cookies->all(),
-    ];
-
-    // Log this information
-    \Illuminate\Support\Facades\Log::info('Debug Auth Check', $debug);
-
-    return response()->json($debug);
-});
-
-// Debug route to run scholar debug command
-Route::get('/debug-scholars', function() {
-    // Only allow in local/development environment
-    if (!app()->environment('local') && !app()->environment('development')) {
-        abort(403, 'This route is only available in development environment.');
-    }
-
-    // Run the command
-    \Illuminate\Support\Facades\Artisan::call('debug:scholars');
-
-    // Get command output
-    $output = \Illuminate\Support\Facades\Artisan::output();
-
-    // Format for browser
-    $formattedOutput = nl2br(htmlentities($output));
-
-    return response()->view('debug.output', [
-        'title' => 'Scholar Debug Output',
-        'output' => $formattedOutput,
-        'raw' => $output
-    ]);
-});
-
-// Test route to create a scholar directly
-Route::get('/test-create-scholar', function() {
-    // Only allow in local/development environment
-    if (!app()->environment('local') && !app()->environment('development')) {
-        abort(403, 'This route is only available in development environment.');
-    }
-
-    // Check if we're logged in as admin
-    if (!\Illuminate\Support\Facades\Auth::check() || \Illuminate\Support\Facades\Auth::user()->role !== 'admin') {
-        return response()->json([
-            'success' => false,
-            'error' => 'You must be logged in as admin to test this function',
-            'user' => \Illuminate\Support\Facades\Auth::check() ? [
-                'id' => \Illuminate\Support\Facades\Auth::id(),
-                'name' => \Illuminate\Support\Facades\Auth::user()->name,
-                'role' => \Illuminate\Support\Facades\Auth::user()->role
-            ] : null
-        ]);
-    }
-
-    $output = "Starting scholar creation test...\n";
-
-    // Transaction for safety
-    \Illuminate\Support\Facades\DB::beginTransaction();
-
-    try {
-        // Create a test user
-        $user = \App\Models\User::create([
-            'name' => 'Test Scholar ' . uniqid(),
-            'email' => 'test_' . time() . '@example.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
-            'role' => 'scholar',
-        ]);
-
-        $output .= "User created with ID: " . $user->id . "\n";
-
-        // Create a basic scholar profile
-        $scholar = new \App\Models\ScholarProfile();
-        $scholar->user_id = $user->id;
-        $scholar->first_name = 'Test';
-        $scholar->last_name = 'Scholar';
-        $scholar->contact_number = '12345678901';
-        $scholar->address = 'Test Address';
-        $scholar->university = 'Central Luzon State University';
-        $scholar->program = 'Master in Agricultural and Biosystems Engineering';
-        $scholar->department = 'Engineering';
-        $scholar->status = 'New';
-        $scholar->start_date = \Carbon\Carbon::now();
-        $scholar->expected_completion_date = \Carbon\Carbon::now()->addYears(2);
-        $scholar->save();
-
-        $output .= "Scholar profile created with ID: " . $scholar->id . "\n";
-
-        // Commit if everything was successful
-        \Illuminate\Support\Facades\DB::commit();
-        $output .= "SUCCESS: Transaction committed\n";
-
-    } catch (\Exception $e) {
-        // Rollback if there was an error
-        \Illuminate\Support\Facades\DB::rollBack();
-        $output .= "ERROR: " . $e->getMessage() . "\n";
-        $output .= "Stack trace: " . $e->getTraceAsString() . "\n";
-    }
-
-    // Format for browser display
-    $formattedOutput = nl2br(htmlentities($output));
-
-    return response()->view('debug.output', [
-        'title' => 'Scholar Creation Test',
-        'output' => $formattedOutput,
-        'raw' => $output
-    ]);
-});
-
-// Direct API endpoint for scholar form post debugging
-Route::post('/debug-scholar-form', function(\Illuminate\Http\Request $request) {
-    $logPath = storage_path('logs/debug_scholar_form.log');
-    $logMessage = "Form data received at " . now() . "\n";
-
-    // Ensure log directory exists
-    if (!file_exists(storage_path('logs'))) {
-        mkdir(storage_path('logs'), 0755, true);
-    }
-
-    // Log authentication info
-    $logMessage .= "Auth status: " . (\Illuminate\Support\Facades\Auth::check() ? 'Authenticated' : 'Not authenticated') . "\n";
-    if (\Illuminate\Support\Facades\Auth::check()) {
-        $logMessage .= "User ID: " . \Illuminate\Support\Facades\Auth::id() . "\n";
-        $logMessage .= "User Email: " . \Illuminate\Support\Facades\Auth::user()->email . "\n";
-        $logMessage .= "User Role: " . \Illuminate\Support\Facades\Auth::user()->role . "\n";
-    }
-
-    // Log form data
-    $logMessage .= "Form data: " . json_encode($request->except(['password', '_token'])) . "\n";
-    $logMessage .= "Headers: " . json_encode($request->headers->all()) . "\n";
-
-    // Log CSRF token info
-    $logMessage .= "Session CSRF token: " . $request->session()->token() . "\n";
-    $logMessage .= "Form CSRF token: " . $request->input('_token') . "\n";
-    $logMessage .= "Token match: " . ($request->session()->token() === $request->input('_token') ? 'Yes' : 'No') . "\n";
-
-    file_put_contents($logPath, $logMessage, FILE_APPEND);
-
-    // Return response
-    return response()->json([
-        'success' => true,
-        'message' => 'Form data received and logged',
-        'auth' => \Illuminate\Support\Facades\Auth::check(),
-        'user' => \Illuminate\Support\Facades\Auth::check() ? [
-            'id' => \Illuminate\Support\Facades\Auth::id(),
-            'role' => \Illuminate\Support\Facades\Auth::user()->role
-        ] : null,
-        'form_data' => $request->except(['password', '_token']),
-        'csrf_match' => $request->session()->token() === $request->input('_token')
-    ]);
-});

@@ -36,9 +36,9 @@
                             <div class="card-body">
                                 <h5 class="card-title">Fund Requests</h5>
                                 <p class="card-text">
-                                    <strong>Pending:</strong> <span class="badge bg-warning animate-pulse">{{ $pendingRequests ?? 0 }}</span><br>
-                                    <strong>Approved:</strong> <span class="badge bg-success">{{ $approvedRequests ?? 0 }}</span><br>
-                                    <strong>Rejected:</strong> <span class="badge bg-danger">{{ $rejectedRequests ?? 0 }}</span>
+                                    <strong>Pending:</strong> <span class="badge bg-warning text-white" style="background-color: #f59e0b;"><i class="fas fa-clock mr-1" style="color: white;"></i> {{ $pendingRequests ?? 0 }}</span><br>
+                                    <strong>Approved:</strong> <span class="badge bg-success text-white" style="background-color: #10b981;"><i class="fas fa-check mr-1" style="color: white;"></i> {{ $approvedRequests ?? 0 }}</span><br>
+                                    <strong>Rejected:</strong> <span class="badge bg-danger text-white" style="background-color: #ef4444;"><i class="fas fa-times mr-1" style="color: white;"></i> {{ $rejectedRequests ?? 0 }}</span>
                                 </p>
                                 <a href="{{ route('fund-requests.index') }}"
                                    class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View Requests</a>
@@ -53,9 +53,9 @@
                             <div class="card-body">
                                 <h5 class="card-title">Manuscripts</h5>
                                 <p class="card-text">
-                                    <strong>Submitted:</strong> <span class="badge bg-primary">{{ $submittedManuscripts ?? 0 }}</span><br>
-                                    <strong>Under Review:</strong> <span class="badge bg-warning">{{ $reviewManuscripts ?? 0 }}</span><br>
-                                    <strong>Published:</strong> <span class="badge bg-success">{{ $publishedManuscripts ?? 0 }}</span>
+                                    <strong>Submitted:</strong> <span class="badge bg-primary text-white" style="background-color: #3b82f6;"><i class="fas fa-file-alt mr-1" style="color: white;"></i> {{ $submittedManuscripts ?? 0 }}</span><br>
+                                    <strong>Under Review:</strong> <span class="badge bg-warning text-white" style="background-color: #f59e0b;"><i class="fas fa-search mr-1" style="color: white;"></i> {{ $reviewManuscripts ?? 0 }}</span><br>
+                                    <strong>Published:</strong> <span class="badge bg-success text-white" style="background-color: #10b981;"><i class="fas fa-book mr-1" style="color: white;"></i> {{ $publishedManuscripts ?? 0 }}</span>
                                 </p>
                                 <a href="{{ route('scholar.manuscripts.index') }}"
                                    class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View Manuscripts</a>
@@ -258,15 +258,15 @@
                                                         <td>₱{{ number_format($request->amount, 2) }}</td>
                                                         <td>
                                                             @if($request->status === 'Submitted')
-                                                                <span class="badge bg-primary">Submitted</span>
+                                                                <span class="badge bg-primary text-white" style="background-color: #3b82f6;"><i class="fas fa-file-alt mr-1" style="color: white;"></i> Submitted</span>
                                                             @elseif($request->status === 'Under Review')
-                                                                <span class="badge bg-warning animate-pulse">Under Review</span>
+                                                                <span class="badge bg-warning text-white animate-pulse" style="background-color: #f59e0b;"><i class="fas fa-search mr-1" style="color: white;"></i> Under Review</span>
                                                             @elseif($request->status === 'Approved')
-                                                                <span class="badge bg-success">Approved</span>
+                                                                <span class="badge bg-success text-white" style="background-color: #10b981;"><i class="fas fa-check mr-1" style="color: white;"></i> Approved</span>
                                                             @elseif($request->status === 'Rejected')
-                                                                <span class="badge bg-danger">Rejected</span>
+                                                                <span class="badge bg-danger text-white" style="background-color: #ef4444;"><i class="fas fa-times mr-1" style="color: white;"></i> Rejected</span>
                                                             @else
-                                                                <span class="badge bg-secondary">{{ $request->status }}</span>
+                                                                <span class="badge bg-secondary text-white" style="background-color: #6b7280;"><i class="fas fa-question-circle mr-1" style="color: white;"></i> {{ $request->status }}</span>
                                                             @endif
                                                         </td>
                                                         <td>
@@ -307,13 +307,19 @@
                                                     <tr class="hover:bg-gray-50 transition-colors duration-200">
                                                         <td>{{ $log->user->name ?? 'System' }}</td>
                                                         <td>
-                                                            <span class="px-2 py-1 text-xs rounded-full
+                                                            <span class="px-2 py-1 text-xs rounded-full inline-flex items-center
                                                                 @if($log->action == 'create') bg-green-100 text-green-800
                                                                 @elseif($log->action == 'update') bg-yellow-100 text-yellow-800
                                                                 @elseif($log->action == 'delete') bg-red-100 text-red-800
                                                                 @elseif($log->action == 'login') bg-blue-100 text-blue-800
                                                                 @elseif($log->action == 'logout') bg-purple-100 text-purple-800
                                                                 @else bg-blue-100 text-blue-800 @endif">
+                                                                @if($log->action == 'create')<i class="fas fa-plus-circle mr-1" style="color: #065f46;"></i>
+                                                                @elseif($log->action == 'update')<i class="fas fa-edit mr-1" style="color: #92400e;"></i>
+                                                                @elseif($log->action == 'delete')<i class="fas fa-trash-alt mr-1" style="color: #7f1d1d;"></i>
+                                                                @elseif($log->action == 'login')<i class="fas fa-sign-in-alt mr-1" style="color: #1e40af;"></i>
+                                                                @elseif($log->action == 'logout')<i class="fas fa-sign-out-alt mr-1" style="color: #6b21a8;"></i>
+                                                                @else<i class="fas fa-info-circle mr-1" style="color: #1e40af;"></i>@endif
                                                                 {{ ucfirst($log->action) }}
                                                             </span>
                                                         </td>

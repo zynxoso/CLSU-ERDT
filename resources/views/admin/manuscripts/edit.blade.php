@@ -4,9 +4,9 @@
 <div class="container mx-auto px-4 py-6">
     <div class="mb-6 flex justify-between items-center">
         <div class="flex items-center">
-            <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-700">
+            <!-- <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-700">
                 <i class="fas fa-arrow-left mr-2"></i>Back to Manuscript Details
-            </a>
+            </a> -->
         </div>
     </div>
 
@@ -34,11 +34,12 @@
                         <select name="manuscript_type" id="manuscript_type"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                 required>
-                            <option value="journal" {{ old('manuscript_type', $manuscript->manuscript_type) === 'journal' ? 'selected' : '' }}>Journal</option>
-                            <option value="conference" {{ old('manuscript_type', $manuscript->manuscript_type) === 'conference' ? 'selected' : '' }}>Conference</option>
-                            <option value="thesis" {{ old('manuscript_type', $manuscript->manuscript_type) === 'thesis' ? 'selected' : '' }}>Thesis</option>
-                            <option value="book" {{ old('manuscript_type', $manuscript->manuscript_type) === 'book' ? 'selected' : '' }}>Book</option>
-                            <option value="other" {{ old('manuscript_type', $manuscript->manuscript_type) === 'other' ? 'selected' : '' }}>Other</option>
+                            <option value="Journal Article" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
+                            <option value="Conference Paper" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
+                            <option value="Thesis" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Thesis' ? 'selected' : '' }}>Thesis</option>
+                            <option value="Dissertation" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
+                            <option value="Book Chapter" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Book Chapter' ? 'selected' : '' }}>Book Chapter</option>
+                            <option value="Other" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Other' ? 'selected' : '' }}>Other</option>
                         </select>
                         @error('manuscript_type')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -92,13 +93,13 @@
                         <select name="status" id="status"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                 required>
-                            <option value="draft" {{ old('status', $manuscript->status) === 'draft' ? 'selected' : '' }}>Draft</option>
-                            <option value="submitted" {{ old('status', $manuscript->status) === 'submitted' ? 'selected' : '' }}>Submitted</option>
-                            <option value="under_review" {{ old('status', $manuscript->status) === 'under_review' ? 'selected' : '' }}>Under Review</option>
-                            <option value="revision_required" {{ old('status', $manuscript->status) === 'revision_required' ? 'selected' : '' }}>Revision Required</option>
-                            <option value="accepted" {{ old('status', $manuscript->status) === 'accepted' ? 'selected' : '' }}>Accepted</option>
-                            <option value="rejected" {{ old('status', $manuscript->status) === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                            <option value="published" {{ old('status', $manuscript->status) === 'published' ? 'selected' : '' }}>Published</option>
+                            <option value="Draft" {{ old('status', $manuscript->status) === 'Draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="Submitted" {{ old('status', $manuscript->status) === 'Submitted' ? 'selected' : '' }}>Submitted</option>
+                            <option value="Under Review" {{ old('status', $manuscript->status) === 'Under Review' ? 'selected' : '' }}>Under Review</option>
+                            <option value="Revision Requested" {{ old('status', $manuscript->status) === 'Revision Requested' ? 'selected' : '' }}>Revision Requested</option>
+                            <option value="Accepted" {{ old('status', $manuscript->status) === 'Accepted' ? 'selected' : '' }}>Accepted</option>
+                            <option value="Rejected" {{ old('status', $manuscript->status) === 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="Published" {{ old('status', $manuscript->status) === 'Published' ? 'selected' : '' }}>Published</option>
                         </select>
                         @error('status')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

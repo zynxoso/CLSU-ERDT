@@ -4,7 +4,7 @@
 
 @section('content')
 <div class=" min-h-screen">
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -58,14 +58,6 @@
                         <h3 class="text-sm font-medium text-gray-700 mb-2">Scholarship Details</h3>
                         <div class="space-y-2">
                             <div class="flex items-center">
-                                <i class="fas fa-calendar-alt text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">Started: {{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'Not provided' }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-graduation-cap text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">Expected Completion: {{ $scholar->expected_completion_date ? date('M d, Y', strtotime($scholar->expected_completion_date)) : 'Not provided' }}</span>
-                            </div>
-                            <div class="flex items-center">
                                 <i class="fas fa-user-tie text-gray-500 w-5"></i>
                                 <span class="text-gray-700 ml-2">Advisor: {{ $scholar->advisor ?? 'Not assigned' }}</span>
                             </div>
@@ -105,14 +97,7 @@
                                 <h4 class="text-sm font-medium text-gray-700 mb-2">Major</h4>
                                 <p class="text-gray-800">{{ $scholar->major ?? 'Not provided' }}</p>
                             </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Student ID</h4>
-                                <p class="text-gray-800">{{ $scholar->student_id ?? 'Not provided' }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Current GPA</h4>
-                                <p class="text-gray-800">{{ $scholar->gpa ?? 'Not provided' }}</p>
-                            </div>
+
                         </div>
                     </div>
                 </div>

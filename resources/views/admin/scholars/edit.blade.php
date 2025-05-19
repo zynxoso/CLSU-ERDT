@@ -31,38 +31,101 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
 
+
+
     /* Ensure all button icons have white color */
-    a.bg-yellow-600 i,
     a.bg-gray-600 i,
     a.bg-blue-500 i,
+    a.bg-blue-600 i,
     button.bg-blue-500 i {
         color: white !important;
     }
 </style>
 @endsection
 
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('scholar-edit-form');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic validation
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+            let errorMessages = [];
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    hasErrors = true;
+                    field.classList.add('border-red-500');
+                    const fieldName = field.previousElementSibling.textContent.replace('*', '').trim();
+                    errorMessages.push(`${fieldName} is required`);
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+            
+            if (hasErrors) {
+                Swal.fire({
+                    title: 'Validation Error',
+                    html: errorMessages.join('<br>'),
+                    icon: 'error',
+                    confirmButtonText: 'Fix Errors'
+                });
+                return;
+            }
+            
+            // If validation passes, submit the form
+            Swal.fire({
+                title: 'Updating Scholar',
+                text: 'Please wait while we update the scholar information...',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    form.submit();
+                }
+            });
+        });
+        
+        // Display validation errors from server-side if any
+        @if($errors->any())
+            const errorMessages = [];
+            @foreach($errors->all() as $error)
+                errorMessages.push('{{ $error }}');
+            @endforeach
+            
+            Swal.fire({
+                title: 'Validation Error',
+                html: errorMessages.join('<br>'),
+                icon: 'error',
+                confirmButtonText: 'Fix Errors'
+            });
+        @endif
+    });
+</script>
+@endsection
+
 @section('content')
 <div class="min-h-screen">
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto">
         <div class="mb-6">
-            <div class="flex space-x-6 mb-4">
-                <a href="{{ route('admin.scholars.edit', $scholar->id) }}"
-                   class="group w-44 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-md btn-transition">
-                    <i class="fas fa-edit mr-2 text-white group-hover:animate-pulse"></i>
-                    <span>Edit Scholar</span>
-                </a>
+            <!-- <div class="flex space-x-6 mb-4">
                 <a href="{{ route('admin.scholars.index') }}"
                    class="group w-44 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 shadow-sm flex items-center justify-center border border-gray-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md btn-transition">
                     <i class="fas fa-arrow-left mr-2 group-hover:translate-x-[-3px] transition-transform duration-300"></i>
                     <span>Back to List</span>
                 </a>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-900 mt-2">Edit Scholar: {{ $scholar->first_name }} {{ $scholar->last_name }}</h1>
-            <p class="text-gray-500 mt-1">ERDT PRISM: A Portal for a Responsive and Integrated Scholarship Management</p>
+            </div> -->
+            <h1 class="text-2xl font-bold text-gray-900 mt-1">Edit Scholar: {{ $scholar->first_name }} {{ $scholar->last_name }}</h1>
+   
         </div>
 
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <form action="{{ route('admin.scholars.update', $scholar->id) }}" method="POST">
+        <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+            <form id="scholar-edit-form" action="{{ route('admin.scholars.update', $scholar->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -85,6 +148,22 @@
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <div>
+                            <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span class="text-red-500">*</span></label>
+                            <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number', $scholar->contact_number) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="e.g. +63 912 345 6789">
+                            @error('contact_number')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
+                            <input type="text" id="address" name="address" value="{{ old('address', $scholar->address) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            @error('address')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
@@ -94,13 +173,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="university" class="block text-sm font-medium text-gray-700 mb-1">University <span class="text-red-500">*</span></label>
-                            <select id="university" name="university" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Central Luzon State University" {{ old('university', $scholar->university) == 'Central Luzon State University' ? 'selected' : '' }}>Central Luzon State University (CLSU)</option>
-                                <option value="University of the Philippines Los Baños" {{ old('university', $scholar->university) == 'University of the Philippines Los Baños' ? 'selected' : '' }}>University of the Philippines Los Baños</option>
-                                <option value="Bulacan State University" {{ old('university', $scholar->university) == 'Bulacan State University' ? 'selected' : '' }}>Bulacan State University</option>
-                                <option value="Nueva Ecija University of Science and Technology" {{ old('university', $scholar->university) == 'Nueva Ecija University of Science and Technology' ? 'selected' : '' }}>Nueva Ecija University of Science and Technology</option>
-                                <option value="Other" {{ old('university', $scholar->university) == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
+                            <input type="text" id="university" name="university" value="Central Luzon State University" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly required>
                             <p class="text-xs text-gray-500 mt-1">CLSU - Central Luzon State University</p>
                             @error('university')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -109,13 +182,8 @@
 
                         <div>
                             <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-red-500">*</span></label>
-                            <select id="department" name="department" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Engineering" {{ old('department', $scholar->department) == 'Engineering' ? 'selected' : '' }}>Engineering</option>
-                                <option value="Agricultural Engineering Department" {{ old('department', $scholar->department) == 'Agricultural Engineering Department' ? 'selected' : '' }}>Agricultural Engineering Department</option>
-                                <option value="Department of Agricultural and Biosystems Engineering" {{ old('department', $scholar->department) == 'Department of Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Department of Agricultural and Biosystems Engineering</option>
-                                <option value="College of Engineering" {{ old('department', $scholar->department) == 'College of Engineering' ? 'selected' : '' }}>College of Engineering</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">Department offering BSABE at CLSU</p>
+                            <input type="text" id="department" name="department" value="Department of Agricultural and Biosystems Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly required>
+                            <p class="text-xs text-gray-500 mt-1">ABE Department at CLSU</p>
                             @error('department')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -123,12 +191,20 @@
 
                         <div>
                             <label for="program" class="block text-sm font-medium text-gray-700 mb-1">Program <span class="text-red-500">*</span></label>
-                            <select id="program" name="program" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Master in Agricultural and Biosystems Engineering" {{ old('program', $scholar->program) == 'Master in Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Master in Agricultural and Biosystems Engineering</option>
-                                <option value="Master of Science in Agricultural and Biosystems Engineering" {{ old('program', $scholar->program) == 'Master of Science in Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Master of Science in Agricultural and Biosystems Engineering</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">ABE Masteral Scholarship Program</p>
+                            <input type="text" id="program" name="program" value="Agricultural Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100" readonly required>
+                            <p class="text-xs text-gray-500 mt-1">Agricultural Engineering Program</p>
                             @error('program')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="degree_level" class="block text-sm font-medium text-gray-700 mb-1">Degree Level <span class="text-red-500">*</span></label>
+                            <select id="degree_level" name="degree_level" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="Masteral" {{ old('degree_level', $scholar->degree_level) == 'Masteral' ? 'selected' : '' }}>Masteral</option>
+                                <option value="PhD" {{ old('degree_level', $scholar->degree_level) == 'PhD' ? 'selected' : '' }}>PhD</option>
+                            </select>
+                            @error('degree_level')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -141,7 +217,6 @@
                                 <option value="On Extension" {{ old('status', $scholar->status) == 'On Extension' ? 'selected' : '' }}>On Extension</option>
                                 <option value="Graduated" {{ old('status', $scholar->status) == 'Graduated' ? 'selected' : '' }}>Graduated</option>
                                 <option value="Terminated" {{ old('status', $scholar->status) == 'Terminated' ? 'selected' : '' }}>Terminated</option>
-                                <option value="Deferred Repayment" {{ old('status', $scholar->status) == 'Deferred Repayment' ? 'selected' : '' }}>Deferred Repayment</option>
                             </select>
                             @error('status')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -163,11 +238,43 @@
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        
+                        <div>
+                            <label for="scholarship_duration" class="block text-sm font-medium text-gray-700 mb-1">Scholarship Duration (months) <span class="text-red-500">*</span></label>
+                            <input type="number" id="scholarship_duration" name="scholarship_duration" value="{{ old('scholarship_duration', $scholar->scholarship_duration) }}" min="1" max="60" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            @error('scholarship_duration')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="enrollment_type" class="block text-sm font-medium text-gray-700 mb-1">Enrollment Type <span class="text-red-500">*</span></label>
+                            <select id="enrollment_type" name="enrollment_type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="New" {{ old('enrollment_type', $scholar->enrollment_type) == 'New' ? 'selected' : '' }}>New</option>
+                                <option value="Lateral" {{ old('enrollment_type', $scholar->enrollment_type) == 'Lateral' ? 'selected' : '' }}>Lateral</option>
+                            </select>
+                            @error('enrollment_type')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="study_time" class="block text-sm font-medium text-gray-700 mb-1">Study Time <span class="text-red-500">*</span></label>
+                            <select id="study_time" name="study_time" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="Full-time" {{ old('study_time', $scholar->study_time) == 'Full-time' ? 'selected' : '' }}>Full-time</option>
+                                <option value="Part-time" {{ old('study_time', $scholar->study_time) == 'Part-time' ? 'selected' : '' }}>Part-time</option>
+                            </select>
+                            @error('study_time')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
                 <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Additional Notes</h2>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">
+                        Additional Notes
+                    </h2>
                     <div>
                         <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                         <textarea id="notes" name="notes" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('notes', $scholar->notes) }}</textarea>
@@ -178,10 +285,16 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-end">
+                <div class="flex justify-between">
+                    <div class="text-sm text-gray-600">
+                        <span class="inline-flex items-center">
+                            <i class="fas fa-info-circle mr-1 text-blue-500"></i>
+                            All fields marked with <span class="text-red-500 mx-1">*</span> are required
+                        </span>
+                    </div>
                     <button type="submit"
                             class="group w-48 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm flex items-center justify-center transition-all duration-300 transform hover:scale-105 hover:shadow-md">
-                        <i class="fas fa-save mr-2 text-white group-hover:animate-bounce"></i>
+                        <i class="fas fa-save mr-2 text-white"></i>
                         <span>Update Scholar</span>
                     </button>
                 </div>

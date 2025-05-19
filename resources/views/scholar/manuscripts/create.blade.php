@@ -58,37 +58,23 @@
             <p class="text-xs text-gray-500 mt-1">Provide a brief summary of your manuscript (250-300 words recommended)</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <label for="manuscript_type" class="block text-sm font-medium text-gray-700 mb-1">
-                    Manuscript Type <span class="text-red-500">*</span>
-                </label>
-                <select id="manuscript_type" name="manuscript_type"
-                    class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    <option value="">Select Type</option>
-                    <option value="Conference Paper" {{ old('manuscript_type') == 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
-                    <option value="Journal Article" {{ old('manuscript_type') == 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
-                    <option value="Thesis" {{ old('manuscript_type') == 'Thesis' ? 'selected' : '' }}>Thesis</option>
-                    <option value="Dissertation" {{ old('manuscript_type') == 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
-                    <option value="Book Chapter" {{ old('manuscript_type') == 'Book Chapter' ? 'selected' : '' }}>Book Chapter</option>
-                    <option value="Other" {{ old('manuscript_type') == 'Other' ? 'selected' : '' }}>Other</option>
-                </select>
-                @error('manuscript_type')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="progress" class="block text-sm font-medium text-gray-700 mb-1">
-                    Progress (%)
-                </label>
-                <input type="number" id="progress" name="progress" min="0" max="100" value="{{ old('progress', 0) }}"
-                    class="w-full bg-white border @error('progress') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                @error('progress')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-                <p class="text-xs text-gray-500 mt-1">Estimate the completion percentage of your manuscript</p>
-            </div>
+        <div class="mb-4">
+            <label for="manuscript_type" class="block text-sm font-medium text-gray-700 mb-1">
+                Manuscript Type <span class="text-red-500">*</span>
+            </label>
+            <select id="manuscript_type" name="manuscript_type"
+                class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="">Select Type</option>
+                <option value="Conference Paper" {{ old('manuscript_type') == 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
+                <option value="Journal Article" {{ old('manuscript_type') == 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
+                <option value="Thesis" {{ old('manuscript_type') == 'Thesis' ? 'selected' : '' }}>Thesis</option>
+                <option value="Dissertation" {{ old('manuscript_type') == 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
+                <option value="Book Chapter" {{ old('manuscript_type') == 'Book Chapter' ? 'selected' : '' }}>Book Chapter</option>
+                <option value="Other" {{ old('manuscript_type') == 'Other' ? 'selected' : '' }}>Other</option>
+            </select>
+            @error('manuscript_type')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

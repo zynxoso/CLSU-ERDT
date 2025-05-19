@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="mb-6">
-    <a href="{{ route('scholar.manuscripts.index') }}" class="text-blue-600 hover:text-blue-900">
+    <!-- <a href="{{ route('scholar.manuscripts.index') }}" class="text-blue-600 hover:text-blue-900">
         <i class="fas fa-arrow-left mr-2"></i> Back to Manuscripts
-    </a>
+    </a> -->
     <h1 class="text-2xl font-bold text-gray-800 mt-2">{{ $manuscript->title }}</h1>
     <p class="text-gray-600 mt-1">Reference #: {{ $manuscript->reference_number ?? 'Not assigned yet' }}</p>
 </div>
@@ -102,39 +102,6 @@
 
     <!-- Sidebar -->
     <div class="lg:col-span-1">
-        <!-- Manuscript Files -->
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Manuscript Files</h2>
-
-            @if($manuscript->documents && $manuscript->documents->count() > 0)
-                <ul class="divide-y divide-gray-200">
-                    @foreach($manuscript->documents as $document)
-                        <li class="py-3">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="font-medium text-gray-800">{{ $document->title }}</p>
-                                    <p class="text-xs text-gray-500">{{ $document->created_at->format('M d, Y') }}</p>
-                                </div>
-                                <a href="{{ route('scholar.documents.download', $document->id) }}" class="text-blue-600 hover:text-blue-900">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-            @else
-                <div class="text-center py-6">
-                    <p class="text-gray-500">No files attached yet</p>
-                </div>
-            @endif
-
-            <div class="mt-4">
-                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block w-full text-center">
-                    <i class="fas fa-upload mr-2"></i> Upload File
-                </a>
-            </div>
-        </div>
-
         <!-- Review History -->
         <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Review History</h2>
