@@ -4,9 +4,9 @@
 
 @section('content')
 <!-- Top Navigation Bar -->
-<div class="bg-white shadow-sm mb-6 -mt-8 -mx-8 px-8 py-4">
+<div class="bg-white shadow-sm mb-6 -mt-8 -mx-8 px-8 py-2">
     <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-800 ml-2">Dashboard</h1>
+        <h1 class="text-2xl font-bold text-gray-800 ml-1">Dashboard</h1>
         <div class="flex items-center space-x-4">
             <!-- Notification Dropdown -->
             <div class="relative" x-data="{ open: false, notificationCount: {{ count($notifications->where('is_read', false)) }} }">
@@ -116,18 +116,18 @@
                      class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50" 
                      style="display: none;">
                     <a href="{{ route('scholar.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-user mr-2 text-gray-500"></i> My Profile
+                        <i class="fas fa-user mr-2 text-black" style="margin-right: 0.5rem; color: #6B7280;"></i> My Profile
                     </a>
                     <a href="{{ route('scholar.settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-cog mr-2 text-gray-500"></i> Settings
+                        <i class="fas fa-cog" style="margin-right: 0.5rem; color: #6B7280;"></i> Settings
                     </a>
                     <a href="{{ route('scholar.password.change') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-key mr-2 text-gray-500"></i> Change Password
+                        <i class="fas fa-key mr-2 text-gray-500" style="margin-right: 0.5rem; color: #6B7280;"></i> Change Password
                     </a>
                     <form method="POST" action="{{ route('logout') }}" class="border-t border-gray-100">
                         @csrf
                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                            <i class="fas fa-sign-out-alt mr-2" style="margin-right: 0.5rem; color:#FF4842"></i> Logout
                         </button>
                     </form>
                 </div>
@@ -176,7 +176,7 @@
     </div>
 </div>
 <!-- Recent Activity -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 gap-6">
     <!-- Recent Fund Requests -->
     <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
         <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
@@ -213,59 +213,5 @@
             @endif
         </div>
     </div>
-
-    <!-- Document Status Summary -->
-    <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-            <h2 class="text-base font-semibold text-gray-800">Document Status</h2>
-        </div>
-        <div class="p-4">
-            <div class="flex justify-between mb-4">
-                <div class="text-center">
-                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-1">
-                        <i class="fas fa-check text-green-600" style="color: #16a34a;"></i>
-                    </div>
-                    <p class="text-xs text-gray-600">Verified</p>
-                    <p class="text-sm font-bold text-gray-800">{{ $verifiedDocumentsCount }}</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-1">
-                        <i class="fas fa-clock text-yellow-600" style="color: #f59e0b;"></i>
-                    </div>
-                    <p class="text-xs text-gray-600">Pending</p>
-                    <p class="text-sm font-bold text-gray-800">{{ $pendingDocumentsCount }}</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-1">
-                        <i class="fas fa-times text-red-600" style="color: #ef4444;"></i>
-                    </div>
-                    <p class="text-xs text-gray-600">Rejected</p>
-                    <p class="text-sm font-bold text-gray-800">{{ $rejectedDocumentsCount }}</p>
-                </div>
-            </div>
-            
-            @if(count($recentDocuments) > 0)
-                <div class="mt-3 text-center">
-                    <a href="{{ route('scholar.documents.index') }}" class="text-blue-600 hover:text-blue-800 text-xs">View All Documents</a>
-                </div>
-            @else
-                <div class="text-center py-2">
-                    <p class="text-gray-500 text-sm">No documents uploaded yet.</p>
-                </div>
-            @endif
-        </div>
-    </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-    /* Additional styling can be added here */
-</style>
-@endpush
-
-@push('scripts')
-<script>
-    // Add any JavaScript for additional interactivity here
-</script>
-@endpush

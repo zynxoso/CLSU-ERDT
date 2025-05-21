@@ -313,25 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // If normal form submission fails, try AJAX
         const formData = new FormData(form);
 
-        // Make a backup submission to our debug endpoint
-        fetch('/debug-scholar-form', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Debug form submission result:', data);
-            // Don't prevent the normal form submission
-        })
-        .catch(error => {
-            console.error('Debug form submission error:', error);
-            // Still don't prevent the normal form submission
-        });
-
         // Continue with normal form submission
         return true;
     });

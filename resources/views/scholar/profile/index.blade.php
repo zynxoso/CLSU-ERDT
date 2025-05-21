@@ -122,44 +122,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Scholarship Progress -->
-                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Scholarship Progress</h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="mb-4">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Overall Progress</h4>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
-                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $scholarProgress }}%"></div>
-                            </div>
-                            <div class="flex justify-between text-xs text-gray-600">
-                                <span>{{ $scholarProgress }}% Complete</span>
-                                <span>{{ $daysRemaining }} days remaining</span>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4 mt-6">
-                            <div>
-                                <div class="flex justify-between mb-1">
-                                    <h4 class="text-sm font-medium text-gray-700">Coursework</h4>
-                                    <span class="text-xs text-gray-600">{{ $courseworkProgress }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ $courseworkProgress }}%"></div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between mb-1">
-                                    <h4 class="text-sm font-medium text-gray-700">Research</h4>
-                                    <span class="text-xs text-gray-600">{{ $researchProgress }}%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -108,12 +108,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex justify-center">
                                         <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full
-                                            @if($log->action == 'create') bg-green-600 text-white
-                                            @elseif($log->action == 'update') bg-yellow-500 text-white
-                                            @elseif($log->action == 'delete') bg-red-600 text-white
-                                            @elseif($log->action == 'login') bg-blue-600 text-white
-                                            @elseif($log->action == 'logout') bg-purple-600 text-white
-                                            @else bg-indigo-600 text-white @endif">
+                                            @if($log->action == 'create') bg-gray-600 text-white
+                                            @elseif($log->action == 'update') bg-gray-500 text-white
+                                            @elseif($log->action == 'delete') bg-gray-600 text-white
+                                            @elseif($log->action == 'login') bg-gray-600 text-white
+                                            @elseif($log->action == 'logout') bg-gray-600 text-white
+                                            @else bg-gray-600 text-white @endif">
                                             {{ ucfirst($log->action) }}
                                         </span>
                                     </div>

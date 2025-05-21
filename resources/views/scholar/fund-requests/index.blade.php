@@ -3,8 +3,8 @@
 @section('title', 'Fund Requests')
 
 @section('content')
-<div class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-6">
+<div class="min-h-screen">
+    <div class="container mx-auto">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">My Fund Requests</h1>
             <a href="{{ route('scholar.fund-requests.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -186,7 +186,7 @@
                                 Required Documents by Request Type
                             </h3>
                             <button type="button" id="closeDocRequirementsBtn" class="text-gray-400 hover:text-gray-500">
-                                <i class="fas fa-times"></i>
+                                <i class="fas fa-times" style="color: black;"></i>
                             </button>
                         </div>
                         

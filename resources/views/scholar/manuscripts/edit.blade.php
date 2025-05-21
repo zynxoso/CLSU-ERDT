@@ -43,16 +43,6 @@
 </div>
 @endif
 
-@if (app()->environment('local'))
-<div class="bg-gray-100 p-4 mb-6 rounded-lg text-xs font-mono">
-    <p class="font-bold mb-2">Debug Info:</p>
-    <p>Form Action: {{ route('scholar.manuscripts.update', $manuscript->id) }}</p>
-    <p>Manuscript ID: {{ $manuscript->id }}</p>
-    <p>Current Status: {{ $manuscript->status }}</p>
-    <p>Current User: {{ Auth::user()->name }} (ID: {{ Auth::id() }})</p>
-</div>
-@endif
-
 <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
     <form action="{{ route('scholar.manuscripts.update', $manuscript->id) }}" method="POST" enctype="multipart/form-data">
         @csrf

@@ -4,10 +4,7 @@
 
 @section('content')
 <div class="mb-6">
-    <a href="{{ route('scholar.manuscripts.index') }}" class="text-blue-600 hover:text-blue-900">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Manuscripts
-    </a>
-    <h1 class="text-2xl font-bold text-gray-800 mt-2">Create New Manuscript</h1>
+    <h1 class="text-2xl font-bold text-gray-800">Create New Manuscript</h1>
 </div>
 
 @if ($errors->any())

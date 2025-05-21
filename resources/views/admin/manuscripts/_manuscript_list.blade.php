@@ -53,7 +53,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                             <div class="flex items-center">
                                 <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-900 mr-3" title="View Details">
-                                    <i class="fas fa-eye" style="color: #2563eb;"></i>
+                                    <i class="fas fa-eye" style="color: black;"></i>
                                 </a>
                                 <!-- <a href="{{ route('admin.manuscripts.edit', $manuscript->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3" title="Edit Manuscript">
                                     <i class="fas fa-edit" style="color: #d97706;"></i>

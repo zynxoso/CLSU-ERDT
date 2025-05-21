@@ -2,35 +2,31 @@
 
 @section('title', 'Login - CLSU-ERDT')
 
-@push('styles')
-<style>
-    /* Only apply x-cloak when Alpine has loaded */
-    :root.alpine-ready [x-cloak] { display: none !important; }
-</style>
-@endpush
-
-@php
-    use App\Http\Controllers\Auth\LoginContentController;
-    $content = LoginContentController::getLoginPageContent();
-@endphp
-
 @section('content')
-<div x-data="tabNavigation()" class="min-h-screen bg-gradient-to-br from-clsu-maroon to-clsu-green flex flex-col">
+<div x-data="tabNavigation()" class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-600 flex flex-col">
     <!-- Top Navigation -->
     <nav class="bg-white/10 backdrop-blur-sm p-4">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-10 mr-3">
-                <span class="text-white font-bold text-xl">CLSU-ERDT</span>
+                <span class="text-black font-bold text-xl">CLSU-ERDT</span>
             </div>
             <div class="hidden md:flex space-x-6">
-                @foreach($content['tabs'] as $tabKey => $tab)
-                <button @click="setActiveTab('{{ $tabKey }}')" 
-                        :class="activeTab === '{{ $tabKey }}' ? 'text-green-100 border-b-2 border-green-100' : 'text-white hover:text-green-100 border-b-2 border-transparent'"
-                        class="pb-1 transition-colors duration-200 font-medium" 
-                        style="color: white;" 
-                        data-tab="{{ $tabKey }}">{{ $tab['title'] }}</button>
-                @endforeach
+            <button @click="activeTab = 'about'" 
+                        :class="{'text-white border-b-2 border-white': activeTab === 'about', 'text-white/70 hover:text-white': activeTab !== 'about'}"
+                        class="pb-1 px-3 transition-colors duration-200 font-medium">
+                    History
+                </button>
+                <button @click="activeTab = 'about'" 
+                        :class="{'text-white border-b-2 border-white': activeTab === 'about', 'text-white/70 hover:text-white': activeTab !== 'about'}"
+                        class="pb-1 px-3 transition-colors duration-200 font-medium">
+                    About 
+                </button>
+                <button @click="activeTab = 'apply'" 
+                        :class="{'text-white border-b-2 border-white': activeTab === 'apply', 'text-white/70 hover:text-white': activeTab !== 'apply'}"
+                        class="pb-1 px-3 transition-colors duration-200 font-medium">
+                    How to Apply
+                </button>
             </div>
         </div>
     </nav>
@@ -38,7 +34,7 @@
     <!-- Main Content -->
     <div class="flex-grow flex flex-col md:flex-row p-4 md:p-8 container mx-auto">
         <!-- Login Form Section -->
-        <div class="w-full md:w-2/5 mb-8 md:mb-0 flex justify-center">
+        <div class="w-full md:w-2/5 mb-4 md:mb-0 flex justify-center mt-3">
             <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md">
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     @if (session('status'))
@@ -46,47 +42,47 @@
                             {{ session('status') }}
                         </div>
                     @endif
-            <form x-data="{ 
-                loading: false, 
-                email: '{{ old('email') }}', 
-                password: '',   
-                showPassword: false,
-                remember: {{ old('remember') ? 'true' : 'false' }},
-                emailError: '',
-                passwordError: '',
-                focusedInput: null,
-                validateEmail() {
-                    if (!this.email) {
-                        this.emailError = 'Email is required';
-                        return false;
-                    } else if (!/^\S+@\S+\.\S+$/.test(this.email)) {
-                        this.emailError = 'Invalid email format';
-                        return false;
-                    }
-                    this.emailError = '';
-                    return true;
-                },
-                validatePassword() {
-                    if (!this.password) {
-                        this.passwordError = 'Password is required';
-                        return false;
-                    }
-                    this.passwordError = '';
-                    return true;
-                },
-                submit() {
-                    if (this.validateEmail() && this.validatePassword()) {
-                        this.loading = true;
-                        $el.submit();
-                    } else {
-                        // Shake animation on error
-                        $el.classList.add('animate-shake');
-                        setTimeout(() => {
-                            $el.classList.remove('animate-shake');
-                        }, 500);
-                    }
-                }
-            }" class="space-y-6" method="POST" action="{{ route('login') }}" @submit.prevent="submit">
+                    <form x-data="{ 
+                        loading: false, 
+                        email: '{{ old('email') }}', 
+                        password: '',   
+                        showPassword: false,
+                        remember: {{ old('remember') ? 'true' : 'false' }},
+                        emailError: '',
+                        passwordError: '',
+                        focusedInput: null,
+                        validateEmail() {
+                            if (!this.email) {
+                                this.emailError = 'Email is required';
+                                return false;
+                            } else if (!/^\S+@\S+\.\S+$/.test(this.email)) {
+                                this.emailError = 'Invalid email format';
+                                return false;
+                            }
+                            this.emailError = '';
+                            return true;
+                        },
+                        validatePassword() {
+                            if (!this.password) {
+                                this.passwordError = 'Password is required';
+                                return false;
+                            }
+                            this.passwordError = '';
+                            return true;
+                        },
+                        submit() {
+                            if (this.validateEmail() && this.validatePassword()) {
+                                this.loading = true;
+                                $el.submit();
+                            } else {
+                                // Shake animation on error
+                                $el.classList.add('animate-shake');
+                                setTimeout(() => {
+                                    $el.classList.remove('animate-shake');
+                                }, 500);
+                            }
+                        }
+                    }" class="space-y-6" method="POST" action="{{ route('login') }}" @submit.prevent="submit">
                 @csrf
 
                 <div class="text-center mb-6">
@@ -222,76 +218,6 @@
             </div>
         </div>
         
-        <!-- Content Section -->
-        <div class="w-full md:w-3/5 md:pl-8 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
-            <div class="mb-6">
-                <h3 class="text-xl font-bold text-white mb-2">{{ $content['title'] }}</h3>
-                <!-- Mobile tab buttons (visible on small screens) -->
-                <div class="flex flex-wrap gap-2 sm:hidden">
-                    @foreach($content['tabs'] as $tabKey => $tab)
-                    <button type="button" 
-                            @click="setActiveTab('{{ $tabKey }}')"
-                            :class="activeTab === '{{ $tabKey }}' ? 'bg-white text-clsu-green' : 'bg-white/50 text-white hover:bg-white/70'"
-                            class="px-3 py-1 rounded-full text-sm font-medium transition-colors"
-                            data-tab="{{ $tabKey }}">
-                        {{ $tab['title'] }}
-                    </button>
-                    @endforeach
-                </div>
-            </div>
-            
-            <p class="text-white mb-6">{{ $content['description'] }}</p>
-            
-            <div class="bg-white rounded-lg p-6 shadow-lg">
-                <!-- History Tab -->
-                <div x-show="activeTab === 'history'" class="text-gray-700" data-tab-content="history" :data-visible="activeTab === 'history' ? 'true' : 'false'" style="display: block;">
-                    <h3 class="text-lg font-semibold text-clsu-maroon mb-3">{{ $content['tabs']['history']['content']['heading'] }}</h3>
-                    
-                    @foreach($content['tabs']['history']['content']['paragraphs'] as $paragraph)
-                    <p class="mb-3">{{ $paragraph }}</p>
-                    @endforeach
-                </div>
-
-                <!-- About Tab -->
-                <div x-show="activeTab === 'about'" class="text-gray-700" data-tab-content="about" :data-visible="activeTab === 'about' ? 'true' : 'false'" style="display: none;">
-                    <h3 class="text-lg font-semibold text-clsu-maroon mb-3">{{ $content['tabs']['about']['content']['heading'] }}</h3>
-                    
-                    @foreach($content['tabs']['about']['content']['paragraphs'] as $paragraph)
-                    <p class="mb-3">{{ $paragraph }}</p>
-                    @endforeach
-                    
-                    <ul class="list-disc pl-5 space-y-2">
-                        @foreach($content['tabs']['about']['content']['list_items'] as $item)
-                        <li>{{ $item }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <!-- Apply Tab -->
-                <div x-show="activeTab === 'apply'" class="text-gray-700" data-tab-content="apply" :data-visible="activeTab === 'apply' ? 'true' : 'false'" style="display: none;">
-                    <h3 class="text-lg font-semibold text-clsu-maroon mb-3">{{ $content['tabs']['apply']['content']['heading'] }}</h3>
-                    
-                    @foreach($content['tabs']['apply']['content']['paragraphs'] as $paragraph)
-                    <p class="mb-3">{{ $paragraph }}</p>
-                    @endforeach
-                    
-                    <ol class="list-decimal pl-5 space-y-2">
-                        @foreach($content['tabs']['apply']['content']['list_items'] as $item)
-                        <li>{{ $item }}</li>
-                        @endforeach
-                    </ol>
-                    
-                    <p class="mt-3">{{ $content['tabs']['apply']['content']['footer'] }}</p>
-                </div>
-                
-                <div class="mt-6 pt-3 border-t border-gray-200">
-                    <p class="text-sm text-gray-500">
-                        {{ $content['contact']['text'] }} <span class="font-medium text-clsu-green">{{ $content['contact']['email'] }}</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-        </div>
     </div>
     
     <!-- Footer -->
@@ -299,80 +225,4 @@
         <p>&copy; {{ date('Y') }} Central Luzon State University - Engineering Research and Development for Technology</p>
     </footer>
 </div>
-
-@push('scripts')
-<script>
-    // Debug the content data
-    console.log('Content data:', @json($content));
-    
-    // Add a class to the root element when Alpine is loaded
-    document.addEventListener('alpine:init', () => {
-        document.documentElement.classList.add('alpine-ready');
-        console.log('Alpine initialized, added alpine-ready class');
-    });
-    
-    // Define tabNavigation function globally so it's available immediately
-    window.tabNavigation = function() {
-        return {
-            activeTab: 'history',
-            init() {
-                console.log('Tab navigation initialized with activeTab:', this.activeTab);
-                
-                // Make sure initial tab content is visible by default (without waiting for Alpine)
-                document.querySelectorAll('[data-tab-content="history"]').forEach(el => {
-                    el.style.display = 'block';
-                });
-                
-                // Force Alpine to update the DOM to reflect the initial activeTab
-                this.$nextTick(() => {
-                    // Log tab button states
-                    document.querySelectorAll('[data-tab]').forEach(el => {
-                        console.log(`Tab button ${el.dataset.tab} active state:`, 
-                            el.dataset.tab === this.activeTab ? 'active' : 'inactive');
-                    });
-                    
-                    // Log tab content visibility
-                    document.querySelectorAll('[data-tab-content]').forEach(el => {
-                        console.log(`Tab content ${el.dataset.tabContent} visibility:`, 
-                            el.dataset.tabContent === this.activeTab ? 'visible' : 'hidden',
-                            'Display:', window.getComputedStyle(el).display
-                        );
-                    });
-                });
-            },
-            setActiveTab(tab) {
-                console.log('setActiveTab called with:', tab);
-                console.log('Previous activeTab was:', this.activeTab);
-                this.activeTab = tab;
-                console.log('New activeTab is:', this.activeTab);
-                
-                // Debug after tab change
-                this.$nextTick(() => {
-                    // Log updated tab button states
-                    document.querySelectorAll('[data-tab]').forEach(el => {
-                        console.log(`Tab button ${el.dataset.tab} active state:`, 
-                            el.dataset.tab === this.activeTab ? 'active' : 'inactive');
-                    });
-                    
-                    // Log updated tab content visibility
-                    document.querySelectorAll('[data-tab-content]').forEach(el => {
-                        console.log(`Tab content ${el.dataset.tabContent} visibility:`, 
-                            el.dataset.tabContent === this.activeTab ? 'visible' : 'hidden',
-                            'Display:', window.getComputedStyle(el).display
-                        );
-                    });
-                });
-            }
-        }
-    };
-    
-    // Additional debugging after DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM fully loaded');
-        console.log('Tab buttons found:', document.querySelectorAll('[data-tab]').length);
-        console.log('Tab content divs found:', document.querySelectorAll('[data-tab-content]').length);
-    });
-</script>
-@endpush
-
 @endsection
