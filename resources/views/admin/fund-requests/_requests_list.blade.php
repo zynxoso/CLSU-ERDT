@@ -39,7 +39,7 @@
                                         <i class="fas fa-file-alt text-white"></i>
                                     </div>
                                     <span class="text-sm font-medium text-blue-800">View Document</span>
-                                    
+
                                 </button>
                             @else
                                 <span class="text-sm text-gray-500 p-2 bg-gray-100 rounded-md inline-block">No documents</span>
@@ -50,14 +50,17 @@
                                 <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full
                                     @if($request->status == 'Approved') bg-green-600 text-white
                                     @elseif($request->status == 'Rejected') bg-red-600 text-white
+                                    @elseif($request->status == 'Under Review') bg-purple-600 text-white
+                                    @elseif($request->status == 'Submitted') bg-blue-600 text-white
                                     @else bg-yellow-500 text-white @endif">
                                     {{ $request->status }}
                                 </span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td class=" whitespace-nowrap text-sm font-medium">
                             <a href="{{ route('admin.fund-requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-900 mr-3" title="View Details">
-                                <i class="fas fa-eye" style="color: black;"></i>
+                                <!-- <i class="fas fa-eye" style="color: black;"></i> -->
+                                 view details
                             </a>
                             @if($request->status == 'Pending')
                                 <a href="{{ route('admin.fund-requests.edit', $request->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3" title="Edit Request">

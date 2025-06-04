@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AuditService;
 use App\Services\NotificationService;
+use App\Services\FundRequestService;
+use App\Services\Interfaces\FundRequestServiceInterface;
+use App\Repositories\FundRequestRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,9 +19,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AuditService::class, function ($app) {
             return new AuditService();
         });
-        
+
         $this->app->singleton(NotificationService::class, function ($app) {
             return new NotificationService();
+        });
+
+        $this->app->bind(FundRequestServiceInterface::class, function ($app) {
+            return new FundRequestService(
+                $app->make(FundRequestRepository::class),
+                $app->make(AuditService::class)
+            );
         });
     }
 

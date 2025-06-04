@@ -5,32 +5,32 @@
 @section('content')
 <div x-data="tabNavigation()" class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-600 flex flex-col">
     <!-- Top Navigation -->
-    <nav class="bg-white/10 backdrop-blur-sm p-4">
+    {{-- <nav class="bg-white/10 backdrop-blur-sm p-4">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
                 <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-10 mr-3">
                 <span class="text-black font-bold text-xl">CLSU-ERDT</span>
             </div>
             <div class="hidden md:flex space-x-6">
-            <button @click="activeTab = 'about'" 
+            <button @click="activeTab = 'about'"
                         :class="{'text-white border-b-2 border-white': activeTab === 'about', 'text-white/70 hover:text-white': activeTab !== 'about'}"
                         class="pb-1 px-3 transition-colors duration-200 font-medium">
                     History
                 </button>
-                <button @click="activeTab = 'about'" 
+                <button @click="activeTab = 'about'"
                         :class="{'text-white border-b-2 border-white': activeTab === 'about', 'text-white/70 hover:text-white': activeTab !== 'about'}"
                         class="pb-1 px-3 transition-colors duration-200 font-medium">
-                    About 
+                    About
                 </button>
-                <button @click="activeTab = 'apply'" 
+                <button @click="activeTab = 'apply'"
                         :class="{'text-white border-b-2 border-white': activeTab === 'apply', 'text-white/70 hover:text-white': activeTab !== 'apply'}"
                         class="pb-1 px-3 transition-colors duration-200 font-medium">
                     How to Apply
                 </button>
             </div>
         </div>
-    </nav>
-    
+    </nav> --}}
+
     <!-- Main Content -->
     <div class="flex-grow flex flex-col md:flex-row p-4 md:p-8 container mx-auto">
         <!-- Login Form Section -->
@@ -42,10 +42,10 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    <form x-data="{ 
-                        loading: false, 
-                        email: '{{ old('email') }}', 
-                        password: '',   
+                    <form x-data="{
+                        loading: false,
+                        email: '{{ old('email') }}',
+                        password: '',
                         showPassword: false,
                         remember: {{ old('remember') ? 'true' : 'false' }},
                         emailError: '',
@@ -100,16 +100,16 @@
                                @focus="focusedInput = 'email'"
                                @blur="focusedInput = null; validateEmail()"
                                class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-clsu-green focus:ring-2 focus:ring-green-200 transition duration-200 text-sm"
-                               :class="{ 
-                                   'border-red-500 bg-red-50': emailError || {{ $errors->has('email') ? 'true' : 'false' }}, 
+                               :class="{
+                                   'border-red-500 bg-red-50': emailError || {{ $errors->has('email') ? 'true' : 'false' }},
                                    'border-gray-300': !emailError && !{{ $errors->has('email') ? 'true' : 'false' }},
                                    'border-clsu-green bg-green-50': email && !emailError && !{{ $errors->has('email') ? 'true' : 'false' }}
                                }"
                                placeholder="Enter your email"
                                autofocus>
                     </div>
-                    <p x-show="emailError" 
-                       x-text="emailError" 
+                    <p x-show="emailError"
+                       x-text="emailError"
                        x-transition:enter="transition ease-out duration-300"
                        x-transition:enter-start="opacity-0 -translate-y-2"
                        x-transition:enter-end="opacity-100 translate-y-0"
@@ -124,26 +124,26 @@
                         Password
                     </label>
                     <div class="mt-1 relative">
-                        <input id="password" name="password" 
-                               :type="showPassword ? 'text' : 'password'" 
+                        <input id="password" name="password"
+                               :type="showPassword ? 'text' : 'password'"
                                autocomplete="current-password" required
                                x-model="password"
                                @focus="focusedInput = 'password'"
                                @blur="focusedInput = null; validatePassword()"
                                class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-clsu-green focus:ring-2 focus:ring-green-200 transition duration-200 pr-10 text-sm"
-                               :class="{ 
-                                   'border-red-500 bg-red-50': passwordError || {{ $errors->has('password') ? 'true' : 'false' }}, 
+                               :class="{
+                                   'border-red-500 bg-red-50': passwordError || {{ $errors->has('password') ? 'true' : 'false' }},
                                    'border-gray-300': !passwordError && !{{ $errors->has('password') ? 'true' : 'false' }},
                                    'border-clsu-green bg-green-50': password && !passwordError && !{{ $errors->has('password') ? 'true' : 'false' }}
                                }"
                                placeholder="Enter your password">
-                        
+
                         <!-- Password visibility toggle -->
-                        <button type="button" 
-                                @click="showPassword = !showPassword" 
+                        <button type="button"
+                                @click="showPassword = !showPassword"
                                 class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-blue-500 focus:outline-none transition-colors duration-200"
                                 tabindex="-1">
-                            <svg x-show="!showPassword" 
+                            <svg x-show="!showPassword"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 rotate-90"
                                  x-transition:enter-end="opacity-100 rotate-0"
@@ -151,7 +151,7 @@
                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                             </svg>
-                            <svg x-show="showPassword" 
+                            <svg x-show="showPassword"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 rotate-90"
                                  x-transition:enter-end="opacity-100 rotate-0"
@@ -161,8 +161,8 @@
                             </svg>
                         </button>
                     </div>
-                    <p x-show="passwordError" 
-                       x-text="passwordError" 
+                    <p x-show="passwordError"
+                       x-text="passwordError"
                        x-transition:enter="transition ease-out duration-300"
                        x-transition:enter-start="opacity-0 -translate-y-2"
                        x-transition:enter-end="opacity-100 translate-y-0"
@@ -174,7 +174,7 @@
 
                 <div class="flex items-center justify-between mb-6">
                     <label class="flex items-center">
-                        <input type="checkbox" 
+                        <input type="checkbox"
                                x-model="remember"
                                class="h-4 w-4 text-clsu-green focus:ring-clsu-green border-gray-300 rounded">
                         <span class="ml-2 text-sm text-gray-700">Remember me</span>
@@ -182,7 +182,7 @@
 
                     @if (Route::has('password.request'))
                     <div class="text-sm">
-                        <a href="{{ route('password.request') }}" 
+                        <a href="{{ route('password.request') }}"
                            class="font-medium text-clsu-green hover:text-green-700 transition-colors duration-200">
                             Forgot password?
                         </a>
@@ -191,7 +191,7 @@
                 </div>
 
                 <div>
-                    <button type="submit" 
+                    <button type="submit"
                             class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-clsu-maroon hover:bg-maroon-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-clsu-green transition-colors duration-200"
                             :class="{ 'opacity-75 cursor-not-allowed': loading }">
                         <svg x-show="!loading"
@@ -217,9 +217,9 @@
             </div>
             </div>
         </div>
-        
+
     </div>
-    
+
     <!-- Footer -->
     <footer class="bg-white/10 backdrop-blur-sm p-4 text-center text-white text-sm">
         <p>&copy; {{ date('Y') }} Central Luzon State University - Engineering Research and Development for Technology</p>

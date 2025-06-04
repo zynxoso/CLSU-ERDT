@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Manuscripts')
+@section('title', 'Manuscripts')
 
 @section('content')
 <div class="flex justify-between items-center mb-6">
@@ -56,8 +56,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('scholar.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
-                                    <i class="fas fa-eye" style="color: black;"></i>
+                                <a href="{{ route('scholar.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-900">
+                                    <!-- <i class="fas fa-eye" style="color: black;"></i> -->
+                                     view
                                 </a>
                                 <!-- <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">
                                     <i class="fas fa-edit" style="color: black;"></i>

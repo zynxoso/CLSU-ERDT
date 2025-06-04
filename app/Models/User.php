@@ -81,8 +81,17 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isAdmin()
     {
-        // return in_array($this->role, ['admin']);
-        return !$this->isScholar();
+        return $this->role === 'admin' || $this->isSuperAdmin();
+    }
+
+    /**
+     * Check if the user is a super admin.
+     *
+     * @return bool
+     */
+    public function isSuperAdmin()
+    {
+        return $this->role === 'super_admin';
     }
 
     /**
@@ -107,4 +116,3 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 }
-

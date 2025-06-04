@@ -68,6 +68,9 @@ class ScholarProfile extends Model
         'start_date' => 'date',
         'expected_completion_date' => 'date',
         'actual_completion_date' => 'date',
+        'date_of_birth' => 'encrypted',
+        'contact_number' => 'encrypted',
+        'emergency_contact' => 'encrypted',
     ];
 
     /**

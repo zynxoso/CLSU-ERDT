@@ -63,8 +63,8 @@ class AuditService
         return AuditLog::create([
             'user_id' => Auth::id(),
             'action' => $action,
-            'entity_type' => $entityType,
-            'entity_id' => $entityId,
+            'model_type' => $entityType,
+            'model_id' => $entityId,
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'ip_address' => Request::ip(),
@@ -81,8 +81,8 @@ class AuditService
      */
     public function getEntityLogs($entityType, $entityId)
     {
-        return AuditLog::where('entity_type', $entityType)
-            ->where('entity_id', $entityId)
+        return AuditLog::where('model_type', $entityType)
+            ->where('model_id', $entityId)
             ->with('user')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -130,5 +130,35 @@ class AuditService
     public function logCustomAction(string $action, string $modelType, ?int $modelId = null, ?array $context = null): AuditLog
     {
         return $this->logAction($modelType, $modelId, $action, null, $context);
+    }
+
+    /**
+     * Log an action (generic method).
+     *
+     * @param string $action The action performed
+     * @param string $entityType The type of entity
+     * @param int|null $entityId The ID of the entity
+     * @param string|null $description Description of the action (stored in new_values)
+     * @param array|null $data Additional data (merged with description)
+     * @return \App\Models\AuditLog
+     */
+    public function log(string $action, string $entityType, ?int $entityId = null, ?string $description = null, ?array $data = null): AuditLog
+    {
+        // If description is provided, include it in the data array
+        if ($description !== null) {
+            $data = $data ?? [];
+            $data['description'] = $description;
+        }
+
+        return AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => $action,
+            'model_type' => $entityType,
+            'model_id' => $entityId,
+            'old_values' => null,
+            'new_values' => $data,
+            'ip_address' => Request::ip(),
+            'user_agent' => Request::userAgent(),
+        ]);
     }
 }

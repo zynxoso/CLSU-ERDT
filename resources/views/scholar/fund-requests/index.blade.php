@@ -64,7 +64,7 @@
         </div>
 
                 <!-- Document Requirements Notice -->
-               <div class="mt-4 bg-blue-50 rounded-lg p-3 border border-blue-200 shadow-sm">
+        <div class="mt-4 bg-blue-50 rounded-lg p-3 border border-blue-200 shadow-sm">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mr-3">
@@ -104,7 +104,6 @@
                 </div>
             </form>
         </div>
-        
 
         <!-- Fund Requests Table -->
         <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
@@ -132,13 +131,16 @@
                                         <span class="px-2 py-1 text-xs rounded-full
                                             @if($request->status == 'Approved') bg-green-100 text-green-800
                                             @elseif($request->status == 'Rejected') bg-red-100 text-red-800
+                                            @elseif($request->status == 'Under Review') bg-purple-100 text-purple-800
+                                            @elseif($request->status == 'Submitted') bg-blue-100 text-blue-800
                                             @else bg-yellow-100 text-yellow-800 @endif">
                                             {{ $request->status }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="{{ route('scholar.fund-requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
-                                            <i class="fas fa-eye" style="color: black;"></i>
+                                            <!-- <i class="fas fa-eye" style="color: black;"></i> -->
+                                             view request
                                         </a>
                                         @if($request->status == 'Pending')
                                             <a href="{{ route('scholar.fund-requests.edit', $request->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">
@@ -171,13 +173,13 @@
                 </div>
             @endif
         </div>
-        
+
         <!-- Document Requirements Modal -->
         <div id="docRequirementsModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen p-0 sm:p-4">
                 <!-- Background overlay -->
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                
+
                 <!-- Modal panel -->
                 <div class="inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg sm:max-w-2xl md:max-w-3xl mx-4 sm:mx-auto">
                     <div class="bg-white p-3 sm:p-4">
@@ -189,10 +191,10 @@
                                 <i class="fas fa-times" style="color: black;"></i>
                             </button>
                         </div>
-                        
+
                         <div class="max-h-[60vh] sm:max-h-[70vh] overflow-y-auto px-1 sm:px-2">
                             <p class="text-sm text-gray-700 mb-3">Please ensure you submit the following documents based on your request type:</p>
-                            
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <!-- Tuition Request Documents -->
                                 <div class="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
@@ -208,7 +210,7 @@
                                         <li>Official receipt (if already paid)</li>
                                     </ul>
                                 </div>
-                                
+
                                 <!-- Research Request Documents -->
                                 <div class="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
                                     <h5 class="font-semibold text-gray-800 mb-1 flex items-center text-sm">
@@ -224,7 +226,7 @@
                                         <li>Ethics clearance (if applicable)</li>
                                     </ul>
                                 </div>
-                                
+
                                 <!-- Living Allowance Documents -->
                                 <div class="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
                                     <h5 class="font-semibold text-gray-800 mb-1 flex items-center text-sm">
@@ -239,7 +241,7 @@
                                         <li>Progress report (if required)</li>
                                     </ul>
                                 </div>
-                                
+
                                 <!-- Conference Documents -->
                                 <div class="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
                                     <h5 class="font-semibold text-gray-800 mb-1 flex items-center text-sm">
@@ -255,7 +257,7 @@
                                         <li>Travel itinerary (if applicable)</li>
                                     </ul>
                                 </div>
-                                
+
                                 <!-- Books Documents -->
                                 <div class="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
                                     <h5 class="font-semibold text-gray-800 mb-1 flex items-center text-sm">
@@ -270,7 +272,7 @@
                                         <li>Receipts (if already purchased)</li>
                                     </ul>
                                 </div>
-                                
+
                                 <!-- Thesis/Dissertation Documents -->
                                 <div class="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
                                     <h5 class="font-semibold text-gray-800 mb-1 flex items-center text-sm">
@@ -287,7 +289,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-3 p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <h5 class="font-semibold text-blue-800 mb-1 flex items-center text-sm">
                                     <i class="fas fa-info-circle mr-1.5 text-xs sm:text-sm"></i>
@@ -310,7 +312,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Modal JavaScript -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -318,38 +320,38 @@
                 const openBtn = document.getElementById('openDocRequirementsBtn');
                 const closeBtn = document.getElementById('closeDocRequirementsBtn');
                 const closeModalBtn = document.getElementById('closeModalBtn');
-                
+
                 // Show the modal
                 function openModal() {
                     modal.classList.remove('hidden');
                     document.body.classList.add('overflow-hidden');
                 }
-                
+
                 // Hide the modal
                 function closeModal() {
                     modal.classList.add('hidden');
                     document.body.classList.remove('overflow-hidden');
                 }
-                
+
                 // Event listeners
                 openBtn.addEventListener('click', openModal);
                 closeBtn.addEventListener('click', closeModal);
                 closeModalBtn.addEventListener('click', closeModal);
-                
+
                 // Close modal when clicking outside
                 modal.addEventListener('click', function(event) {
                     if (event.target === modal) {
                         closeModal();
                     }
                 });
-                
+
                 // Close modal with Escape key
                 document.addEventListener('keydown', function(event) {
                     if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
                         closeModal();
                     }
                 });
-                
+
                 // Auto-show modal on first visit (using localStorage)
                 if (!localStorage.getItem('docRequirementsModalShown')) {
                     // Small delay to ensure page is fully loaded
@@ -367,4 +369,381 @@
         </div>
     </div>
 </div>
+
+<!-- Real-time Status Updates Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Store the last update data to avoid unnecessary updates
+    let lastUpdateData = null;
+
+    // Function to fetch the latest status updates
+    function fetchStatusUpdates() {
+        const requestCard = document.querySelector('#recent-submissions-container [data-fund-request-id]');
+
+        if (!requestCard) return;
+
+        // Get the fund request ID
+        const requestId = requestCard.dataset.fundRequestId;
+
+        // Fetch updates for the request
+        fetch('/scholar/fund-requests/status-updates', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ request_ids: [requestId] })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.updates.length > 0) {
+                const update = data.updates[0]; // Get the first (and only) update
+
+                // Check if the data has changed since the last update
+                if (lastUpdateData &&
+                    lastUpdateData.status === update.status &&
+                    lastUpdateData.updated_at === update.updated_at) {
+                    // No changes, skip updating the UI
+                    return;
+                }
+
+                // Store the current update data for future comparison
+                lastUpdateData = {
+                    status: update.status,
+                    updated_at: update.updated_at
+                };
+
+                // Update status badge
+                const statusBadge = requestCard.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.textContent = update.status;
+
+                    // Remove all existing status classes
+                    statusBadge.classList.remove(
+                        'bg-green-100', 'text-green-800',
+                        'bg-red-100', 'text-red-800',
+                        'bg-purple-100', 'text-purple-800',
+                        'bg-blue-100', 'text-blue-800',
+                        'bg-yellow-100', 'text-yellow-800'
+                    );
+
+                    // Add appropriate class based on status
+                    if (update.status === 'Approved') {
+                        statusBadge.classList.add('bg-green-100', 'text-green-800');
+                    } else if (update.status === 'Rejected') {
+                        statusBadge.classList.add('bg-red-100', 'text-red-800');
+                    } else if (update.status === 'Under Review') {
+                        statusBadge.classList.add('bg-purple-100', 'text-purple-800');
+                    } else if (update.status === 'Submitted') {
+                        statusBadge.classList.add('bg-blue-100', 'text-blue-800');
+                    } else {
+                        statusBadge.classList.add('bg-yellow-100', 'text-yellow-800');
+                    }
+                }
+
+                // Update last update time
+                const lastUpdateTime = requestCard.querySelector('.last-update-time');
+                if (lastUpdateTime) {
+                    // Find the most recent entry for the current status
+                    let statusTimestamp = null;  // Default to null
+
+                    // Look for specific timestamp in status history first
+                    if (update.status_history && update.status_history.length > 0) {
+                        for (let i = update.status_history.length - 1; i >= 0; i--) {
+                            const history = update.status_history[i];
+                            if (history.status === update.status && history.timestamp) {
+                                // Parse the timestamp and ensure it's valid
+                                const historyDate = new Date(history.timestamp);
+                                if (!isNaN(historyDate.getTime())) {
+                                    statusTimestamp = historyDate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // If no timestamp found in history, use the updated_at timestamp
+                    if (!statusTimestamp && update.updated_at) {
+                        statusTimestamp = new Date(update.updated_at);
+                    }
+
+                    // Only update the display if we have a valid timestamp
+                    if (statusTimestamp && !isNaN(statusTimestamp.getTime())) {
+                        // Store the timestamp as a data attribute for future reference
+                        lastUpdateTime.dataset.timestamp = statusTimestamp.toISOString();
+                        lastUpdateTime.textContent = timeSince(statusTimestamp);
+                    }
+                }
+
+                // Update progress bar if there are status history entries
+                if (update.status_history && update.status_history.length > 0) {
+                    updateProgressBar(requestCard, update.status_history, update.status);
+                }
+            }
+        })
+        .catch(error => console.error('Error fetching status updates:', error));
+    }
+
+    // Function to update the progress bar based on status history
+    function updateProgressBar(card, statusHistory, currentStatus) {
+        // Define the status order for progress calculation
+        const statusOrder = ['Draft', 'Submitted', 'Under Review', 'Approved'];
+
+        // Find the highest status reached
+        let highestStatusIndex = 0;
+
+        // Check if current status is in our defined order
+        const currentStatusIndex = statusOrder.indexOf(currentStatus);
+        if (currentStatusIndex !== -1) {
+            highestStatusIndex = currentStatusIndex;
+        } else if (currentStatus === 'Rejected') {
+            // If rejected, find the last status before rejection
+            for (const entry of statusHistory) {
+                const statusIndex = statusOrder.indexOf(entry.status);
+                if (statusIndex > highestStatusIndex && entry.status !== 'Rejected') {
+                    highestStatusIndex = statusIndex;
+                }
+            }
+        }
+
+        // Calculate progress percentage (excluding Draft status)
+        const progressSteps = statusOrder.length - 1; // Exclude Draft
+        const currentStep = highestStatusIndex === 0 ? 0 : highestStatusIndex - 1 + 1; // -1 to exclude Draft, +1 to count the current step
+        const progressPercentage = (currentStep / progressSteps) * 100;
+
+        // Update the progress bar
+        const progressBar = card.querySelector('.progress-bar');
+        if (progressBar) {
+            // Set the custom property for animation
+            progressBar.style.setProperty('--progress-width', `${progressPercentage}%`);
+
+            // Reset animation
+            progressBar.classList.remove('animating');
+            void progressBar.offsetWidth; // Force reflow
+
+            // Start animation only if not approved
+            if (currentStatus !== 'Approved') {
+                progressBar.classList.add('animating');
+            }
+        }
+
+        // Update status icons
+        const statusIcons = card.querySelectorAll('.status-icon-wrapper');
+        statusIcons.forEach(iconWrapper => {
+            const status = iconWrapper.dataset.status;
+            const statusIndex = statusOrder.indexOf(status);
+            const icon = iconWrapper.querySelector('.status-icon');
+            const iconText = iconWrapper.querySelector('p');
+
+            // Reset classes
+            iconWrapper.classList.remove('active', 'completed');
+
+            // If this status is completed
+            if (statusIndex > 0 && statusIndex <= highestStatusIndex) {
+                iconWrapper.classList.add('completed');
+                icon.classList.add('completed');
+
+                // Update icon color
+                const iconElement = icon.querySelector('i');
+                if (iconElement) {
+                    iconElement.classList.remove('text-gray-500');
+                    iconElement.classList.add('text-green-600');
+                }
+            }
+            // If this is the current active status
+            else if (statusIndex === highestStatusIndex) {
+                iconWrapper.classList.add('active');
+                icon.classList.add('active');
+
+                // Set custom properties for the active icon
+                if (status === 'Submitted') {
+                    icon.style.setProperty('--active-bg-color', '#dbeafe');
+                    icon.style.setProperty('--active-border-color', '#93c5fd');
+                    icon.style.setProperty('--active-text-color', '#2563eb');
+                } else if (status === 'Under Review') {
+                    icon.style.setProperty('--active-bg-color', '#ede9fe');
+                    icon.style.setProperty('--active-border-color', '#c4b5fd');
+                    icon.style.setProperty('--active-text-color', '#7c3aed');
+                } else if (status === 'Approved') {
+                    icon.style.setProperty('--active-bg-color', '#dcfce7');
+                    icon.style.setProperty('--active-border-color', '#86efac');
+                    icon.style.setProperty('--active-text-color', '#16a34a');
+                }
+
+                // Update icon color
+                const iconElement = icon.querySelector('i');
+                if (iconElement) {
+                    iconElement.classList.remove('text-gray-500');
+                    if (status === 'Submitted') {
+                        iconElement.classList.add('text-blue-600');
+                    } else if (status === 'Under Review') {
+                        iconElement.classList.add('text-purple-600');
+                    } else if (status === 'Approved') {
+                        iconElement.classList.add('text-green-600');
+                    }
+                }
+            }
+        });
+
+        // Animate the shipping truck
+        const shippingTruck = card.querySelector('.shipping-truck');
+        if (shippingTruck) {
+            // Set the truck position based on progress
+            shippingTruck.style.setProperty('--truck-position', `${progressPercentage}%`);
+
+            // Reset animation
+            shippingTruck.classList.remove('animating', 'bounce');
+            void shippingTruck.offsetWidth; // Force reflow
+
+            // Start animation only if not approved
+            if (currentStatus !== 'Approved') {
+                shippingTruck.classList.add('animating');
+            }
+
+            // Add bounce effect at each completed status only if not approved
+            if (currentStatus !== 'Approved') {
+                statusIcons.forEach((iconWrapper, index) => {
+                    if (iconWrapper.classList.contains('completed') || iconWrapper.classList.contains('active')) {
+                        const iconPosition = (index / (statusIcons.length - 1)) * 100;
+
+                        // Only bounce if the truck will pass this position
+                        if (iconPosition <= progressPercentage) {
+                            setTimeout(() => {
+                                // Calculate when the truck should be at this position
+                                const animationDuration = 2000; // 2s as defined in CSS
+                                const bounceTime = (iconPosition / 100) * animationDuration;
+
+                                setTimeout(() => {
+                                    shippingTruck.classList.add('bounce');
+
+                                    // Remove bounce after animation
+                                    setTimeout(() => {
+                                        shippingTruck.classList.remove('bounce');
+                                    }, 500);
+                                }, bounceTime);
+                            }, 100); // Small delay to ensure animation has started
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    // Helper function to format time since a date
+    function timeSince(date) {
+        // Ensure we have a valid date object
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
+            return "just now"; // Return a default value for invalid dates
+        }
+
+        // Format the date in a more stable way
+        const options = {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+
+        return date.toLocaleDateString(undefined, options);
+    }
+
+    // Helper function to truncate text
+    function truncateText(text, maxLength) {
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
+    // Check for updates less frequently (every 5 minutes) to reduce unnecessary reloads
+    setInterval(fetchStatusUpdates, 300000);
+
+    // Don't fetch immediately after page load - the server-rendered data is already current
+    // This prevents the "reloading" effect mentioned in the issue
+});
+</script>
+
+<style>
+/* Progress Bar and Status Icons Animations */
+@keyframes icon-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+@keyframes progress-bar-fill {
+    from { width: 0%; }
+    to { width: var(--progress-width, 100%); }
+}
+
+@keyframes truck-move-right {
+    0% { left: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: var(--truck-position, 100%); opacity: 1; }
+}
+
+@keyframes truck-bounce {
+    0%, 100% { transform: translateY(0) translateX(-50%); }
+    50% { transform: translateY(0) translateX(-50%) scale(1.2); }
+}
+
+@keyframes icon-activate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.progress-bar.animating {
+    --progress-width: 33%; /* Default value if not set by JS */
+    animation: progress-bar-fill 1.5s ease-out forwards;
+}
+
+.status-icon.active {
+    --active-bg-color: #2563eb; /* Default blue background (darker) */
+    --active-border-color: #1d4ed8; /* Default blue border (darker) */
+    --active-text-color: #ffffff; /* White text for contrast */
+    background-color: var(--active-bg-color);
+    border-color: var(--active-border-color);
+    color: var(--active-text-color);
+    animation: icon-activate 0.5s ease-out;
+}
+
+.status-icon.completed {
+    background-color: #16a34a; /* Darker green */
+    border-color: #166534; /* Even darker green for border */
+    color: #ffffff; /* White text for contrast */
+}
+
+.status-icon-wrapper.active p {
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.status-icon-wrapper.completed p {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.shipping-truck {
+    --truck-position: 33%; /* Default value if not set by JS */
+    transition: all 0.3s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+.shipping-truck.animating {
+    animation: truck-move-right 2s ease-in-out forwards;
+}
+
+.shipping-truck.bounce {
+    animation: truck-bounce 0.5s ease-in-out;
+}
+
+.progress-container {
+    height: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+</style>
 @endsection

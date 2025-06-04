@@ -1,23 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\ScholarProfile;
 use App\Models\RequestType;
 use App\Services\AuditService;
+use App\Services\FileSecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    protected $auditService;
+    protected AuditService $auditService;
+    protected FileSecurityService $fileSecurityService;
 
-    public function __construct(AuditService $auditService)
+    public function __construct(AuditService $auditService, FileSecurityService $fileSecurityService)
     {
         $this->middleware('auth');
         $this->auditService = $auditService;
+        $this->fileSecurityService = $fileSecurityService;
     }
     
     /**
@@ -118,21 +123,43 @@ class DocumentController extends Controller
             return response()->json(['error' => 'Scholar profile not found'], 404);
         }
         $validated = $request->validate([
-            'document' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+            'document' => 'required|file|max:20480', // 20MB limit
         ]);
+
+        $file = $request->file('document');
+        
+        // Enhanced security validation
+        $securityValidation = $this->fileSecurityService->validateFile($file, (string)$user->id);
+        
+        if (!$securityValidation['valid']) {
+            return response()->json([
+                'error' => 'File validation failed: ' . implode(', ', $securityValidation['errors'])
+            ], 400);
+        }
+
         try {
-            $file = $request->file('document');
-            $fileName = $file->getClientOriginalName();
-            $filePath = $file->store('documents/scholar/' . $scholarProfile->id, 'public');
+            // Create secure directory
+            $documentPath = 'documents/scholar/' . $scholarProfile->id;
+            $this->fileSecurityService->createSecureDirectory($documentPath);
+            
+            // Use secure filename from validation
+            $fileName = $securityValidation['secure_filename'];
+            $filePath = $file->storeAs($documentPath, $fileName, 'public');
+            
+            // Set secure file permissions
+            $this->fileSecurityService->setSecureFilePermissions($filePath);
             $document = new Document();
             $document->scholar_profile_id = $scholarProfile->id;
             $document->file_name = $fileName;
             $document->file_path = $filePath;
-            $document->file_type = $file->getClientMimeType();
-            $document->file_size = $file->getSize();
+            $document->file_type = $securityValidation['file_info']['mime_type'];
+            $document->file_size = $securityValidation['file_info']['size'];
             $document->category = 'Fund Request';
-            $document->title = pathinfo($fileName, PATHINFO_FILENAME);
+            $document->title = pathinfo($securityValidation['file_info']['original_name'], PATHINFO_FILENAME);
             $document->description = null;
+            $document->file_hash = $securityValidation['file_info']['hash_sha256'];
+            $document->security_scanned = true;
+            $document->security_scan_result = 'passed';
             $document->save();
             return response()->json([
                 'id' => $document->id,
@@ -171,25 +198,45 @@ class DocumentController extends Controller
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'document' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+            'document' => 'required|file|max:20480', // 20MB limit
         ]);
         
+        $file = $request->file('document');
+        
+        // Enhanced security validation
+        $securityValidation = $this->fileSecurityService->validateFile($file, (string)$user->id);
+        
+        if (!$securityValidation['valid']) {
+            return redirect()->back()
+                ->with('error', 'File validation failed: ' . implode(', ', $securityValidation['errors']))
+                ->withInput();
+        }
+        
         try {
-            // Handle file upload
-            $file = $request->file('document');
-            $fileName = $file->getClientOriginalName();
-            $filePath = $file->store('documents/scholar/' . $scholarProfile->id, 'public');
+            // Create secure directory
+            $documentPath = 'documents/scholar/' . $scholarProfile->id;
+            $this->fileSecurityService->createSecureDirectory($documentPath);
             
-            // Create document record
+            // Use secure filename from validation
+            $fileName = $securityValidation['secure_filename'];
+            $filePath = $file->storeAs($documentPath, $fileName, 'public');
+            
+            // Set secure file permissions
+            $this->fileSecurityService->setSecureFilePermissions($filePath);
+            
+            // Create document record with enhanced security info
             $document = new Document();
             $document->scholar_profile_id = $scholarProfile->id;
             $document->file_name = $fileName;
             $document->file_path = $filePath;
-            $document->file_type = $file->getClientMimeType();
-            $document->file_size = $file->getSize();
+            $document->file_type = $securityValidation['file_info']['mime_type'];
+            $document->file_size = $securityValidation['file_info']['size'];
             $document->category = $validated['category'];
             $document->title = $validated['title'];
             $document->description = $validated['description'] ?? null;
+            $document->file_hash = $securityValidation['file_info']['hash_sha256'];
+            $document->security_scanned = true;
+            $document->security_scan_result = 'passed';
             $document->save();
             
             $this->auditService->logCreate('Document', $document->id, $document->toArray());

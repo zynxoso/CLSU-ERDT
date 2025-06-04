@@ -5,8 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\FundRequest;
 use App\Models\RequestType;
 use App\Models\ScholarProfile;
+use App\Notifications\FundRequestStatusChanged;
 
 use App\Services\AuditService;
+use App\Services\Interfaces\FundRequestServiceInterface;
+use App\Http\Requests\StoreFundRequestRequest;
+use App\Http\Requests\UpdateFundRequestRequest;
+use App\Http\Requests\RejectFundRequestRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +19,15 @@ use Illuminate\Support\Facades\DB;
 class FundRequestController extends Controller
 {
     protected $auditService;
+    protected $fundRequestService;
 
-    public function __construct(AuditService $auditService)
-    {
+    public function __construct(
+        AuditService $auditService,
+        FundRequestServiceInterface $fundRequestService
+    ) {
         $this->middleware('auth');
         $this->auditService = $auditService;
+        $this->fundRequestService = $fundRequestService;
     }
 
     /**
@@ -67,35 +76,7 @@ class FundRequestController extends Controller
             return redirect()->route('home')->with('error', 'Unauthorized access');
         }
 
-        $query = FundRequest::query();
-
-        // Filter by status if provided
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by purpose if provided
-        if ($request->has('purpose') && $request->purpose) {
-            $query->where('purpose', 'like', '%' . $request->purpose . '%');
-        }
-
-        // Filter by scholar if provided
-        if ($request->has('scholar') && $request->scholar) {
-            $query->whereHas('scholarProfile.user', function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->scholar . '%');
-            });
-        }
-
-        // Filter by date if provided
-        if ($request->has('date') && $request->date) {
-            $date = $request->date;
-            $query->whereYear('created_at', substr($date, 0, 4))
-                ->whereMonth('created_at', substr($date, 5, 2));
-        }
-
-        $fundRequests = $query->with(['scholarProfile.user'])
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(10);
+        $fundRequests = $this->fundRequestService->getAdminFundRequests($request);
 
         return view('admin.fund-requests.index', compact('fundRequests'));
     }
@@ -154,7 +135,7 @@ class FundRequestController extends Controller
             'pagination' => $pagination
         ]);
     }
-    
+
     /**
      * Get documents for a fund request (AJAX)
      *
@@ -167,12 +148,12 @@ class FundRequestController extends Controller
         if (Auth::user()->role !== 'admin') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-        
+
         $fundRequest = FundRequest::findOrFail($id);
-        
+
         // Load documents with their details
         $documents = $fundRequest->documents()->get();
-        
+
         return response()->json([
             'success' => true,
             'documents' => $documents
@@ -196,35 +177,14 @@ class FundRequestController extends Controller
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
 
-        $query = FundRequest::where('scholar_profile_id', $scholarProfile->id);
+        $fundRequests = $this->fundRequestService->getScholarFundRequests($request, $scholarProfile->id);
 
-        // Filter by status if provided
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by purpose if provided
-        if ($request->has('purpose') && $request->purpose) {
-            $query->where('purpose', $request->purpose);
-        }
-
-        // Filter by date if provided
-        if ($request->has('date') && $request->date) {
-            $date = $request->date;
-            $query->whereYear('created_at', substr($date, 0, 4))
-                ->whereMonth('created_at', substr($date, 5, 2));
-        }
-
-        $fundRequests = $query->orderBy('created_at', 'desc')->paginate(10);
-
-        // Calculate totals for summary cards
-        $totalRequested = $query->sum('amount');
-        $totalApproved = clone $query;
-        $totalApproved = $totalApproved->where('status', 'Approved')->sum('amount');
-        $totalPending = clone $query;
-        $totalPending = $totalPending->where('status', 'Pending')->sum('amount');
-        $totalRejected = clone $query;
-        $totalRejected = $totalRejected->where('status', 'Rejected')->sum('amount');
+        // Get statistics for summary cards
+        $statistics = $this->fundRequestService->getScholarFundRequestStatistics($scholarProfile->id);
+        $totalRequested = $statistics['totalRequested'];
+        $totalApproved = $statistics['totalApproved'];
+        $totalPending = $statistics['totalPending'];
+        $totalRejected = $statistics['totalRejected'];
 
         return view('scholar.fund-requests.index', compact(
             'fundRequests',
@@ -242,14 +202,14 @@ class FundRequestController extends Controller
     {
         $user = Auth::user();
         $requestTypes = RequestType::where('is_active', true)->get();
-        
+
         if ($user->role === 'scholar') {
             // Get scholar profile
             $scholarProfile = $user->scholarProfile;
             if (!$scholarProfile) {
                 return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
             }
-                
+
             return view('scholar.fund-requests.create', compact('requestTypes'));
         }
 
@@ -259,15 +219,9 @@ class FundRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreFundRequestRequest $request)
     {
-        $validated = $request->validate([
-            'request_type_id' => 'required|exists:request_types,id',
-            'amount' => 'required|numeric|min:0',
-            'admin_remarks' => 'nullable|string',
-            'status' => 'sometimes|in:Draft,Submitted',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
-        ]);
+        $validated = $request->validated();
 
         $user = Auth::user();
         $profile = $user->scholarProfile;
@@ -275,120 +229,39 @@ class FundRequestController extends Controller
         if (!$profile) {
             return redirect()->route('home')->with('error', 'Scholar profile not found');
         }
-        
-        // Validate amount against limits based on request type and program level
-        $requestTypeId = $validated['request_type_id'];
-        $amount = $validated['amount'];
-        $isDoctoralProgram = stripos($profile->program, 'doctoral') !== false || stripos($profile->program, 'phd') !== false;
-        
-        // Get the request type name
-        $requestType = RequestType::find($requestTypeId);
-        if (!$requestType) {
+
+        // Validate amount against limits
+        $validationError = $this->fundRequestService->validateFundRequestAmount(
+            $validated['request_type_id'],
+            $validated['amount'],
+            $profile->program
+        );
+
+        if ($validationError) {
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['request_type_id' => 'Invalid request type.']);
+                ->withErrors($validationError);
         }
-        
-        // Define amount limits based on the entitlements table
-        $requestTypeLimits = [
-            1 => [ // Tuition Fee
-                'name' => 'Tuition Fee',
-                'masters' => null, // Actual as billed
-                'doctoral' => null, // Actual as billed
-            ],
-            2 => [ // Living Allowance/Stipend
-                'name' => 'Living Allowance/Stipend',
-                'masters' => 30000,
-                'doctoral' => 38000,
-            ],
-            3 => [ // Learning Materials
-                'name' => 'Learning Materials',
-                'masters' => 20000,
-                'doctoral' => 20000,
-            ],
-            4 => [ // Thesis/Dissertation Grant
-                'name' => 'Thesis/Dissertation Grant',
-                'masters' => 60000,
-                'doctoral' => 100000,
-            ],
-            5 => [ // Research Grant
-                'name' => 'Research Grant',
-                'masters' => 225000,
-                'doctoral' => 475000,
-            ],
-            6 => [ // Research Dissemination
-                'name' => 'Research Dissemination',
-                'masters' => 75000,
-                'doctoral' => 150000,
-            ],
-            7 => [ // Mentor's Fee
-                'name' => "Mentor's Fee",
-                'masters' => 36000,
-                'doctoral' => 72000,
-            ],
-        ];
-        
-        // Check if the request type has a limit
-        if (isset($requestTypeLimits[$requestTypeId])) {
-            $programType = $isDoctoralProgram ? 'doctoral' : 'masters';
-            $limit = $requestTypeLimits[$requestTypeId][$programType];
-            $typeName = $requestTypeLimits[$requestTypeId]['name'];
-            
-            // If there's a limit (not null) and amount exceeds it
-            if ($limit !== null && $amount > $limit) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['amount' => "The maximum amount allowed for {$typeName} is ₱" . number_format($limit, 2) . ".\nYour {$programType} program has a limit of ₱" . number_format($limit, 2) . "."]);
-            }
-        }
-        
+
         try {
-            // Create the fund request
-            $fundRequest = new FundRequest();
-            $fundRequest->scholar_profile_id = $profile->id;
-            $fundRequest->request_type_id = $validated['request_type_id'];
-            $fundRequest->amount = $validated['amount'];
-            $fundRequest->purpose = $requestType->name; // Use the request type name as the purpose
-            $fundRequest->admin_remarks = $validated['admin_remarks'] ?? null;
-            $fundRequest->status = $validated['status'] ?? 'Draft';
-            $fundRequest->save();
-            
-            // Handle document upload
-            if ($request->hasFile('document')) {
-                $file = $request->file('document');
-                $fileName = $file->getClientOriginalName();
-                $filePath = $file->store('documents/fund-requests/' . $fundRequest->id, 'public');
-                
-                // Create document record
-                $document = new \App\Models\Document();
-                $document->scholar_profile_id = $profile->id;
-                $document->fund_request_id = $fundRequest->id;
-                $document->file_name = $fileName;
-                $document->file_path = $filePath;
-                $document->file_type = $file->getClientMimeType();
-                $document->file_size = $file->getSize();
-                $document->category = 'Fund Request';
-                $document->title = 'Fund Request Document - ' . $fundRequest->purpose;
-                $document->save();
-            }
-            
-            $this->auditService->logCreate('FundRequest', $fundRequest->id, $fundRequest->toArray());
-            
+            // Create the fund request using the service
+            $fundRequest = $this->fundRequestService->createFundRequest($validated, $profile->id, $request);
+
             if ($user->role === 'scholar') {
                 return redirect()->route('scholar.fund-requests.show', $fundRequest->id)
                     ->with('success', 'Fund request created successfully. Your request will be reviewed by an administrator.');
             }
-            
+
             return redirect()->route('fund-requests.show', $fundRequest->id)
                 ->with('success', 'Fund request created successfully');
-                
+
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Failed to create fund request: ' . $e->getMessage())
                 ->withInput();
         }
     }
-    
+
 
 
     /**
@@ -444,43 +317,12 @@ class FundRequestController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, FundRequest $fundRequest)
+    public function update(UpdateFundRequestRequest $request, FundRequest $fundRequest)
     {
-        $user = Auth::user();
+        $validated = $request->validated();
 
-        // Check if user is authorized to update this request
-        if ($user->role === 'scholar' && $user->scholarProfile->id !== $fundRequest->scholar_profile_id) {
-            return redirect()->route('fund-requests.index')
-                ->with('error', 'You are not authorized to update this request');
-        }
-
-        // Only draft requests can be updated
-        if ($fundRequest->status !== 'Draft') {
-            return redirect()->route('fund-requests.show', $fundRequest->id)
-                ->with('error', 'Only draft requests can be updated');
-        }
-
-        $validated = $request->validate([
-            'request_type_id' => 'required|exists:request_types,id',
-            'amount' => 'required|numeric|min:0',
-            'purpose' => 'required|string|max:1000',
-            'status' => 'sometimes|in:Draft,Submitted'
-        ]);
-
-        $oldValues = $fundRequest->toArray();
-
-        $fundRequest->request_type_id = $validated['request_type_id'];
-        $fundRequest->amount = $validated['amount'];
-        $fundRequest->purpose = $validated['purpose'];
-
-        // If submitting the request
-        if (isset($validated['status']) && $validated['status'] === 'Submitted') {
-            $fundRequest->status = 'Submitted';
-        }
-
-        $fundRequest->save();
-
-        $this->auditService->logUpdate('FundRequest', $fundRequest->id, $oldValues, $fundRequest->toArray());
+        // Update the fund request using the service
+        $fundRequest = $this->fundRequestService->updateFundRequest($fundRequest, $validated);
 
         return redirect()->route('fund-requests.show', $fundRequest->id)
             ->with('success', 'Fund request updated successfully');
@@ -515,12 +357,8 @@ class FundRequestController extends Controller
             }
         }
 
-        $oldValues = $fundRequest->toArray();
-
-        $fundRequest->status = 'Submitted';
-        $fundRequest->save();
-
-        $this->auditService->logCustomAction('submitted', 'FundRequest', $fundRequest->id);
+        // Submit the fund request using the service
+        $fundRequest = $this->fundRequestService->submitFundRequest($fundRequest);
 
         if ($user->role === 'scholar') {
             return redirect()->route('scholar.fund-requests.show', $fundRequest->id)
@@ -552,14 +390,8 @@ class FundRequestController extends Controller
                 ->with('error', 'Only submitted or under review requests can be approved');
         }
 
-        $oldValues = $fundRequest->toArray();
-
-        $fundRequest->status = 'Approved';
-        $fundRequest->reviewed_by = Auth::id();
-        $fundRequest->reviewed_at = now();
-        $fundRequest->save();
-
-        $this->auditService->logCustomAction('approved', 'FundRequest', $fundRequest->id);
+        // Approve the fund request using the service
+        $fundRequest = $this->fundRequestService->approveFundRequest($fundRequest, Auth::id());
 
         return redirect()->route('admin.fund-requests.show', $fundRequest->id)
             ->with('success', 'Fund request approved successfully');
@@ -571,7 +403,29 @@ class FundRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function reject(Request $request, $id)
+    public function reject(RejectFundRequestRequest $request, $id)
+    {
+        $fundRequest = FundRequest::findOrFail($id);
+        $validated = $request->validated();
+
+        // Reject the fund request using the service
+        $fundRequest = $this->fundRequestService->rejectFundRequest(
+            $fundRequest,
+            $validated['admin_notes'],
+            Auth::id()
+        );
+
+        return redirect()->route('admin.fund-requests.show', $fundRequest->id)
+            ->with('success', 'Fund request rejected successfully');
+    }
+
+    /**
+     * Mark a fund request as under review.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function markAsUnderReview($id)
     {
         // Check if user is admin
         if (Auth::user()->role !== 'admin') {
@@ -580,28 +434,54 @@ class FundRequestController extends Controller
 
         $fundRequest = FundRequest::findOrFail($id);
 
-        // Only submitted or under review requests can be rejected
-        if (!in_array($fundRequest->status, ['Submitted', 'Under Review'])) {
+        // Only submitted requests can be marked as under review
+        if ($fundRequest->status !== 'Submitted') {
             return redirect()->route('admin.fund-requests.show', $fundRequest->id)
-                ->with('error', 'Only submitted or under review requests can be rejected');
+                ->with('error', 'Only submitted requests can be marked as under review');
+        }
+
+        // Mark the fund request as under review using the service
+        $fundRequest = $this->fundRequestService->markFundRequestAsUnderReview($fundRequest);
+
+        return redirect()->route('admin.fund-requests.show', $fundRequest->id)
+            ->with('success', 'Fund request marked as under review successfully');
+    }
+
+    /**
+     * Get status updates for fund requests
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStatusUpdates(Request $request)
+    {
+        // Check if user is a scholar
+        $user = Auth::user();
+        if ($user->role !== 'scholar') {
+            return response()->json(['error' => 'Unauthorized access'], 403);
         }
 
         // Validate the request
         $validated = $request->validate([
-            'admin_notes' => 'required|string|max:1000',
+            'request_ids' => 'required|array',
+            'request_ids.*' => 'integer|exists:fund_requests,id',
         ]);
 
-        $oldValues = $fundRequest->toArray();
+        // Get scholar profile
+        $scholarProfile = $user->scholarProfile;
+        if (!$scholarProfile) {
+            return response()->json(['error' => 'Scholar profile not found'], 404);
+        }
 
-        $fundRequest->status = 'Rejected';
-        $fundRequest->admin_notes = $validated['admin_notes'];
-        $fundRequest->reviewed_by = Auth::id();
-        $fundRequest->reviewed_at = now();
-        $fundRequest->save();
+        // Get status updates using the service
+        $updates = $this->fundRequestService->getFundRequestStatusUpdates(
+            $validated['request_ids'],
+            $scholarProfile->id
+        );
 
-        $this->auditService->logCustomAction('rejected', 'FundRequest', $fundRequest->id);
-
-        return redirect()->route('admin.fund-requests.show', $fundRequest->id)
-            ->with('success', 'Fund request rejected successfully');
+        return response()->json([
+            'success' => true,
+            'updates' => $updates,
+        ]);
     }
 }

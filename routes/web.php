@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ScholarController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\FundRequestController;
 use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\ManuscriptController;
@@ -36,7 +37,7 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function () {
     Route::get('/dashboard', [ScholarController::class, 'dashboard'])->name('dashboard');
     Route::get('/notifications', [ScholarController::class, 'notifications'])->name('notifications');
-    
+
     // Notification routes
     Route::get('/notifications/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::get('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
@@ -57,6 +58,7 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::get('/fund-requests/index', [FundRequestController::class, 'scholarIndex'])->name('fund-requests.index');
     Route::get('/fund-requests/create', [FundRequestController::class, 'create'])->name('fund-requests.create');
     Route::post('/fund-requests', [FundRequestController::class, 'store'])->name('fund-requests.store');
+    Route::post('/fund-requests/status-updates', [FundRequestController::class, 'getStatusUpdates'])->name('fund-requests.status-updates');
     Route::get('/fund-requests/{id}', [FundRequestController::class, 'show'])->name('fund-requests.show');
     Route::get('/fund-requests/{id}/edit', [FundRequestController::class, 'edit'])->name('fund-requests.edit');
     Route::put('/fund-requests/{id}', [FundRequestController::class, 'update'])->name('fund-requests.update');
@@ -74,7 +76,7 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::put('/manuscripts/{id}', [ManuscriptController::class, 'scholarUpdate'])->name('manuscripts.update');
     Route::delete('/manuscripts/{id}', [ManuscriptController::class, 'scholarDestroy'])->name('manuscripts.destroy');
     Route::put('/manuscripts/{id}/submit', [ManuscriptController::class, 'scholarSubmit'])->name('manuscripts.submit');
-    
+
     // Scholar-specific document routes
     Route::get('/documents', [DocumentController::class, 'scholarIndex'])->name('documents.index');
     Route::get('/documents/create', [DocumentController::class, 'scholarCreate'])->name('documents.create');
@@ -88,7 +90,7 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
 // Admin routes - only accessible to admins
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    
+
     // Redis cached dashboard example
     Route::get('/cached-dashboard', [\App\Http\Controllers\CachedDashboardController::class, 'index'])->name('cached-dashboard');
     Route::post('/clear-cache', [\App\Http\Controllers\CachedDashboardController::class, 'clearCache'])->name('clear-cache');
@@ -112,7 +114,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/fund-requests/{id}', [FundRequestController::class, 'show'])->name('fund-requests.show');
     Route::put('/fund-requests/{id}/approve', [FundRequestController::class, 'approve'])->name('fund-requests.approve');
     Route::put('/fund-requests/{id}/reject', [FundRequestController::class, 'reject'])->name('fund-requests.reject');
-    
+    Route::put('/fund-requests/{id}/under-review', [FundRequestController::class, 'markAsUnderReview'])->name('fund-requests.under-review');
+
     // Document management routes
     Route::get('/documents', [DocumentController::class, 'adminIndex'])->name('documents.index');
     Route::get('/documents/{id}', [DocumentController::class, 'adminShow'])->name('documents.show');
@@ -156,10 +159,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Super Admin routes - only accessible to super admins
+Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->prefix('super-admin')->name('super_admin.')->group(function () {
+    Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/user-management', [SuperAdminController::class, 'userManagement'])->name('user_management');
+    Route::get('/user-management/{id}/edit', [SuperAdminController::class, 'editUser'])->name('user_management.edit');
+    Route::put('/user-management/{id}', [SuperAdminController::class, 'updateUser'])->name('user_management.update');
+    Route::get('/system-settings', [SuperAdminController::class, 'systemSettings'])->name('system_settings');
+
+    // Test repository routes - for testing the repository pattern implementation
+    Route::get('/test-user-repository', [\App\Http\Controllers\TestRepositoryController::class, 'testUserRepository'])->name('test_user_repository');
+    Route::get('/test-fund-request-repository', [\App\Http\Controllers\TestRepositoryController::class, 'testFundRequestRepository'])->name('test_fund_request_repository');
+});
+
 // Catch-all route to redirect users to appropriate dashboard
 Route::get('/dashboard', function() {
     if (Auth::user()->role === 'scholar') {
         return redirect()->route('scholar.dashboard');
+    } elseif (Auth::user()->role === 'super_admin') {
+        return redirect()->route('super_admin.dashboard');
     }
     return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('dashboard');
@@ -171,3 +189,14 @@ Route::get('/home', function() {
     }
     return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('home');
+
+// Example routes for demonstrating exception handling
+Route::prefix('example')->name('example.')->group(function () {
+    Route::get('/exceptions', [\App\Http\Controllers\ExampleExceptionController::class, 'index'])->name('exceptions');
+    Route::get('/bad-request', [\App\Http\Controllers\ExampleExceptionController::class, 'badRequest'])->name('bad-request');
+    Route::get('/validation-error', [\App\Http\Controllers\ExampleExceptionController::class, 'validationError'])->name('validation-error');
+    Route::get('/unauthorized', [\App\Http\Controllers\ExampleExceptionController::class, 'unauthorized'])->name('unauthorized');
+    Route::get('/forbidden', [\App\Http\Controllers\ExampleExceptionController::class, 'forbidden'])->name('forbidden');
+    Route::get('/not-found', [\App\Http\Controllers\ExampleExceptionController::class, 'notFound'])->name('not-found');
+    Route::get('/server-error', [\App\Http\Controllers\ExampleExceptionController::class, 'serverError'])->name('server-error');
+});

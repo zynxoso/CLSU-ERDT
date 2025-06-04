@@ -4,20 +4,13 @@
 
 @section('content')
 <div class="min-h-screen">
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto">
         <div class="mb-6">
-            <div class="flex space-x-6 mb-4">
-                <a href="{{ route('scholar.dashboard') }}"
-                   class="group w-44 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 shadow-sm flex items-center justify-center border border-gray-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md btn-transition">
-                    <i class="fas fa-arrow-left mr-2 group-hover:translate-x-[-3px] transition-transform duration-300"></i>
-                    <span>Back to Dashboard</span>
-                </a>
-            </div>
             <h1 class="text-2xl font-bold text-gray-900 mt-2">Notifications</h1>
             <p class="text-gray-500 mt-1">View all your notifications and updates</p>
         </div>
 
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="bg-white rounded-md p-6 border border-gray-200 shadow-sm">
             @if(count($notifications) > 0)
                 <div class="space-y-6">
                     @foreach($notifications as $notification)
@@ -25,13 +18,13 @@
                             <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4"
                                  style="background-color: {{ $notification->type == 'profile_update' ? '#E1F0FF' : '#F0F4FD' }}">
                                 @if($notification->type == 'profile_update')
-                                    <i class="fas fa-user-edit text-blue-600 text-lg"></i>
+                                    <i class="fas fa-user-edit text-lg" style="color: #2563eb;"></i>
                                 @elseif($notification->type == 'document')
-                                    <i class="fas fa-file-alt text-green-600 text-lg"></i>
+                                    <i class="fas fa-file-alt text-lg" style="color: #16a34a;"></i>
                                 @elseif($notification->type == 'fund_request')
-                                    <i class="fas fa-money-bill-wave text-yellow-600 text-lg"></i>
+                                    <i class="fas fa-money-bill-wave text-lg" style="color: #ca8a04;"></i>
                                 @else
-                                    <i class="fas fa-bell text-gray-600 text-lg"></i>
+                                    <i class="fas fa-bell text-lg" style="color: #4b5563;"></i>
                                 @endif
                             </div>
                             <div class="flex-1">
@@ -45,7 +38,7 @@
                                         <a href="{{ $notification->link }}" 
                                            class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors duration-200">
                                             <span>View Details</span>
-                                            <i class="fas fa-chevron-right ml-2 text-xs"></i>
+                                            <i class="fas fa-chevron-right ml-2 text-xs" style="color:rgb(96, 109, 128);"></i>
                                         </a>
                                     </div>
                                 @endif

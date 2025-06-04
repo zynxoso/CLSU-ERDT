@@ -29,6 +29,9 @@ class Document extends Model
         'verified_at',
         'description',
         'status',
+        'security_scanned',
+        'security_scanned_at',
+        'security_scan_result',
     ];
 
     /**
@@ -39,6 +42,8 @@ class Document extends Model
     protected $casts = [
         'is_verified' => 'boolean',
         'verified_at' => 'datetime',
+        'security_scanned' => 'boolean',
+        'security_scanned_at' => 'datetime',
     ];
 
     /**

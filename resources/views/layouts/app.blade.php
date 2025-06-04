@@ -7,6 +7,9 @@
 
     <title>@yield('title', 'CLSU-ERDT')</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('storage/logo/erdt_logo.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

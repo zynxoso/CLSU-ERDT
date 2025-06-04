@@ -19,6 +19,7 @@ class Notification extends Model
         'title',
         'message',
         'type',
+        'data',
         'link',
         'is_read',
         'email_sent',
@@ -32,6 +33,7 @@ class Notification extends Model
     protected $casts = [
         'is_read' => 'boolean',
         'email_sent' => 'boolean',
+        'data' => 'array',
     ];
 
     /**

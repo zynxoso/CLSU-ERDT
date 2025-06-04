@@ -23,6 +23,7 @@ class FundRequest extends Model
         'purpose',
         'details',
         'status',
+        'status_history',
         'admin_notes',
         'reviewed_by',
         'reviewed_at',
@@ -36,6 +37,7 @@ class FundRequest extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'reviewed_at' => 'datetime',
+        'status_history' => 'array',
     ];
 
     /**
@@ -86,12 +88,66 @@ class FundRequest extends Model
             'user_id' // Local key on scholar_profiles table
         );
     }
-    
+
     /**
      * Get the documents for the fund request.
      */
     public function documents()
     {
         return $this->hasMany(Document::class);
+    }
+
+    /**
+     * Add a status change to the history
+     *
+     * @param string $status
+     * @param string|null $notes
+     * @return void
+     */
+    public function addStatusHistory(string $status, ?string $notes = null): void
+    {
+        $history = $this->status_history ?? [];
+
+        $history[] = [
+            'status' => $status,
+            'notes' => $notes,
+            'timestamp' => now()->toDateTimeString(),
+            'user_id' => auth()->id(),
+            'user_name' => auth()->user() ? auth()->user()->name : 'System',
+        ];
+
+        $this->status_history = $history;
+        $this->save();
+    }
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($fundRequest) {
+            // If status is changing, add to history
+            if ($fundRequest->isDirty('status')) {
+                $oldStatus = $fundRequest->getOriginal('status');
+                $newStatus = $fundRequest->status;
+
+                // Only add to history if there's an actual change
+                if ($oldStatus !== $newStatus) {
+                    $history = $fundRequest->status_history ?? [];
+
+                    $history[] = [
+                        'status' => $newStatus,
+                        'previous_status' => $oldStatus,
+                        'timestamp' => now()->toDateTimeString(),
+                        'user_id' => auth()->id(),
+                        'user_name' => auth()->user() ? auth()->user()->name : 'System',
+                    ];
+
+                    $fundRequest->status_history = $history;
+                }
+            }
+        });
     }
 }

@@ -21,6 +21,7 @@
                         <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                         <option value="Approved" {{ request('status') == 'Approved' ? 'selected' : '' }}>Approved</option>
                         <option value="Rejected" {{ request('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                        <option value="Under Review" {{ request('status') == 'Under Review' ? 'selected' : '' }}>Under Review</option>
                     </select>
                 </div>
                 <div class="flex-1 min-w-[200px]">

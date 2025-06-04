@@ -2,235 +2,351 @@
 
 @section('title', 'Fund Request Details')
 
+@push('styles')
+<style>
+    .status-badge {
+        @apply px-3 py-1 rounded-full text-sm font-medium;
+    }
+    .status-pending { @apply bg-yellow-300 text-yellow-900; }
+    .status-approved { @apply bg-green-300 text-green-900; }
+    .status-rejected { @apply bg-red-300 text-red-900; }
+    .status-review { @apply bg-blue-300 text-blue-900; }
+    .info-card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md;
+    }
+    .info-label {
+        @apply text-xs font-medium text-gray-500 uppercase tracking-wider mb-1;
+    }
+    .info-value {
+        @apply text-gray-900 font-medium;
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="max-w-7xl mx-auto sm:px-6">
-    <div class="mb-3">
-        <h1 class="text-2xl font-bold text-gray-900 mt-2">Fund Request Details</h1>
+<div class="container mx-auto">
+    <!-- Header with Back Button -->
+    <div class="flex items-center mb-6">
+        <!-- <a href="{{ url()->previous() }}" class="mr-4 text-gray-600 hover:text-gray-900 flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+            <i class="fas fa-arrow-left"></i>
+        </a> -->
+        <h1 class="text-2xl font-bold text-gray-900">Fund Request Details</h1>
     </div>
 
-    <!-- Main Content Columns -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Request Details -->
-        <div class="bg-white rounded-lg shadow overflow-hidden h-fit">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-900">Request Information</h2>
+    <!-- Status Banner -->
+    <div class="mb-6 rounded-lg overflow-hidden" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="flex items-start">
+            <div class="flex-shrink-0 w-2"
+                @if($fundRequest->status == 'Approved') style="background-color: #1a5f1a;"
+                @elseif($fundRequest->status == 'Rejected') style="background-color: #7f1d1d;"
+                @elseif($fundRequest->status == 'Under Review') style="background-color: #1e3a8a;"
+                @else style="background-color: #854d0e;" @endif>
             </div>
+            <div class="flex-1 p-4" 
+                @if($fundRequest->status == 'Approved') style="background-color: #166534; color: #f0fdf4;"
+                @elseif($fundRequest->status == 'Rejected') style="background-color: #991b1b; color: #fef2f2;"
+                @elseif($fundRequest->status == 'Under Review') style="background-color: #1e40af; color: #eff6ff;"
+                @else style="background-color: #854d0e; color: #fefce8;" @endif>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 pt-0.5">
+                        <i class="fas text-lg mr-3"
+                            @if($fundRequest->status == 'Approved') style="color: #86efac;"
+                            @elseif($fundRequest->status == 'Rejected') style="color: #fca5a5;"
+                            @elseif($fundRequest->status == 'Under Review') style="color: #93c5fd;"
+                            @else style="color: #fde047;" @endif
+                            @if($fundRequest->status == 'Approved') data-feather="check-circle"
+                            @elseif($fundRequest->status == 'Rejected') data-feather="x-circle"
+                            @elseif($fundRequest->status == 'Under Review') data-feather="search"
+                            @else data-feather="clock" @endif>
+                        </i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-base font-semibold mb-1" style="@if($fundRequest->status == 'Approved') color: #dcfce7;
+                            @elseif($fundRequest->status == 'Rejected') color: #fee2e2;
+                            @elseif($fundRequest->status == 'Under Review') color: #dbeafe;
+                            @else color: #fef9c3; @endif">
+                            Request {{ $fundRequest->status }}
+                        </h3>
+                        <p class="text-sm" style="@if($fundRequest->status == 'Approved') color: #bbf7d0;
+                            @elseif($fundRequest->status == 'Rejected') color: #fecaca;
+                            @elseif($fundRequest->status == 'Under Review') color: #bfdbfe;
+                            @else color: #fef08a; @endif">
+                            @if($fundRequest->status == 'Submitted')
+                                Your request has been submitted and is pending review.
+                            @elseif($fundRequest->status == 'Under Review')
+                                Your request is currently being reviewed by our team.
+                            @elseif($fundRequest->status == 'Approved')
+                                Your request has been approved.
+                            @else
+                                Your request has been rejected.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div class="p-6">
-                <!-- Status Section -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center mb-6 border-b border-gray-100 pb-4">
-                    <div class="flex items-center mb-3 sm:mb-0">
-                        <div class="w-10 h-10 rounded-full
-                            @if($fundRequest->status == 'Approved') bg-green-500
-                            @elseif($fundRequest->status == 'Rejected') bg-red-500
-                            @elseif($fundRequest->status == 'Submitted') bg-yellow-500
-                            @else bg-blue-500 @endif
-                            flex items-center justify-center mr-3">
-                            <i class="fas text-white
-                                @if($fundRequest->status == 'Approved') fa-check
-                                @elseif($fundRequest->status == 'Rejected') fa-times
-                                @elseif($fundRequest->status == 'Submitted') fa-clock
-                                @else fa-edit @endif"></i>
-                        </div>
-
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - Request Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Request Information Card -->
+            <div class="info-card">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">Request Information</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <p class="text-xs text-gray-500">Status</p>
-                            <p class="text-base font-bold
-                                @if($fundRequest->status == 'Approved') text-green-600
-                                @elseif($fundRequest->status == 'Rejected') text-red-600
-                                @elseif($fundRequest->status == 'Submitted') text-yellow-600
-                                @else text-blue-600 @endif">
-                                {{ $fundRequest->status }}
-                            </p>
+                            <p class="info-label">Reference Number</p>
+                            <p class="info-value">FR-{{ str_pad($fundRequest->id, 6, '0', STR_PAD_LEFT) }}</p>
                         </div>
+                        <div>
+                            <p class="info-label">Request Type</p>
+                            <p class="info-value">{{ $fundRequest->requestType->name ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="info-label">Amount Requested</p>
+                            <p class="info-value">₱{{ number_format($fundRequest->amount, 2) }}</p>
+                        </div>
+                        <div>
+                            <p class="info-label">Date Submitted</p>
+                            <p class="info-value">{{ $fundRequest->created_at->format('M d, Y') }}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="info-label">Purpose</p>
+                            <p class="info-value">{{ $fundRequest->purpose }}</p>
+                        </div>
+                        @if($fundRequest->admin_notes)
+                        <div class="md:col-span-2 pt-4 border-t border-gray-100">
+                            <p class="info-label">Admin Notes</p>
+                            <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg mt-1">{{ $fundRequest->admin_notes }}</p>
+                        </div>
+                        @endif
                     </div>
-
-                    <div class="flex-grow"></div>
-
-                    @if(Auth::user()->role == 'admin' && in_array($fundRequest->status, ['Submitted', 'Under Review']))
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" class="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"
-                            onclick="document.getElementById('approve-modal').classList.remove('hidden')">
-                            <i class="fas fa-check mr-1"></i> Approve
-                        </button>
-                        <button type="button" class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
-                            onclick="document.getElementById('reject-modal').classList.remove('hidden')">
-                            <i class="fas fa-times mr-1"></i> Reject
-                        </button>
-                    </div>
-                    @endif
                 </div>
+            </div>
 
-                <!-- Request Details Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-sm text-gray-500">Reference Number</p>
-                        <p class="text-base font-medium">FR-{{ $fundRequest->id }}</p>
+            <!-- Documents Section -->
+            <div class="info-card">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900">Supporting Documents</h2>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            {{ $fundRequest->documents->count() }} {{ Str::plural('Document', $fundRequest->documents->count()) }}
+                        </span>
                     </div>
-
-                    <div>
-                        <p class="text-sm text-gray-500">Amount</p>
-                        <p class="text-base font-medium">₱{{ number_format($fundRequest->amount, 2) }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-sm text-gray-500">Request Type</p>
-                        <p class="text-base font-medium">{{ $fundRequest->requestType->name ?? 'N/A' }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-sm text-gray-500">Date Submitted</p>
-                        <p class="text-base font-medium">{{ $fundRequest->created_at->format('F d, Y') }}</p>
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <p class="text-sm text-gray-500">Purpose</p>
-                        <p class="text-base font-medium">{{ $fundRequest->purpose }}</p>
-                    </div>
-
-                    @if($fundRequest->admin_notes)
-                    <div class="sm:col-span-2">
-                        <p class="text-sm text-gray-500">Admin Notes</p>
-                        <p class="text-base font-medium">{{ $fundRequest->admin_notes }}</p>
-                    </div>
+                </div>
+                <div class="p-6">
+                    @if($fundRequest->documents->isNotEmpty())
+                        <div class="space-y-4">
+                            @foreach($fundRequest->documents as $document)
+                            <div class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-150">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div class="flex items-center min-w-0">
+                                        <div class="flex-shrink-0 bg-gray-300 p-2 rounded-lg mr-3">
+                                            <i class="fas 
+                                                @if(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['pdf']))
+                                                    fa-file-pdf text-red-500
+                                                @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
+                                                    fa-file-image text-blue-500
+                                                @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['doc', 'docx']))
+                                                    fa-file-word text-blue-600
+                                                @else
+                                                    fa-file text-gray-500
+                                                @endif
+                                                text-lg"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate" title="{{ $document->file_name }}">
+                                                {{ $document->file_name }}
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                {{ strtoupper(pathinfo($document->file_name, PATHINFO_EXTENSION)) }} • 
+                                                {{ number_format(filesize(storage_path('app/public/' . $document->file_path)) / 1024, 1) }} KB
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0 flex space-x-2">
+                                        <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                           target="_blank" 
+                                           class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            <i class="fas fa-eye mr-1.5" style="color: #374151;"></i> View
+                                        </a>
+                                        <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                           download
+                                           class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            <i class="fas fa-download mr-1.5" style="color: #fff;"></i> Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <i class="fas fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">No supporting documents found for this request.</p>
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
 
-        <!-- Supporting Documents Section -->
-        <!-- <div class="bg-white rounded-lg shadow overflow-hidden h-fit"> -->
-            <!-- <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-900">Supporting Documents</h2>
-            </div> -->
-
-            <div class="bg-white rounded-lg shadow overflow-hidden h-fit">
-            @if($fundRequest->documents->isNotEmpty())
-                <div class="grid grid-cols-1 gap-6">
-                    @foreach($fundRequest->documents as $document)
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                                <div>
-                                    <p class="text-sm text-gray-500">Document Name</p>
-                                    <p class="text-base font-medium">{{ $document->file_name }}</p>
-                                </div>
-                                <div class="mt-2 md:mt-0">
-                                    <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center">
-                                        <i class="fas fa-external-link-alt mr-2"></i> Open in New Tab
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <!-- Document Preview -->
-                            <div class="mt-4 border border-gray-200 rounded-lg overflow-hidden">
-                                @if(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['pdf']))
-                                    <div class="bg-gray-100 p-4 text-center overflow-hidden">
-                                        <div class="w-full max-w-full overflow-hidden">
-                                            <embed src="{{ asset('storage/' . $document->file_path) }}" type="application/pdf" width="100%" height="300px" class="max-w-full" />
-                                        </div>
-                                    </div>
-                                @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                    <div class="bg-gray-100 p-4 text-center overflow-hidden">
-                                        <img src="{{ asset('storage/' . $document->file_path) }}" alt="{{ $document->file_name }}" class="max-w-full h-auto mx-auto" style="max-height: 300px;">
-                                    </div>
-                                @else
-                                    <div class="bg-gray-100 p-4 text-center">
-                                        <p class="text-gray-600">Preview not available for this file type. Please click "Open in New Tab" to view the document.</p>
-                                    </div>
-                                @endif
-                            </div>
-                            
-                          
-                            
-                            <!-- Reject Document Modal -->
-                            <div id="reject-document-modal-{{ $document->id }}" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto px-4">
-                                <div class="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-auto">
-                                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Reject Document</h3>
-                                    <p class="mb-3 text-sm sm:text-base">Please provide a reason for rejecting this document:</p>
-
-                                    <form action="{{ route('admin.documents.reject', $document->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-
-                                        <div class="mb-4">
-                                            <label for="admin_notes_{{ $document->id }}" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
-                                            <textarea id="admin_notes_{{ $document->id }}" name="admin_notes" rows="3" required
-                                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"></textarea>
-                                        </div>
-
-                                        <div class="flex justify-end gap-2">
-                                            <button type="button" class="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
-                                                onclick="document.getElementById('reject-document-modal-{{ $document->id }}').classList.add('hidden')">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" class="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
-                                                Reject
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+        <!-- Right Column - Actions & Timeline -->
+        <div class="space-y-6">
+            @if(Auth::user()->role == 'admin' && in_array($fundRequest->status, ['Submitted', 'Under Review']))
+            <!-- Admin Actions Card -->
+            <div class="info-card">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">Request Actions</h2>
+                </div>
+                <div class="p-6 space-y-3">
+                    @if($fundRequest->status == 'Submitted')
+                    <button onclick="document.getElementById('under-review-modal').classList.remove('hidden')"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-150">
+                        <div class="flex items-center">
+                            <i class="fas fa-search mr-3 text-blue-100"></i>
+                            <span class="font-medium text-white">Mark as Under Review</span>
                         </div>
-                    @endforeach
+                        <i class="fas fa-chevron-right text-blue-100"></i>
+                    </button>
+                    @endif
+                    
+                    <button onclick="document.getElementById('approve-modal').classList.remove('hidden')"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-150">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle mr-3 text-green-100"></i>
+                            <span class="font-medium text-white">Approve Request</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-100"></i>
+                    </button>
+
+                    <button onclick="document.getElementById('reject-modal').classList.remove('hidden')"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-150">
+                        <div class="flex items-center">
+                            <i class="fas fa-times-circle mr-3 text-red-100"></i>
+                            <span class="font-medium text-white">Reject Request</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-red-100"></i>
+                    </button>
                 </div>
-            @else
-                <div class="text-center py-6">
-                    <p class="text-gray-500">No supporting documents have been uploaded for this fund request.</p>
-                </div>
+            </div>
             @endif
+
+            <!-- Timeline Card -->
+            <div class="info-card">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">Request Timeline</h2>
+                </div>
+                <div class="p-6">
+                    <div class="flow-root">
+                        <ul class="-mb-8">
+                            <li class="relative pb-8">
+                                <div class="relative flex items-start space-x-3">
+                                    <div>
+                                        <div class="relative px-1">
+                                            <div class="h-8 w-8 bg-blue-400 rounded-full flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-paper-plane text-blue-950"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 pt-1.5">
+                                        <div class="flex justify-between">
+                                            <p class="text-sm text-gray-700">Request submitted</p>
+                                            <p class="text-xs text-gray-500">{{ $fundRequest->created_at->diffForHumans() }}</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">by {{ $fundRequest->user->name }}</p>
+                                    </div>
+                                </div>
+                            </li>
+
+                            @if($fundRequest->status == 'Under Review' || $fundRequest->status == 'Approved' || $fundRequest->status == 'Rejected')
+                            <li class="relative pb-8">
+                                <div class="relative flex items-start space-x-3">
+                                    <div>
+                                        <div class="relative px-1">
+                                            <div class="h-8 w-8 bg-blue-400 rounded-full flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-search text-blue-900"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 pt-1.5">
+                                        <div class="flex justify-between">
+                                            <p class="text-sm text-gray-700">Request under review</p>
+                                            <p class="text-xs text-gray-500">{{ $fundRequest->updated_at->diffForHumans() }}</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">by Admin</p>
+                                    </div>
+                                </div>
+                            </li>
+                            @endif
+
+                            @if($fundRequest->status == 'Approved')
+                            <li class="relative">
+                                <div class="relative flex items-start space-x-3">
+                                    <div>
+                                        <div class="relative px-1">
+                                            <div class="h-8 w-8 bg-green-400 rounded-full flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-check text-green-900"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 pt-1.5">
+                                        <div class="flex justify-between">
+                                            <p class="text-sm text-gray-700">Request approved</p>
+                                            <p class="text-xs text-gray-500">{{ $fundRequest->updated_at->diffForHumans() }}</p>
+                                        </div>
+                                        @if($fundRequest->admin_notes)
+                                        <p class="text-xs text-gray-500 mt-1">{{ $fundRequest->admin_notes }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                            @elseif($fundRequest->status == 'Rejected')
+                            <li class="relative">
+                                <div class="relative flex items-start space-x-3">
+                                    <div>
+                                        <div class="relative px-1">
+                                            <div class="h-8 w-8 bg-red-400 rounded-full flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-times text-red-900"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 pt-1.5">
+                                        <div class="flex justify-between">
+                                            <p class="text-sm text-gray-700">Request rejected</p>
+                                            <p class="text-xs text-gray-500">{{ $fundRequest->updated_at->diffForHumans() }}</p>
+                                        </div>
+                                        @if($fundRequest->admin_notes)
+                                        <p class="text-xs text-red-500 mt-1">{{ $fundRequest->admin_notes }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Approve Modal -->
-<div id="approve-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto px-4">
-    <div class="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-auto">
-        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Approve Fund Request</h3>
-        <p class="mb-3 text-sm sm:text-base">Are you sure you want to approve this fund request?</p>
+<!-- Modals (same as before but with improved styling) -->
+@include('admin.fund-requests.modals.approve')
+@include('admin.fund-requests.modals.reject')
+@include('admin.fund-requests.modals.under-review')
 
-        <form action="{{ route('admin.fund-requests.approve', $fundRequest->id) }}" method="POST" class="mt-4">
-            @csrf
-            @method('PUT')
-
-            <div class="flex justify-end gap-2">
-                <button type="button" class="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
-                    onclick="document.getElementById('approve-modal').classList.add('hidden')">
-                    Cancel
-                </button>
-                <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                    Approve
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Reject Modal -->
-<div id="reject-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto px-4">
-    <div class="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full mx-auto">
-        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Reject Fund Request</h3>
-        <p class="mb-3 text-sm sm:text-base">Please provide a reason for rejecting this fund request:</p>
-
-        <form action="{{ route('admin.fund-requests.reject', $fundRequest->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-
-            <div class="mb-4">
-                <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
-                <textarea id="admin_notes" name="admin_notes" rows="3" required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"></textarea>
-            </div>
-
-            <div class="flex justify-end gap-2">
-                <button type="button" class="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
-                    onclick="document.getElementById('reject-modal').classList.add('hidden')">
-                    Cancel
-                </button>
-                <button type="submit" class="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
-                    Reject
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 @endsection
+
+@push('scripts')
+<script>
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.add('hidden');
+        }
+    });
+</script>
+@endpush

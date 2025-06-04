@@ -20,7 +20,7 @@
                 <p class="text-sm text-blue-700">Your fund request will be reviewed by an administrator after submission.</p>
                 <p class="text-sm text-blue-700 mt-1">Please note that each request type has a maximum allowable amount based on your program level (Master's or Doctoral).</p>
             </div>
-            
+
             <form action="{{ route('scholar.fund-requests.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
@@ -38,10 +38,10 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Amount <span class="text-red-500">*</span></label>
+                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Amount (₱) <span class="text-red-500">*</span></label>
                     <div class="relative mb-1">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <span class="text-gray-500 text-base">₱</span>
+{{--                            <span class="text-gray-500 text-base">₱</span>--}}
                         </div>
                         <input type="number" id="amount" name="amount" value="{{ old('amount') }}" step="0.01" min="0" class="w-full border border-gray-300 rounded-md pl-7 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
@@ -51,7 +51,7 @@
                     @enderror
                 </div>
 
-                
+
 
 
                 <div class="mb-4">
@@ -78,8 +78,16 @@
                     </div>
                     <div id="selected-file-info" class="mt-4"></div>
                     <p class="text-xs text-gray-500 mt-1">Upload supporting documents like registration forms, receipts, or other relevant files.</p>
+                    <div class="mt-2">
+                        <div class="flex items-center">
+                            <input id="privacy-agreement-checkbox" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="privacy-agreement-checkbox" class="ml-2 block text-sm text-gray-700">
+                                I agree to the <button type="button" id="open-privacy-modal" class="text-blue-600 hover:text-blue-800 font-medium">Data Privacy Agreement</button>
+                            </label>
+                        </div>
+                        <p id="privacy-agreement-error" class="text-red-500 text-xs mt-1 hidden">You must agree to the Data Privacy Agreement to upload documents.</p>
+                    </div>
 
-                    
                     @error('uploaded_document_id')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -171,7 +179,7 @@
                     const requestTypeSelect = document.getElementById('request_type_id');
                     const amountInput = document.getElementById('amount');
                     const amountLimitInfo = document.getElementById('amount-limit-info');
-                    
+
                     // Define amount limits based on the entitlements table and request types
                     const requestTypeLimits = {
                         // Map request type IDs to their corresponding limits
@@ -220,24 +228,24 @@
                             'period': 'one-time'
                         }
                     };
-                    
+
                     // Get the scholar's program level (master's or doctoral)
                     let scholarProgram = 'masters'; // Default to masters
-                    
+
                     // Check if the program contains 'doctoral' or 'phd'
                     @if(Auth::user()->scholarProfile && (stripos(Auth::user()->scholarProfile->program, 'doctoral') !== false || stripos(Auth::user()->scholarProfile->program, 'phd') !== false))
                         scholarProgram = 'doctoral';
                     @endif
-                    
+
                     function updateAmountLimit() {
                         const requestTypeId = requestTypeSelect.value;
-                        
+
                         if (requestTypeId && requestTypeLimits[requestTypeId]) {
                             const requestType = requestTypeLimits[requestTypeId];
                             const limit = requestType[scholarProgram];
                             const period = requestType['period'] || '';
                             const name = requestType['name'];
-                            
+
                             if (limit === 'Actual as billed') {
                                 amountLimitInfo.textContent = `${name}: Actual as billed ${period}`;
                                 amountInput.removeAttribute('max');
@@ -253,25 +261,25 @@
                             amountInput.removeAttribute('max');
                         }
                     }
-                    
+
                     // Update amount limit when request type changes
                     if (requestTypeSelect) {
                         requestTypeSelect.addEventListener('change', updateAmountLimit);
                         // Initialize on page load
                         updateAmountLimit();
                     }
-                    
+
                     // Validate amount when form is submitted
                     const form = document.querySelector('form');
                     if (form) {
                         form.addEventListener('submit', function(e) {
                             const requestTypeId = requestTypeSelect.value;
                             const amount = parseFloat(amountInput.value);
-                            
+
                             if (requestTypeId && requestTypeLimits[requestTypeId] && requestTypeLimits[requestTypeId][scholarProgram] !== 'Actual as billed') {
                                 const limit = requestTypeLimits[requestTypeId][scholarProgram];
                                 const name = requestTypeLimits[requestTypeId]['name'];
-                                
+
                                 if (amount > limit) {
                                     e.preventDefault();
                                     alert(`The maximum amount allowed for ${name} is ₱${limit.toLocaleString()}.`);
@@ -280,7 +288,7 @@
                             }
                         });
                     }
-                    
+
                     // File upload handling
                     const fileInput = document.getElementById('dropzone-file');
                     const infoDiv = document.getElementById('selected-file-info');
@@ -353,7 +361,7 @@
                 </style>
 
 
-                
+
                 <div class="flex justify-end space-x-4">
                     <button type="submit" name="status" value="Draft" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-300">
                         <i class="fas fa-save mr-2" style="color: white !important;"></i> Save as Draft
@@ -367,5 +375,128 @@
     </div>
 </div>
 
+
+<!-- Data Privacy Agreement Modal -->
+<div id="privacy-agreement-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen p-0 sm:p-4">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full max-w-lg sm:max-w-2xl md:max-w-3xl mx-4 sm:mx-auto">
+            <div class="bg-white p-3 sm:p-4">
+                <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
+                    <h3 class="text-base sm:text-lg font-medium text-gray-900" id="modal-title">
+                        Data Privacy Agreement
+                    </h3>
+                    <button type="button" id="close-privacy-modal-btn" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="max-h-[60vh] sm:max-h-[70vh] overflow-y-auto px-1 sm:px-2">
+                    <div class="prose prose-sm max-w-none text-gray-700">
+                        <p class="mb-3">By uploading documents to the CLSU-ERDT Scholar Management System, you acknowledge and agree to the following:</p>
+
+                        <h4 class="font-semibold text-gray-800 mt-4 mb-2">1. Information Collection and Use</h4>
+                        <p>The documents you upload may contain personal information that will be collected and processed for the purpose of evaluating and processing your fund request. This information will be used solely for administrative purposes related to your scholarship.</p>
+
+                        <h4 class="font-semibold text-gray-800 mt-4 mb-2">2. Data Storage and Security</h4>
+                        <p>Your uploaded documents will be stored securely within our system. We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+
+                        <h4 class="font-semibold text-gray-800 mt-4 mb-2">3. Data Sharing</h4>
+                        <p>Your information may be shared with authorized personnel involved in the scholarship administration process, including but not limited to administrators, evaluators, and relevant institutional departments. Your information will not be shared with third parties outside of this context without your consent, unless required by law.</p>
+
+                        <h4 class="font-semibold text-gray-800 mt-4 mb-2">4. Retention Period</h4>
+                        <p>Your documents will be retained for the duration of your scholarship program and for a reasonable period thereafter for record-keeping purposes, after which they will be securely deleted or anonymized in accordance with our data retention policies.</p>
+
+                        <h4 class="font-semibold text-gray-800 mt-4 mb-2">5. Your Rights</h4>
+                        <p>You have the right to access, correct, or request deletion of your personal information. You may also withdraw your consent for the processing of your personal information, although this may affect the processing of your fund request.</p>
+
+                        <h4 class="font-semibold text-gray-800 mt-4 mb-2">6. Consent</h4>
+                        <p>By checking the agreement box, you consent to the collection, use, storage, and sharing of your personal information as described in this agreement.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-3 py-2 sm:px-4 sm:py-3 flex justify-end">
+                <button type="button" id="agree-privacy-btn" class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-3 py-1.5 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    I Agree
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Privacy Agreement Modal
+    const privacyModal = document.getElementById('privacy-agreement-modal');
+    const openPrivacyBtn = document.getElementById('open-privacy-modal');
+    const closePrivacyBtn = document.getElementById('close-privacy-modal-btn');
+    const agreePrivacyBtn = document.getElementById('agree-privacy-btn');
+    const privacyCheckbox = document.getElementById('privacy-agreement-checkbox');
+    const privacyError = document.getElementById('privacy-agreement-error');
+    const fileInput = document.getElementById('dropzone-file');
+    const form = document.querySelector('form');
+
+    // Show the modal
+    function openPrivacyModal() {
+        privacyModal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    // Hide the modal
+    function closePrivacyModal() {
+        privacyModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    // Event listeners for privacy modal
+    openPrivacyBtn.addEventListener('click', openPrivacyModal);
+    closePrivacyBtn.addEventListener('click', closePrivacyModal);
+
+    // Agree button in modal checks the checkbox
+    agreePrivacyBtn.addEventListener('click', function() {
+        privacyCheckbox.checked = true;
+        privacyError.classList.add('hidden');
+        closePrivacyModal();
+    });
+
+    // Close modal when clicking outside
+    privacyModal.addEventListener('click', function(event) {
+        if (event.target === privacyModal) {
+            closePrivacyModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && !privacyModal.classList.contains('hidden')) {
+            closePrivacyModal();
+        }
+    });
+
+    // Show privacy modal when file is selected if agreement not checked
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (fileInput.files && fileInput.files[0] && !privacyCheckbox.checked) {
+                openPrivacyModal();
+            }
+        });
+    }
+
+    // Form submission validation
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // If file is selected but privacy agreement not checked
+            if (fileInput.files && fileInput.files[0] && !privacyCheckbox.checked) {
+                e.preventDefault();
+                privacyError.classList.remove('hidden');
+                privacyError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+});
+</script>
 
 @endsection
