@@ -66,7 +66,7 @@
                 </div> -->
 
                 <!-- Logout Button with SweetAlert -->
-                <form id="scholar-logout-form" method="POST" action="{{ route('logout') }}" class="">
+                <form id="scholar-logout-form" method="POST" action="{{ route('scholar-logout') }}" class="">
                     @csrf
                     <button type="button" id="scholar-logout-button" class="flex items-center w-full px-4 py-2 text-sm font-medium text-red-600 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

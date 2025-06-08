@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/admin-analytics.css',
                 'resources/css/analytics.css',
+                'resources/css/custom.css',
                 'resources/js/app.js',
             ],
             refresh: true,

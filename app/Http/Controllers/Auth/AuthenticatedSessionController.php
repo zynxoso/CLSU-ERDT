@@ -28,11 +28,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->authenticate('web');
 
-        $request->session()->regenerate();
+        $user = Auth::user();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if ($user->role === 'admin' || $user->role === 'super_admin') {
+            $request->session()->regenerate();
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        } else {
+            Auth::guard('web')->logout();
+            return redirect()->route('login')->withErrors(['email' => 'You do not have admin/super admin access.']);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ScholarAuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -11,12 +12,15 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    // Registration routes removed - accounts will be created by admin only
-
+    // Admin/SuperAdmin Login
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
-
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    // Scholar Login
+    Route::get('scholar-login', [ScholarAuthenticatedSessionController::class, 'create'])
+        ->name('scholar-login');
+    Route::post('scholar-login', [ScholarAuthenticatedSessionController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
@@ -53,3 +57,6 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });
+
+Route::post('scholar-logout', [ScholarAuthenticatedSessionController::class, 'destroy'])
+    ->name('scholar-logout');

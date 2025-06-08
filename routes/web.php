@@ -21,17 +21,34 @@ use App\Http\Controllers\DocumentController;
 
 // Redirect to login if not authenticated, otherwise to appropriate dashboard
 Route::get('/', function () {
-    if (Auth::check()) {
-        if (Auth::user()->role === 'scholar') {
-            return redirect()->route('scholar.dashboard');
-        }
-        return redirect()->route('admin.dashboard');
-    }
-    return redirect()->route('login');
+    return view('auth.scholar-login');
 });
+
+// Scholar Login Route
+Route::get('/scholar-login', function () {
+    return view('auth.scholar-login');
+})->name('scholar-login');
+
+// Admin/SuperAdmin Login Route
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
 
 // Include authentication routes
 require __DIR__.'/auth.php';
+
+// Public marketing/info pages
+Route::get('/how-to-apply', function () {
+    return view('how-to-apply'); // You'll need to create this view
+})->name('how-to-apply');
+
+Route::get('/about', function () {
+    return view('about'); // You'll need to create this view
+})->name('about');
+
+Route::get('/history', function () {
+    return view('history'); // You'll need to create this view
+})->name('history');
 
 // Scholar routes - only accessible to scholars
 Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function () {
@@ -64,8 +81,6 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::put('/fund-requests/{id}', [FundRequestController::class, 'update'])->name('fund-requests.update');
     Route::put('/fund-requests/{id}/submit', [FundRequestController::class, 'submit'])->name('fund-requests.submit');
     Route::delete('/fund-requests/{id}', [FundRequestController::class, 'destroy'])->name('fund-requests.destroy');
-
-
 
     // Scholar-specific manuscript routes
     Route::get('/manuscripts', [ManuscriptController::class, 'scholarIndex'])->name('manuscripts.index');

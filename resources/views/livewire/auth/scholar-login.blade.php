@@ -1,34 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLSU-ERDT Scholarship Management System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-image: {{ asset('storage/bg/bgloginscholar.png') }}
-        }
-        h1, h2, h3, .logo-text {
-            font-family: 'Montserrat', sans-serif;
-        }
-        .engineering-gradient {
-            background: linear-gradient(135deg, #0369a1, #0c4a6e);
-        }
-        .blueprint-pattern {
-            background-color: #0c4a6e;
-            background-image: radial-gradient(#164e63 1px, transparent 1px),
-                              radial-gradient(#164e63 1px, transparent 1px);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
-            opacity: 0.8;
-        }
-    </style>    
-</head>
-<body style="background-image: url('{{ asset('storage/bg/bgloginscholar.png') }}'); background-repeat: no-repeat; background-size: cover;">
+<div>
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md px-6 py-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -37,14 +7,12 @@
                     <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-10 mr-3">
                     <span class="logo-text font-bold text-gray-800 text-xl ml-2" >CLSU-ERDT</span>
                 </div>
-                <!-- <div class="hidden md:block h-6 w-px bg-gray-300"></div> -->
-                <!-- <span class="hidden md:block text-sm text-gray-600">Engineering Scholarship Management System</span> -->
             </div>
             <div class="hidden md:flex space-x-8">
-                <a href="#" class="text-gray-600 hover:text-blue-800 transition">Home</a>
-                <a href="#" class="text-gray-600 hover:text-blue-800 transition">How to Apply</a>
-                <a href="#" class="text-gray-600 hover:text-blue-800 transition">About</a>
-                <a href="#" class="text-gray-600 hover:text-blue-800 transition">History</a>
+                <a href="{{ route('scholar-login') }}" class="text-gray-600 hover:text-blue-800 transition">Home</a>
+                <a href="{{ route('how-to-apply') }}" class="text-gray-600 hover:text-blue-800 transition">How to Apply</a>
+                <a href="{{ route('about') }}" class="text-gray-600 hover:text-blue-800 transition">About</a>
+                <a href="{{ route('history') }}" class="text-gray-600 hover:text-blue-800 transition">History</a>
             </div>
             <div class="md:hidden">
                 <button id="mobile-menu-button" class="text-gray-500 hover:text-gray-800">
@@ -56,10 +24,10 @@
         </div>
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Home</a>
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">How to Apply</a>
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">About</a>
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">History</a>
+            <a href="{{ route('home') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">Home</a>
+            <a href="{{ route('how-to-apply') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">How to Apply</a>
+            <a href="{{ route('about') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">About</a>
+            <a href="{{ route('history') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-100">History</a>
         </div>
     </nav>
 
@@ -75,10 +43,11 @@
                     <p class="text-sm text-gray-600">Access your CLSU-ERDT scholarship account</p>
                 </div>
                 
-                <form id="login-form" class="space-y-4">
+                <form wire:submit.prevent="login" class="space-y-4">
                     <div>
                         <label for="email" class="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
-                        <input type="email" id="email" name="email" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your email address">
+                        <input type="email" id="email" wire:model="email" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your email address">
+                        @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
@@ -86,12 +55,13 @@
                             <label for="password" class="block text-xs font-medium text-gray-700">Password</label>
                             <a href="#" class="text-xs text-blue-700 hover:text-blue-900">Forgot password?</a>
                         </div>
-                        <input type="password" id="password" name="password" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your password">
+                        <input type="password" id="password" wire:model="password" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your password">
+                        @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         <div class="text-red-500 text-xs mt-1 hidden" id="error-message"></div>
                     </div>
                     
                     <div class="flex items-center">
-                        <input id="remember-me" name="remember-me" type="checkbox" class="h-3 w-3 text-blue-600 border-gray-300 rounded">
+                        <input id="remember-me" wire:model="remember" type="checkbox" class="h-3 w-3 text-blue-600 border-gray-300 rounded">
                         <label for="remember-me" class="ml-2 block text-xs text-gray-700">Remember me</label>
                     </div>
                     
@@ -262,38 +232,5 @@
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-        
-        // Form validation
-        const loginForm = document.getElementById('login-form');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const errorMessage = document.getElementById('error-message');
-        
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Simple validation
-            if (!emailInput.value || !passwordInput.value) {
-                errorMessage.textContent = 'Please enter both email and password';
-                errorMessage.classList.remove('hidden');
-                return;
-            }
-            
-            // Email format validation
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(emailInput.value)) {
-                errorMessage.textContent = 'Please enter a valid email address';
-                errorMessage.classList.remove('hidden');
-                return;
-            }
-            
-            // This is a demo login - in a real app, you would send this to a server
-            errorMessage.classList.add('hidden');
-            alert('Login successful! Welcome to the CLSU-ERDT Scholarship Management System.');
-            
-            // Reset form
-            loginForm.reset();
-        });
     </script>
-</body>
-</html>
+</div>

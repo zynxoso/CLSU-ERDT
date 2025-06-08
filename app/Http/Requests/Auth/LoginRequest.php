@@ -22,7 +22,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     public function rules(): array
     {
@@ -37,16 +37,44 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
+    public function authenticate(?string $guard = null): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $credentials = $this->only('email', 'password');
+        $remember = $this->boolean('remember');
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+        if ($guard === 'scholar') {
+            if (! Auth::guard('scholar')->attempt($credentials, $remember)) {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
+            $user = Auth::guard('scholar')->user();
+            if ($user->role !== 'scholar') {
+                Auth::guard('scholar')->logout();
+                throw ValidationException::withMessages([
+                    'email' => 'You do not have scholar access.',
+                ]);
+            }
+        } else {
+            // Default to web guard for admin/super_admin
+            if (! Auth::guard('web')->attempt($credentials, $remember)) {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
+            $user = Auth::guard('web')->user();
+            if ($user->role === 'scholar') {
+                Auth::guard('web')->logout();
+                throw ValidationException::withMessages([
+                    'email' => 'You do not have admin/super admin access.',
+                ]);
+            }
         }
 
         RateLimiter::clear($this->throttleKey());
@@ -80,6 +108,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
     }
 }

@@ -4,38 +4,11 @@
 
 @section('content')
 <div x-data="tabNavigation()" class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-600 flex flex-col">
-    <!-- Top Navigation -->
-    {{-- <nav class="bg-white/10 backdrop-blur-sm p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center">
-                <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-10 mr-3">
-                <span class="text-black font-bold text-xl">CLSU-ERDT</span>
-            </div>
-            <div class="hidden md:flex space-x-6">
-            <button @click="activeTab = 'about'"
-                        :class="{'text-white border-b-2 border-white': activeTab === 'about', 'text-white/70 hover:text-white': activeTab !== 'about'}"
-                        class="pb-1 px-3 transition-colors duration-200 font-medium">
-                    History
-                </button>
-                <button @click="activeTab = 'about'"
-                        :class="{'text-white border-b-2 border-white': activeTab === 'about', 'text-white/70 hover:text-white': activeTab !== 'about'}"
-                        class="pb-1 px-3 transition-colors duration-200 font-medium">
-                    About
-                </button>
-                <button @click="activeTab = 'apply'"
-                        :class="{'text-white border-b-2 border-white': activeTab === 'apply', 'text-white/70 hover:text-white': activeTab !== 'apply'}"
-                        class="pb-1 px-3 transition-colors duration-200 font-medium">
-                    How to Apply
-                </button>
-            </div>
-        </div>
-    </nav> --}}
-
     <!-- Main Content -->
     <div class="flex-grow flex flex-col md:flex-row p-4 md:p-8 container mx-auto">
         <!-- Login Form Section -->
-        <div class="w-full md:w-2/5 mb-4 md:mb-0 flex justify-center mt-3">
-            <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md">
+        <div class="w-full md:w-4/5 md:mb-0 flex justify-center mt-7">
+            <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md mt-6">
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     @if (session('status'))
                         <div class="mb-4 p-3 bg-clsu-green text-white rounded-md text-sm">
