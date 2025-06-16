@@ -41,7 +41,7 @@ class StoreFundRequestRequest extends FormRequest
             'amount' => 'required|numeric|min:0',
             'admin_remarks' => 'nullable|string',
             'status' => 'sometimes|in:Draft,Submitted',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240'
+            'document' => 'nullable|file|mimes:pdf|max:10240'
         ];
     }
 
@@ -59,7 +59,7 @@ class StoreFundRequestRequest extends FormRequest
             'amount.numeric' => 'The amount must be a number.',
             'amount.min' => 'The amount must be greater than zero.',
             'document.file' => 'The uploaded document must be a file.',
-            'document.mimes' => 'The document must be a file of type: PDF, JPG, JPEG, PNG, DOC, DOCX.',
+            'document.mimes' => 'The document must be a PDF file.',
             'document.max' => 'The document may not be greater than 10MB.'
         ];
     }
@@ -73,6 +73,12 @@ class StoreFundRequestRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            // Check if scholar is eligible (PhD or Master's level only)
+            $scholarProfile = Auth::user()->scholarProfile;
+            if ($scholarProfile && !in_array($scholarProfile->degree_level, ['PhD', 'Master\'s', 'Masters', 'Doctoral'])) {
+                $validator->errors()->add('request_type_id', 'Fund requests are only available for PhD and Master\'s level scholars.');
+            }
+
             // Additional security validation - CyberSweep enhancement
             if ($this->hasFile('document')) {
                 $file = $this->file('document');
@@ -83,20 +89,12 @@ class StoreFundRequestRequest extends FormRequest
                     return;
                 }
 
-                // Double-check file extension matches actual content type
+                // Double-check file extension matches actual content type for PDF
                 $extension = strtolower($file->getClientOriginalExtension());
                 $mimeType = $file->getMimeType();
-                $validMimeTypes = [
-                    'pdf' => 'application/pdf',
-                    'jpg' => 'image/jpeg',
-                    'jpeg' => 'image/jpeg',
-                    'png' => 'image/png',
-                    'doc' => 'application/msword',
-                    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                ];
 
-                if (isset($validMimeTypes[$extension]) && $validMimeTypes[$extension] !== $mimeType) {
-                    $validator->errors()->add('document', 'The file extension does not match its content.');
+                if ($extension === 'pdf' && $mimeType !== 'application/pdf') {
+                    $validator->errors()->add('document', 'The file extension does not match its content. Only PDF files are allowed.');
                 }
             }
         });

@@ -3,6 +3,92 @@
 @section('title', 'Super Admin Dashboard')
 
 @section('content')
+<!-- Password Change Modal -->
+@if((auth()->user()->is_default_password || auth()->user()->must_change_password) && !session('password_warning_dismissed'))
+<div x-data="{
+    showModal: true,
+    dismissModal() {
+        this.showModal = false;
+        @if(!auth()->user()->must_change_password)
+        localStorage.setItem('password_warning_dismissed', 'true');
+        @endif
+    }
+}"
+x-show="showModal"
+x-transition:enter="transition ease-out duration-300"
+x-transition:enter-start="opacity-0"
+x-transition:enter-end="opacity-100"
+x-transition:leave="transition ease-in duration-200"
+x-transition:leave-start="opacity-100"
+x-transition:leave-end="opacity-0"
+class="fixed inset-0 z-50 overflow-y-auto"
+aria-labelledby="modal-title"
+role="dialog"
+aria-modal="true">
+
+    <!-- Background overlay -->
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Center modal -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div x-show="showModal"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+
+            <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+
+                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                        @if(auth()->user()->must_change_password)
+                            Password Change Required
+                        @else
+                            Security Notice
+                        @endif
+                    </h3>
+
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-700">
+                            @if(auth()->user()->must_change_password)
+                                Your password has expired and must be changed immediately for security reasons.
+                            @else
+                                You are currently using a default password. For your account security, please change your password as soon as possible.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <a href="{{ route('super_admin.profile.edit') }}"
+                   class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Change Password
+                </a>
+
+                @if(!auth()->user()->must_change_password)
+                <button type="button"
+                        @click="dismissModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
+                    Later
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <div x-data="{ shown: false }" x-init="setTimeout(() => shown = true, 100)" class="space-y-6">
 <!-- Welcome Section -->
 <div class="mb-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300"
@@ -24,53 +110,6 @@
         <h2 class="text-lg font-semibold text-gray-800">System Overview</h2>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <!-- Active Scholars -->
-        <div class="bg-white rounded-lg shadow p-4 transition-all duration-300 hover:shadow-lg hover:bg-blue-50 cursor-pointer group relative"
-             x-data="{ countLoaded: false, count: 0, showTooltip: false }"
-             @mouseenter="showTooltip = true"
-             @mouseleave="showTooltip = false"
-             x-init="setTimeout(() => {
-                 countLoaded = true;
-                 const targetValue = {{ $totalScholars }};
-                 const duration = 2000;
-
-                 if (targetValue === 0) {
-                     count = 0;
-                     return;
-                 }
-
-                 const startTime = performance.now();
-                 const updateCount = (timestamp) => {
-                     const elapsedTime = timestamp - startTime;
-                     const progress = Math.min(elapsedTime / duration, 1);
-                     count = Math.round(progress * targetValue);
-
-                     if (progress < 1) {
-                         requestAnimationFrame(updateCount);
-                     } else {
-                         count = targetValue; // Ensure final value is exact
-                     }
-                 };
-
-                 requestAnimationFrame(updateCount);
-             }, 500)">
-            <div class="flex items-center justify-between">
-                <div class="text-sm font-medium text-gray-500">Active Scholars</div>
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 group-hover:bg-blue-200 transition-colors duration-300">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
-            </div>
-            <div class="mt-3">
-                <div class="text-3xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300" x-text="count">0</div>
-                <div class="mt-1 text-xs text-gray-400">Currently enrolled students</div>
-            </div>
-            <div x-show="showTooltip" class="tooltip-popup" x-cloak>
-                Number of currently active scholars in the system. Click to view the complete scholars list.
-            </div>
-        </div>
-
         <!-- Admin Users -->
         <div class="bg-white rounded-lg shadow p-4 transition-all duration-300 hover:shadow-lg hover:bg-indigo-50 cursor-pointer group relative"
              x-data="{ countLoaded: false, count: 0, showTooltip: false }"
@@ -117,7 +156,6 @@
                 Number of admin users in the system. Click to manage admin users.
             </div>
         </div>
-
 
         <!-- Total Users -->
         <div class="bg-white rounded-lg shadow p-4 transition-all duration-300 hover:shadow-lg hover:bg-purple-50 cursor-pointer group relative"
@@ -171,7 +209,7 @@
     <!-- Super Admin Actions -->
 <div class="bg-white rounded-lg shadow p-4 mb-6">
     <h3 class="font-semibold text-gray-800 mb-4">Super Admin Actions</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <a href="{{ route('super_admin.user_management') }}" class="flex items-center p-3 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300">
             <div class="flex-shrink-0 mr-3">
                 <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500">
@@ -200,67 +238,83 @@
                 <p class="text-xs text-gray-500">Configure system parameters</p>
             </div>
         </a>
-    </div>
-</div>
 
-<!-- Recent Activity Section -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    <!-- Recent Users -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="flex justify-between items-center px-4 py-3 border-b border-gray-100">
-            <h3 class="font-semibold text-gray-800">Recent Users</h3>
-            <a href="{{ route('super_admin.user_management') }}" class="text-blue-600 hover:text-blue-800 text-xs flex items-center">
-                View all
-                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                </svg>
-            </a>
-        </div>
-
-        <div class="p-4">
-            @if(count($recentUsers) > 0)
-                <div class="space-y-4">
-                    @foreach($recentUsers as $user)
-                        <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 mr-3">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500">
-                                        <span class="text-sm font-medium">{{ substr($user->name, 0, 1) }}</span>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <h4 class="text-sm font-medium text-gray-900">{{ $user->name }}</h4>
-                                            <p class="text-xs text-gray-500 mt-1">{{ $user->email }}</p>
-                                        </div>
-                                        <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full
-                                            @if($user->role === 'super_admin') bg-purple-100 text-purple-800
-                                            @elseif($user->role === 'admin') bg-blue-100 text-blue-800
-                                            @elseif($user->role === 'scholar') bg-green-100 text-green-800
-                                            @else bg-gray-100 text-gray-800 @endif">
-                                            {{ ucfirst($user->role) }}
-                                        </span>
-                                    </div>
-                                    <p class="text-xs text-gray-400 mt-1">Created {{ $user->created_at->diffForHumans() }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+        <a href="{{ route('super_admin.system_configuration') }}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-300">
+            <div class="flex-shrink-0 mr-3">
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                 </div>
-            @else
-                <div class="text-center py-6">
-                    <div class="w-12 h-12 mx-auto bg-indigo-50 rounded-full flex items-center justify-center mb-3">
-                        <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-900">System Configuration</h4>
+                <p class="text-xs text-gray-500">Academic calendar & scholarship parameters</p>
+            </div>
+        </a>
+
+        <a href="{{ route('super_admin.data_management') }}" class="flex items-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-300">
+            <div class="flex-shrink-0 mr-3">
+                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-900">Data Management</h4>
+                <p class="text-xs text-gray-500">Backup, restore & import/export</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Website Management Section -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Website Management</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a href="{{ route('super_admin.website_management') }}" class="flex items-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors duration-300">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                     </div>
-                    <p class="text-sm text-gray-500">No recent users found</p>
                 </div>
-            @endif
+                <div>
+                    <h4 class="font-medium text-gray-900">Content Management</h4>
+                    <p class="text-xs text-gray-500">Manage website content, announcements & faculty</p>
+                </div>
+            </a>
+
+            <a href="{{ route('scholar-login') }}" target="_blank" class="flex items-center p-3 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors duration-300">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Preview Website</h4>
+                    <p class="text-xs text-gray-500">View public scholar website</p>
+                </div>
+            </a>
+
+            <a href="#" onclick="alert('Website analytics feature coming soon!')" class="flex items-center p-3 bg-pink-50 rounded-lg hover:bg-pink-100 transition-colors duration-300">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Website Analytics</h4>
+                    <p class="text-xs text-gray-500">View website traffic & engagement</p>
+                </div>
+            </a>
         </div>
     </div>
-
 </div>
 </div>
 

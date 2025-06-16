@@ -16,7 +16,11 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div class="w-full max-w-xs">
-                                    <div class="text-sm text-gray-700 truncate" title="{{ $manuscript->title }}">{{ Str::limit($manuscript->title, 30, '.....') }}</div>
+                                    <div class="text-sm text-gray-700 truncate cursor-help"
+                                         title="{{ $manuscript->title }}"
+                                         data-tooltip="{{ $manuscript->title }}">
+                                        {{ Str::limit($manuscript->title, 40, '...') }}
+                                    </div>
                                 </div>
                             </div>
                         </td>

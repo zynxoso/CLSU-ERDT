@@ -34,12 +34,8 @@
                         <select name="manuscript_type" id="manuscript_type"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                 required>
-                            <option value="Journal Article" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
-                            <option value="Conference Paper" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
-                            <option value="Thesis" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Thesis' ? 'selected' : '' }}>Thesis</option>
-                            <option value="Dissertation" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
-                            <option value="Book Chapter" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Book Chapter' ? 'selected' : '' }}>Book Chapter</option>
-                            <option value="Other" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Other' ? 'selected' : '' }}>Other</option>
+                            <option value="Outline" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Outline' ? 'selected' : '' }}>Outline</option>
+                            <option value="Final" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Final' ? 'selected' : '' }}>Final</option>
                         </select>
                         @error('manuscript_type')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -55,16 +51,12 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    
+                </div>
 
+                <div>
                     <div class="mb-4">
-                        <label for="keywords" class="block text-sm font-medium text-gray-700 mb-1">Keywords</label>
-                        <input type="text" name="keywords" id="keywords"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                               value="{{ old('keywords', $manuscript->keywords) }}" required>
-                        <p class="mt-1 text-sm text-gray-500">Separate keywords with commas</p>
-                        @error('keywords')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        {{-- Keywords input removed as per request --}}
                     </div>
                 </div>
 

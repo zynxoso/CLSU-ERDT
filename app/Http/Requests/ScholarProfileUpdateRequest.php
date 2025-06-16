@@ -26,11 +26,14 @@ class ScholarProfileUpdateRequest extends FormRequest
         $currentYear = Carbon::now()->year;
 
         return [
+            // Personal information
+            'birthdate' => ['required', 'date', 'before:today'],
+            'gender' => ['required', 'string', 'in:Male,Female,Other'],
+
             // Academic information
             'university' => ['required', 'string', 'max:255'],
-            'department' => ['required', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
             'program' => ['required', 'string', 'max:255'],
-            'student_id' => ['required', 'string', 'max:255'],
 
             // Contact information
             'phone' => [
@@ -57,6 +60,7 @@ class ScholarProfileUpdateRequest extends FormRequest
 
             // Optional academic information
             'major' => ['nullable', 'string', 'max:255'],
+            'degree_level' => ['required', 'string', 'in:Master\'s,PhD'],
             'gpa' => ['nullable', 'numeric', 'min:1', 'max:5'],
 
             // Research information
@@ -79,8 +83,8 @@ class ScholarProfileUpdateRequest extends FormRequest
     {
         return [
             'phone' => 'phone number',
-            'student_id' => 'student ID',
             'gpa' => 'GPA',
+            'degree_level' => 'degree level',
         ];
     }
 

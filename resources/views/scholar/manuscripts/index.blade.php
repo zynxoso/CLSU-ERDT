@@ -26,7 +26,13 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($manuscripts as $manuscript)
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $manuscript->title }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <div class="truncate max-w-xs cursor-help"
+                                     title="{{ $manuscript->title }}"
+                                     data-tooltip="{{ $manuscript->title }}">
+                                    {{ Str::limit($manuscript->title, 50, '...') }}
+                                </div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $manuscript->updated_at->format('M d, Y') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 py-1 text-xs rounded-full inline-flex items-center
@@ -57,19 +63,16 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <a href="{{ route('scholar.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-900">
-                                    <!-- <i class="fas fa-eye" style="color: black;"></i> -->
-                                     view
+                                     view manuscript
                                 </a>
-                                <!-- <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">
-                                    <i class="fas fa-edit" style="color: black;"></i>
-                                </a>
-                                <form action="{{ route('scholar.manuscripts.destroy', $manuscript->id) }}" method="POST" class="inline">
+                                @if($manuscript->status === 'Draft' || $manuscript->status === 'Revision Requested')
+                                <form id="submitForm{{ $manuscript->id }}" action="{{ route('scholar.manuscripts.submit', $manuscript->id) }}" method="POST" class="inline">
                                     @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this manuscript?')">
-                                        <i class="fas fa-trash" style="color: black;"></i>
+                                    <button type="button" onclick="confirmSubmit({{ $manuscript->id }})" class="text-green-600 hover:text-green-900 mr-3" title="Submit Manuscript">
+                                        <i class="fas fa-check-circle" style="color: black;"></i> Submit
                                     </button>
-                                </form> -->
+                                </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -89,4 +92,24 @@
         </div>
     @endif
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmSubmit(manuscriptId) {
+        Swal.fire({
+            title: 'Submit Manuscript?',
+            text: "Once submitted, the manuscript will be final and cannot be edited.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, submit it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('submitForm' + manuscriptId).submit();
+            }
+        });
+    }
+</script>
+
 @endsection

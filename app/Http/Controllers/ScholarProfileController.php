@@ -132,11 +132,9 @@ class ScholarProfileController extends Controller
             $scholarProfile->status = 'Pending';
 
             // Default values if creating new profile
-            if (!isset($validatedData['university'])) {
-                $scholarProfile->university = 'Central Luzon State University';
-            }
+            $scholarProfile->university = 'Central Luzon State University';
             if (!isset($validatedData['department'])) {
-            $scholarProfile->department = 'Engineering';
+                $scholarProfile->department = 'Engineering';
             }
             if (!isset($validatedData['program'])) {
                 $scholarProfile->program = 'Master in Agricultural and Biosystems Engineering';
@@ -146,18 +144,27 @@ class ScholarProfileController extends Controller
             $originalData = $scholarProfile->toArray();
         }
 
-        // Update academic information
-        if (isset($validatedData['university'])) {
-        $scholarProfile->university = $validatedData['university'];
-        }
+        // Update academic information - always set university to CLSU
+        $scholarProfile->university = 'Central Luzon State University';
         if (isset($validatedData['department'])) {
         $scholarProfile->department = $validatedData['department'];
         }
         if (isset($validatedData['program'])) {
-        $scholarProfile->program = $validatedData['program'];
+            $scholarProfile->program = $validatedData['program'];
         }
-        if (isset($validatedData['student_id'])) {
-        $scholarProfile->student_id = $validatedData['student_id'];
+        if (isset($validatedData['degree_level'])) {
+            $scholarProfile->degree_level = $validatedData['degree_level'];
+        }
+        if (isset($validatedData['major'])) {
+            $scholarProfile->major = $validatedData['major'];
+        }
+
+        // Update personal information
+        if (isset($validatedData['birthdate'])) {
+            $scholarProfile->birth_date = $validatedData['birthdate'];
+        }
+        if (isset($validatedData['gender'])) {
+            $scholarProfile->gender = $validatedData['gender'];
         }
 
         // Update contact information
@@ -165,7 +172,7 @@ class ScholarProfileController extends Controller
             $scholarProfile->phone = $validatedData['phone'];
         }
         if (isset($validatedData['address'])) {
-        $scholarProfile->address = $validatedData['address'];
+            $scholarProfile->address = $validatedData['address'];
         }
 
         // Update optional academic fields
@@ -226,6 +233,8 @@ class ScholarProfileController extends Controller
                 \App\Models\AuditLog::create([
                     'user_id' => Auth::id(),
                     'action' => $originalData ? 'updated' : 'created',
+                    'model_type' => 'App\Models\ScholarProfile',
+                    'model_id' => $scholarProfile->id,
                     'entity_type' => 'scholar_profile',
                     'entity_id' => $scholarProfile->id,
                     'old_values' => $originalData ? json_encode($originalData) : null,
@@ -284,9 +293,21 @@ class ScholarProfileController extends Controller
 
         $user = Auth::user();
         $user->password = Hash::make($request->new_password);
+
+        // Clear default password flags
+        $user->is_default_password = false;
+        $user->must_change_password = false;
+
+        // Set password expiration (90 days from now)
+        $user->setPasswordExpiration(90);
+
+        // Save the user
         $user->save();
 
-        return redirect()->route('scholar.profile')
-            ->with('success', 'Password updated successfully.');
+        // Clear session warning flag
+        session()->forget('password_expiry_warning_shown');
+
+        return redirect()->route('scholar.dashboard')
+            ->with('success', 'Password updated successfully. Your password will expire in 90 days.');
     }
 }

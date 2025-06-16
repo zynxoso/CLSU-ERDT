@@ -277,7 +277,7 @@ class ManuscriptController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'abstract' => 'required|string',
-            'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
+            'manuscript_type' => 'required|string|in:Outline,Final',
             'co_authors' => 'nullable|string|max:255',
             'keywords' => 'required|string|max:255',
             'status' => 'required|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
@@ -285,6 +285,35 @@ class ManuscriptController extends Controller
             'admin_notes' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf|max:10240',
         ]);
+
+        // Normalize strings for better comparison
+        $normalizedTitle = strtolower(trim($validated['title']));
+        $normalizedAbstract = strtolower(trim($validated['abstract']));
+
+        // Log input values for debugging
+        \Log::info('Checking manuscript duplication', [
+            'title' => $normalizedTitle,
+            'abstract' => substr($normalizedAbstract, 0, 100), // log first 100 chars
+            'scholar_id' => $validated['scholar_id'],
+        ]);
+
+        // Check for recent similar manuscripts by the same scholar within last 30 days
+        $recentSimilar = Manuscript::where('scholar_profile_id', $validated['scholar_id'])
+            ->where(function ($query) use ($normalizedTitle, $normalizedAbstract) {
+                $query->whereRaw('LOWER(TRIM(title)) = ?', [$normalizedTitle])
+                    ->orWhereRaw('LOWER(abstract) LIKE ?', ['%' . $normalizedAbstract . '%']);
+            })
+            ->where('created_at', '>=', now()->subDays(30))
+            ->first();
+
+        // Log query result for debugging
+        \Log::info('Duplication check result', ['found' => $recentSimilar ? true : false, 'manuscript_id' => $recentSimilar ? $recentSimilar->id : null]);
+
+        if ($recentSimilar) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'You’ve recently submitted a similar manuscript. Please review before submitting again.');
+        }
 
         $manuscript = new Manuscript();
         $manuscript->scholar_profile_id = $validated['scholar_id'];
@@ -403,7 +432,7 @@ class ManuscriptController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'abstract' => 'required|string',
-            'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
+            'manuscript_type' => 'required|string|in:Outline,Final',
             'co_authors' => 'nullable|string|max:255',
             'keywords' => 'required|string|max:255',
             // Allow admin to set any valid status from the form
@@ -544,7 +573,7 @@ class ManuscriptController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'abstract' => 'required|string',
-            'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
+            'manuscript_type' => 'required|string|in:Outline,Final',
             'co_authors' => 'nullable|string|max:255',
             'keywords' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
@@ -557,13 +586,29 @@ class ManuscriptController extends Controller
             'manuscript_type.in' => 'The selected manuscript type is invalid.',
             'co_authors.max' => 'The co-authors field must not exceed 255 characters.',
             'keywords.max' => 'The keywords field must not exceed 255 characters.',
-            'progress.integer' => 'Progress must be a number.',
-            'progress.min' => 'Progress cannot be less than 0%.',
-            'progress.max' => 'Progress cannot be more than 100%.',
             'file.file' => 'The uploaded file is invalid.',
             'file.mimes' => 'The file must be a PDF document.',
             'file.max' => 'The file size must not exceed 10MB.'
         ]);
+
+        // Normalize strings for better comparison
+        $normalizedTitle = strtolower(trim($validated['title']));
+        $normalizedAbstract = strtolower(trim($validated['abstract']));
+
+        // Check for recent similar manuscripts by the same scholar within last 30 days
+        $recentSimilar = Manuscript::where('scholar_profile_id', $scholarProfile->id)
+            ->where(function ($query) use ($normalizedTitle, $normalizedAbstract) {
+                $query->whereRaw('LOWER(TRIM(title)) = ?', [$normalizedTitle])
+                    ->orWhereRaw('LOWER(abstract) LIKE ?', ['%' . $normalizedAbstract . '%']);
+            })
+            ->where('created_at', '>=', now()->subDays(30))
+            ->first();
+
+        if ($recentSimilar) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'You’ve recently submitted a similar manuscript. Please review before submitting again.');
+        }
 
         $manuscript = new Manuscript();
         $manuscript->scholar_profile_id = $scholarProfile->id;
@@ -587,20 +632,22 @@ class ManuscriptController extends Controller
             $filePath = $file->storeAs('manuscripts', $fileName, 'public');
 
             // Create document record
-            $document = new \App\Models\Document();
-            $document->scholar_profile_id = $scholarProfile->id;
-            $document->title = $originalName;
-            $document->file_name = $originalName; // Add the file_name field
-            $document->file_path = $filePath;
-            $document->file_size = $file->getSize(); // Add the file size
-            $document->file_type = 'manuscript';
-            $document->category = 'manuscript'; // Add the category field
-            $document->entity_type = 'manuscript';
-            $document->entity_id = $manuscript->id;
-            $document->uploaded_by = $user->id;
-            $document->status = 'Pending';
-            $document->description = 'Manuscript file: ' . $validated['title'];
-            $document->save();
+            $document = new \App\Models\Document([
+                'scholar_profile_id' => $scholarProfile->id,
+                'title' => $originalName,
+                'file_name' => $originalName,
+                'file_path' => $filePath,
+                'file_size' => $file->getSize(),
+                'file_type' => 'manuscript',
+                'category' => 'manuscript',
+                'entity_type' => 'manuscript',
+                'entity_id' => $manuscript->id,
+                'uploaded_by' => $user->id,
+                'status' => 'Pending',
+                'description' => 'Manuscript file: ' . $validated['title'],
+            ]);
+
+            $manuscript->documents()->save($document);
         }
 
         $this->auditService->logCreate('Manuscript', $manuscript->id, $manuscript->toArray());
@@ -714,7 +761,7 @@ class ManuscriptController extends Controller
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'abstract' => 'required|string',
-                'manuscript_type' => 'required|string|in:Conference Paper,Journal Article,Thesis,Dissertation,Book Chapter,Other',
+                'manuscript_type' => 'required|string|in:Outline,Final',
                 'co_authors' => 'nullable|string|max:255',
                 'keywords' => 'nullable|string|max:255',
                 'file' => 'nullable|file|mimes:pdf|max:10240'
@@ -850,35 +897,18 @@ class ManuscriptController extends Controller
      */
     public function scholarSubmit($id)
     {
-        $user = Auth::user();
         $manuscript = Manuscript::findOrFail($id);
 
-        // Check if user is a scholar
-        if ($user->role !== 'scholar') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
+        // Check if the authenticated user owns the manuscript
+        if ($manuscript->scholar_profile_id !== auth()->user()->scholarProfile->id) {
+            return redirect()->route('scholar.manuscripts.index')->with('error', 'Unauthorized access');
         }
 
-        // Check if user is authorized to submit this manuscript
-        if ($user->scholarProfile->id !== $manuscript->scholar_profile_id) {
-            return redirect()->route('scholar.manuscripts.index')
-                ->with('error', 'You are not authorized to submit this manuscript');
-        }
-
-        // Only draft or revision_required manuscripts can be submitted
-        if (!in_array($manuscript->status, ['Draft', 'Revision Requested'])) {
-            return redirect()->route('scholar.manuscripts.show', $manuscript->id)
-                ->with('error', 'Only draft or manuscripts requiring revision can be submitted');
-        }
-
-        $oldValues = $manuscript->toArray();
-
+        // Update the status to Submitted
         $manuscript->status = 'Submitted';
         $manuscript->save();
 
-        $this->auditService->logCustomAction('submitted', 'Manuscript', $manuscript->id);
-
-        return redirect()->route('scholar.manuscripts.show', $manuscript->id)
-            ->with('success', 'Manuscript submitted successfully');
+        return redirect()->route('scholar.manuscripts.index')->with('success', 'Manuscript submitted successfully and is now final.');
     }
 
     /**

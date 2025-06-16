@@ -26,6 +26,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_active',
         'last_login_at',
         'last_login_ip',
+        'password_expires_at',
+        'password_changed_at',
+        'must_change_password',
+        'is_default_password',
     ];
 
     /**
@@ -48,6 +52,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
+        'password_expires_at' => 'datetime',
+        'password_changed_at' => 'datetime',
+        'must_change_password' => 'boolean',
+        'is_default_password' => 'boolean',
     ];
 
     /**
@@ -113,6 +121,74 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getUnreadNotificationsCountAttribute()
     {
         return $this->customNotifications()->where('is_read', false)->count();
+    }
+
+    /**
+     * Check if the user's password has expired.
+     *
+     * @return bool
+     */
+    public function isPasswordExpired()
+    {
+        if (!$this->password_expires_at) {
+            return false;
+        }
+
+        return now()->isAfter($this->password_expires_at);
+    }
+
+    /**
+     * Check if the user's password will expire soon (within 7 days).
+     *
+     * @return bool
+     */
+    public function isPasswordExpiringSoon()
+    {
+        if (!$this->password_expires_at) {
+            return false;
+        }
+
+        return now()->addDays(7)->isAfter($this->password_expires_at) && !$this->isPasswordExpired();
+    }
+
+    /**
+     * Set password expiration date (90 days from now by default).
+     *
+     * @param int $days
+     * @return void
+     */
+    public function setPasswordExpiration($days = 90)
+    {
+        $this->password_expires_at = now()->addDays($days);
+        $this->password_changed_at = now();
+        $this->must_change_password = false;
+        $this->is_default_password = false;
+        $this->save();
+    }
+
+    /**
+     * Mark password as requiring change.
+     *
+     * @return void
+     */
+    public function requirePasswordChange()
+    {
+        $this->must_change_password = true;
+        $this->save();
+    }
+
+    /**
+     * Get days until password expires.
+     *
+     * @return int|null
+     */
+    public function getDaysUntilPasswordExpires()
+    {
+        if (!$this->password_expires_at) {
+            return null;
+        }
+
+        return now()->diffInDays($this->password_expires_at, false);
     }
 
 }

@@ -13,6 +13,9 @@
                 <a href="{{ route('admin.manuscripts.export') }}" id="export-button" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 inline-flex items-center justify-center shadow-sm">
                     <i class="fas fa-file-excel mr-2" style="color: white !important;"></i> Export Excel
                 </a>
+                <a href="{{ route('admin.manuscripts.export', array_merge(request()->all(), ['format' => 'zip'])) }}" id="batch-download-button" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 inline-flex items-center justify-center shadow-sm" title="Download all manuscripts in a ZIP file organized by date folder">
+                    <i class="fas fa-file-archive mr-2" style="color: white !important;"></i> Download ZIP Archive
+                </a>
                 <a href="{{ route('admin.manuscripts.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 inline-flex items-center justify-center shadow-sm">
                     <i class="fas fa-plus mr-2" style="color: white !important;"></i> Add Manuscript
                 </a>
@@ -42,6 +45,22 @@
                 <div class="flex-1 min-w-[200px]">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search Title</label>
                     <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Search by title" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label for="submission_date_from" class="block text-sm font-medium text-gray-700 mb-1">Submission Date From</label>
+                    <input type="date" id="submission_date_from" name="submission_date_from" value="{{ request('submission_date_from') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label for="submission_date_to" class="block text-sm font-medium text-gray-700 mb-1">Submission Date To</label>
+                    <input type="date" id="submission_date_to" name="submission_date_to" value="{{ request('submission_date_to') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Manuscript Type</label>
+                    <select id="type" name="type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Types</option>
+                        <option value="Outline" {{ request('type') == 'Outline' ? 'selected' : '' }}>Outline</option>
+                        <option value="Final" {{ request('type') == 'Final' ? 'selected' : '' }}>Final</option>
+                    </select>
                 </div>
                 <div class="flex items-end w-full sm:w-auto">
                     <button type="button" id="filter-button" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -80,6 +99,7 @@
         const paginationContainer = document.getElementById('pagination-container');
         const loadingIndicator = document.getElementById('loading-indicator');
         const exportButton = document.getElementById('export-button');
+        const batchDownloadButton = document.getElementById('batch-download-button');
         const baseExportUrl = "{{ route('admin.manuscripts.export') }}";
 
         // Filter manuscripts with AJAX
@@ -119,8 +139,10 @@
 
             if (queryString) {
                 exportButton.href = `${baseExportUrl}?${queryString}`;
+                batchDownloadButton.href = `${baseExportUrl}?${queryString}&format=zip`;
             } else {
                 exportButton.href = baseExportUrl;
+                batchDownloadButton.href = `${baseExportUrl}?format=zip`;
             }
         }
 

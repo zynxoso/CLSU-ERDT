@@ -3,11 +3,11 @@
 @section('title', 'Login - CLSU-ERDT')
 
 @section('content')
-<div x-data="tabNavigation()" class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-600 flex flex-col">
+
     <!-- Main Content -->
-    <div class="flex-grow flex flex-col md:flex-row p-4 md:p-8 container mx-auto">
+    <div class="flex-grow flex flex-col md:flex-row  md:p-8 container mx-auto">
         <!-- Login Form Section -->
-        <div class="w-full md:w-4/5 md:mb-0 flex justify-center mt-7">
+        <div class="w-full md:mb-0 flex justify-center">
             <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md mt-6">
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     @if (session('status'))
@@ -193,9 +193,4 @@
 
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-white/10 backdrop-blur-sm p-4 text-center text-white text-sm">
-        <p>&copy; {{ date('Y') }} Central Luzon State University - Engineering Research and Development for Technology</p>
-    </footer>
-</div>
 @endsection

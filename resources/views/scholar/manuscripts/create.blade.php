@@ -28,54 +28,126 @@
 @endif
 
 <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-    <form action="{{ route('scholar.manuscripts.store') }}" method="POST" enctype="multipart/form-data">
+    <form id="manuscriptForm" action="{{ route('scholar.manuscripts.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmSubmission(event)">
         @csrf
 
-        <div class="mb-4">
-            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
-                Manuscript Title <span class="text-red-500">*</span>
-            </label>
-            <input type="text" id="title" name="title" value="{{ old('title') }}"
-                class="w-full bg-white border @error('title') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-            @error('title')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-            <p class="text-xs text-gray-500 mt-1">Enter the complete title of your manuscript</p>
+        <!-- Process Tracker -->
+        <div class="mb-8">
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <div class="text-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Manuscript Submission Progress</h3>
+                    <p class="text-sm text-gray-600">Complete all steps to submit your manuscript</p>
+                </div>
+
+                <div class="flex items-center justify-between relative">
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center text-center flex-1">
+                        <div class="relative">
+                            <div id="step1Indicator" class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold shadow-lg transition-all duration-300">
+                                1
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-sm font-semibold text-blue-600">Data Privacy Agreement</div>
+                            <div class="text-xs text-gray-500 mt-1">Terms & Conditions</div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Line 1 -->
+                    <div class="flex-1 mx-4">
+                        <div id="progressLine1" class="h-1 bg-gray-300 rounded-full relative overflow-hidden">
+                            <div class="h-full bg-green-500 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center text-center flex-1">
+                        <div class="relative">
+                            <div id="step2Indicator" class="w-12 h-12 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-lg font-semibold shadow-lg transition-all duration-300">
+                                2
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-sm font-semibold text-gray-500">Manuscript Details</div>
+                            <div class="text-xs text-gray-400 mt-1">Basic Information</div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Line 2 -->
+                    <div class="flex-1 mx-4">
+                        <div id="progressLine2" class="h-1 bg-gray-300 rounded-full relative overflow-hidden">
+                            <div class="h-full bg-green-500 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center text-center flex-1">
+                        <div class="relative">
+                            <div id="step3Indicator" class="w-12 h-12 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-lg font-semibold shadow-lg transition-all duration-300">
+                                3
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-sm font-semibold text-gray-500">Upload Manuscript</div>
+                            <div class="text-xs text-gray-400 mt-1">File Upload</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label for="abstract" class="block text-sm font-medium text-gray-700 mb-1">
-                Abstract <span class="text-red-500">*</span>
-            </label>
-            <textarea id="abstract" name="abstract" rows="4"
-                class="w-full bg-white border @error('abstract') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>{{ old('abstract') }}</textarea>
-            @error('abstract')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-            <p class="text-xs text-gray-500 mt-1">Provide a brief summary of your manuscript (250-300 words recommended)</p>
+        <!-- Step 1: Data Privacy Agreement -->
+        <div id="step1" class="step">
+            <div class="mb-4">
+                <p class="text-gray-700 mb-4">Please read and agree to the Data Privacy Agreement before proceeding.</p>
+                <div class="border p-4 rounded-md bg-gray-50 text-sm text-gray-600 mb-4" style="max-height: 200px; overflow-y: auto;">
+                    By submitting your manuscript, you consent to the collection, storage, and processing of your personal and manuscript data in accordance with our data privacy policies. Your information will be used solely for manuscript review and publication purposes and will not be shared with unauthorized third parties. You have the right to access, correct, or request deletion of your data at any time.
+                </div>
+                <div class="flex items-center">
+                    <input id="privacy-agreement-checkbox" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="privacy-agreement-checkbox" class="ml-2 block text-sm text-gray-700">
+                        I agree to the Data Privacy Agreement
+                    </label>
+                </div>
+                <p id="privacy-agreement-error" class="text-red-500 text-xs mt-1 hidden">You must agree to the Data Privacy Agreement to proceed.</p>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" id="nextToStep2" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Next
+                </button>
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label for="manuscript_type" class="block text-sm font-medium text-gray-700 mb-1">
-                Manuscript Type <span class="text-red-500">*</span>
-            </label>
-            <select id="manuscript_type" name="manuscript_type"
-                class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                <option value="">Select Type</option>
-                <option value="Conference Paper" {{ old('manuscript_type') == 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
-                <option value="Journal Article" {{ old('manuscript_type') == 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
-                <option value="Thesis" {{ old('manuscript_type') == 'Thesis' ? 'selected' : '' }}>Thesis</option>
-                <option value="Dissertation" {{ old('manuscript_type') == 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
-                <option value="Book Chapter" {{ old('manuscript_type') == 'Book Chapter' ? 'selected' : '' }}>Book Chapter</option>
-                <option value="Other" {{ old('manuscript_type') == 'Other' ? 'selected' : '' }}>Other</option>
-            </select>
-            @error('manuscript_type')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
+        <!-- Step 2: Manuscript Details -->
+        <div id="step2" class="step hidden">
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                    Manuscript Title <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="title" name="title" value="{{ old('title') }}"
+                    class="w-full bg-white border @error('title') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                @error('title')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+                <p class="text-xs text-gray-500 mt-1">Enter the complete title of your manuscript</p>
+            </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
+            <div class="mb-4">
+                <label for="manuscript_type" class="block text-sm font-medium text-gray-700 mb-1">
+                    Manuscript Type <span class="text-red-500">*</span>
+                </label>
+                <select id="manuscript_type" name="manuscript_type"
+                    class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <option value="">Select Type</option>
+                    <option value="Outline" {{ old('manuscript_type') == 'Outline' ? 'selected' : '' }}>Outline</option>
+                    <option value="Final" {{ old('manuscript_type') == 'Final' ? 'selected' : '' }}>Final</option>
+                </select>
+                @error('manuscript_type')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label for="co_authors" class="block text-sm font-medium text-gray-700 mb-1">
                     Co-Authors
                 </label>
@@ -87,48 +159,64 @@
                 <p class="text-xs text-gray-500 mt-1">Separate multiple authors with commas</p>
             </div>
 
-            <div>
-                <label for="keywords" class="block text-sm font-medium text-gray-700 mb-1">
-                    Keywords
+            <div class="mb-4">
+                <label for="abstract" class="block text-sm font-medium text-gray-700 mb-1">
+                    Abstract <span class="text-red-500">*</span>
                 </label>
-                <input type="text" id="keywords" name="keywords" value="{{ old('keywords') }}"
-                    class="w-full bg-white border @error('keywords') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                @error('keywords')
+                <textarea id="abstract" name="abstract" rows="4"
+                    class="w-full bg-white border @error('abstract') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>{{ old('abstract') }}</textarea>
+                @error('abstract')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
-                <p class="text-xs text-gray-500 mt-1">Add 3-5 keywords that describe your manuscript, separated by commas</p>
+                <p class="text-xs text-gray-500 mt-1">Provide a brief summary of your manuscript (250-300 words recommended)</p>
+            </div>
+
+            <div class="flex justify-between">
+                <button type="button" id="backToStep1" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+                    Back
+                </button>
+                <button type="button" id="nextToStep3" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Next
+                </button>
             </div>
         </div>
 
-        <div class="mb-4">
-            <label for="file" class="block text-sm font-medium text-gray-700 mb-1">
-                Upload Manuscript File (PDF)
-            </label>
-            <input type="file" id="file" name="file" accept=".pdf"
-                class="w-full bg-white border @error('file') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @error('file')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-            <p class="text-xs text-gray-500 mt-1">Maximum file size: 10MB. PDF format only.</p>
-        </div>
-
-        <div class="mb-4">
-            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
-                Additional Notes
-            </label>
-            <textarea id="notes" name="notes" rows="3"
-                class="w-full bg-white border @error('notes') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('notes') }}</textarea>
-            @error('notes')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-            <p class="text-xs text-gray-500 mt-1">Include any additional information or special instructions</p>
-        </div>
-
-        <div class="flex justify-between items-center">
-            <div class="text-sm text-gray-500">
-                <span class="text-red-500">*</span> Required fields
+        <!-- Step 3: Upload Manuscript -->
+        <div id="step3" class="step hidden">
+            <div class="mb-4">
+                <label for="dropzone-file" class="block text-sm font-medium text-gray-700 mb-1">Upload Manuscript File (PDF)</label>
+                <div class="flex items-center justify-center w-full">
+                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full min-h-[8rem] sm:min-h-[12rem] md:min-h-[16rem] border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors duration-200 px-2 sm:px-6">
+                        <div class="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 w-full">
+                            <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 text-blue-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm sm:text-base text-blue-500 text-center"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p class="text-xs sm:text-sm text-blue-400 text-center">PDF (Max. 10MB)</p>
+                        </div>
+                        <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pdf">
+                    </label>
+                </div>
+                <div id="selected-file-info" class="mt-4"></div>
+                <p class="text-xs text-gray-500 mt-1">Upload supporting documents like registration forms, receipts, or other relevant files.</p>
             </div>
-            <div class="flex justify-end">
+
+            <div class="mb-4">
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                    Additional Notes
+                </label>
+                <textarea id="notes" name="notes" rows="3"
+                    class="w-full bg-white border @error('notes') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('notes') }}</textarea>
+                @error('notes')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+                <p class="text-xs text-gray-500 mt-1">Include any additional information or special instructions</p>
+            </div>
+
+            <div class="flex justify-between">
+                <button type="button" id="backToStep2" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+                    Back
+                </button>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     <i class="fas fa-save mr-2"></i> Save Manuscript
                 </button>
@@ -136,4 +224,198 @@
         </div>
     </form>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmSubmission(event) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Submit Manuscript?',
+            text: "Once submitted, the manuscript will be final and cannot be edited.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, submit it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('manuscriptForm').submit();
+            }
+        });
+        return false;
+    }
+
+            function updateProgressTracker(currentStep) {
+        // Update step indicators
+        for (let i = 1; i <= 3; i++) {
+            const stepIndicator = document.getElementById(`step${i}Indicator`);
+            const stepContainer = stepIndicator.closest('.flex-1');
+            const stepTitle = stepContainer.querySelector('.text-sm');
+            const stepSubtitle = stepContainer.querySelector('.text-xs');
+
+            if (i < currentStep) {
+                // Completed step - show checkmark with green background
+                stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-blue-500');
+                stepIndicator.classList.add('bg-green-500', 'text-white');
+                stepIndicator.innerHTML = '<i class="fas fa-check"></i>';
+                stepTitle.classList.remove('text-gray-500', 'text-blue-600');
+                stepTitle.classList.add('text-green-600');
+                stepSubtitle.classList.remove('text-gray-400');
+                stepSubtitle.classList.add('text-gray-500');
+            } else if (i === currentStep) {
+                // Current active step - show number with blue background
+                stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-green-500');
+                stepIndicator.classList.add('bg-blue-500', 'text-white');
+                stepIndicator.innerHTML = i.toString();
+                stepTitle.classList.remove('text-gray-500', 'text-green-600');
+                stepTitle.classList.add('text-blue-600');
+                stepSubtitle.classList.remove('text-gray-400');
+                stepSubtitle.classList.add('text-gray-500');
+            } else {
+                // Future inactive step
+                stepIndicator.classList.remove('bg-green-500', 'bg-blue-500', 'text-white');
+                stepIndicator.classList.add('bg-gray-300', 'text-gray-500');
+                stepIndicator.innerHTML = i.toString();
+                stepTitle.classList.remove('text-green-600', 'text-blue-600');
+                stepTitle.classList.add('text-gray-500');
+                stepSubtitle.classList.remove('text-gray-500');
+                stepSubtitle.classList.add('text-gray-400');
+            }
+        }
+
+        // Update progress lines
+        for (let i = 1; i <= 2; i++) {
+            const progressLine = document.getElementById(`progressLine${i}`);
+            const progressBar = progressLine.querySelector('div');
+
+            if (i < currentStep) {
+                // Completed line - full progress
+                progressBar.style.width = '100%';
+            } else {
+                // Inactive line - no progress
+                progressBar.style.width = '0%';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+
+        const nextToStep2 = document.getElementById('nextToStep2');
+        const backToStep1 = document.getElementById('backToStep1');
+        const nextToStep3 = document.getElementById('nextToStep3');
+        const backToStep2 = document.getElementById('backToStep2');
+
+        const step1Indicator = document.getElementById('step1Indicator');
+        const step2Indicator = document.getElementById('step2Indicator');
+        const step3Indicator = document.getElementById('step3Indicator');
+
+        // Initialize progress tracker
+        updateProgressTracker(1);
+
+        nextToStep2.addEventListener('click', function () {
+            const privacyCheckbox = document.getElementById('privacy-agreement-checkbox');
+            const privacyError = document.getElementById('privacy-agreement-error');
+            if (!privacyCheckbox.checked) {
+                privacyError.classList.remove('hidden');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'You must agree to the Data Privacy Agreement to proceed.',
+                });
+                return;
+            } else {
+                privacyError.classList.add('hidden');
+            }
+
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+
+            // Update progress tracker
+            updateProgressTracker(2);
+        });
+
+        backToStep1.addEventListener('click', function () {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+
+            // Update progress tracker
+            updateProgressTracker(1);
+        });
+
+        nextToStep3.addEventListener('click', function () {
+            // Validate required fields in step 2
+            const title = document.getElementById('title').value.trim();
+            const abstract = document.getElementById('abstract').value.trim();
+            const manuscriptType = document.getElementById('manuscript_type').value;
+
+            if (!title || !abstract || !manuscriptType) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fill in all required fields in Step 2.',
+                });
+                return;
+            }
+
+            step2.classList.add('hidden');
+            step3.classList.remove('hidden');
+
+            // Update progress tracker
+            updateProgressTracker(3);
+        });
+
+        backToStep2.addEventListener('click', function () {
+            step3.classList.add('hidden');
+            step2.classList.remove('hidden');
+
+            // Update progress tracker
+            updateProgressTracker(2);
+        });
+
+        // File upload preview
+        const fileInput = document.getElementById('dropzone-file');
+        const infoDiv = document.getElementById('selected-file-info');
+
+        fileInput.addEventListener('change', function () {
+            infoDiv.innerHTML = '';
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const fileName = file.name;
+                const fileSize = (file.size / 1024).toFixed(1); // KB
+                const fileExt = fileName.split('.').pop().toLowerCase();
+
+                let fileIcon = '';
+                if (['pdf'].includes(fileExt)) {
+                    fileIcon = '<i class="fas fa-file-pdf text-red-600 text-2xl"></i>';
+                } else if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
+                    fileIcon = '<i class="fas fa-file-image text-green-600 text-2xl"></i>';
+                } else if (['doc', 'docx'].includes(fileExt)) {
+                    fileIcon = '<i class="fas fa-file-word text-blue-600 text-2xl"></i>';
+                } else {
+                    fileIcon = '<i class="fas fa-file-alt text-gray-600 text-2xl"></i>';
+                }
+
+                infoDiv.innerHTML = `
+                    <div class="flex items-center space-x-4 border border-blue-300 rounded-lg p-3 bg-white">
+                        <div>${fileIcon}</div>
+                        <div class="flex-1">
+                            <p class="font-semibold truncate">${fileName}</p>
+                            <p class="text-xs text-gray-500">${fileSize} KB</p>
+                        </div>
+                        <button type="button" id="remove-file" class="text-blue-600 hover:text-blue-800 font-semibold">Remove</button>
+                    </div>
+                `;
+
+                const removeBtn = document.getElementById('remove-file');
+                removeBtn.addEventListener('click', function () {
+                    fileInput.value = '';
+                    infoDiv.innerHTML = '';
+                });
+            }
+        });
+    });
+</script>
 @endsection

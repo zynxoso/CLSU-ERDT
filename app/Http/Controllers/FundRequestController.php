@@ -103,7 +103,8 @@ class FundRequestController extends Controller
 
         // Filter by purpose if provided
         if ($request->has('purpose') && $request->purpose) {
-            $query->where('purpose', 'like', '%' . $request->purpose . '%');
+            // $query->where('purpose', 'like', '%' . $request->purpose . '%');
+            $quesry->whereRaw('purpose LIKE ?', ['%'. $request->input('purpose') . '%']);
         }
 
         // Filter by scholar if provided

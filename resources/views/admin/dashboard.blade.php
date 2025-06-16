@@ -3,6 +3,92 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
+<!-- Password Change Modal -->
+@if((auth()->user()->is_default_password || auth()->user()->must_change_password) && !session('password_warning_dismissed'))
+<div x-data="{
+    showModal: true,
+    dismissModal() {
+        this.showModal = false;
+        @if(!auth()->user()->must_change_password)
+        localStorage.setItem('password_warning_dismissed', 'true');
+        @endif
+    }
+}"
+x-show="showModal"
+x-transition:enter="transition ease-out duration-300"
+x-transition:enter-start="opacity-0"
+x-transition:enter-end="opacity-100"
+x-transition:leave="transition ease-in duration-200"
+x-transition:leave-start="opacity-100"
+x-transition:leave-end="opacity-0"
+class="fixed inset-0 z-50 overflow-y-auto"
+aria-labelledby="modal-title"
+role="dialog"
+aria-modal="true">
+
+    <!-- Background overlay -->
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Center modal -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div x-show="showModal"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+
+            <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+
+                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                        @if(auth()->user()->must_change_password)
+                            Password Change Required
+                        @else
+                            Security Notice
+                        @endif
+                    </h3>
+
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-700">
+                            @if(auth()->user()->must_change_password)
+                                Your password has expired and must be changed immediately for security reasons.
+                            @else
+                                You are currently using a default password. For your account security, please change your password as soon as possible.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <a href="{{ route('admin.profile.edit') }}"
+                   class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Change Password
+                </a>
+
+                @if(!auth()->user()->must_change_password)
+                <button type="button"
+                        @click="dismissModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
+                    Later
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <div x-data="{ shown: false }" x-init="setTimeout(() => shown = true, 100)" class="space-y-6">
 <!-- Welcome Section -->
 <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300"
@@ -32,29 +118,29 @@
              x-data="{ countLoaded: false, count: 0, showTooltip: false }"
              @mouseenter="showTooltip = true"
              @mouseleave="showTooltip = false"
-             x-init="setTimeout(() => { 
+             x-init="setTimeout(() => {
                  countLoaded = true;
                  const targetValue = {{ $totalScholars }};
                  const duration = 2000;
-                 
+
                  if (targetValue === 0) {
                      count = 0;
                      return;
                  }
-                 
+
                  const startTime = performance.now();
                  const updateCount = (timestamp) => {
                      const elapsedTime = timestamp - startTime;
                      const progress = Math.min(elapsedTime / duration, 1);
                      count = Math.round(progress * targetValue);
-                     
+
                      if (progress < 1) {
                          requestAnimationFrame(updateCount);
                      } else {
                          count = targetValue; // Ensure final value is exact
                      }
                  };
-                 
+
                  requestAnimationFrame(updateCount);
              }, 500)">
             <div class="flex items-center justify-between">
@@ -79,29 +165,29 @@
              x-data="{ countLoaded: false, count: 0, showTooltip: false }"
              @mouseenter="showTooltip = true"
              @mouseleave="showTooltip = false"
-             x-init="setTimeout(() => { 
+             x-init="setTimeout(() => {
                  countLoaded = true;
                  const targetValue = {{ $pendingRequests }};
                  const duration = 2000;
-                 
+
                  if (targetValue === 0) {
                      count = 0;
                      return;
                  }
-                 
+
                  const startTime = performance.now();
                  const updateCount = (timestamp) => {
                      const elapsedTime = timestamp - startTime;
                      const progress = Math.min(elapsedTime / duration, 1);
                      count = Math.round(progress * targetValue);
-                     
+
                      if (progress < 1) {
                          requestAnimationFrame(updateCount);
                      } else {
                          count = targetValue; // Ensure final value is exact
                      }
                  };
-                 
+
                  requestAnimationFrame(updateCount);
              }, 700)">
             <div class="flex items-center justify-between">
@@ -123,43 +209,43 @@
 
         <!-- Total Disbursed -->
         <div class="bg-white rounded-lg shadow p-4 transition-all duration-300 hover:shadow-lg hover:bg-green-50 cursor-pointer group relative"
-             x-data="{ 
-                 countLoaded: false, 
+             x-data="{
+                 countLoaded: false,
                  formattedCount: '₱0.00',
                  showTooltip: false,
                  animateCount: function() {
                      const targetValue = {{ $totalDisbursed }};
                      const duration = 2000;
-                     
+
                      if (targetValue === 0) {
                          this.formattedCount = '₱0.00';
                          return;
                      }
-                     
+
                      const formatter = new Intl.NumberFormat('en-US', {
                          style: 'currency',
                          currency: 'PHP',
                          minimumFractionDigits: 2,
                          maximumFractionDigits: 2
                      });
-                     
+
                      const startTime = performance.now();
                      const updateCount = (timestamp) => {
                          const elapsedTime = timestamp - startTime;
                          const progress = Math.min(elapsedTime / duration, 1);
                          const currentValue = progress * targetValue;
-                         
+
                          // Remove the currency symbol (₱) from the formatter and add it manually
                          this.formattedCount = formatter.format(currentValue).replace(/[^\d.,]/g, '');
                          this.formattedCount = '₱' + this.formattedCount;
-                         
+
                          if (progress < 1) {
                              requestAnimationFrame(updateCount);
                          } else {
                              this.formattedCount = '₱' + formatter.format(targetValue).replace(/[^\d.,]/g, '');
                          }
                      };
-                     
+
                      requestAnimationFrame(updateCount);
                  }
              }"
@@ -188,29 +274,29 @@
              x-data="{ countLoaded: false, count: 0, showTooltip: false }"
              @mouseenter="showTooltip = true"
              @mouseleave="showTooltip = false"
-             x-init="setTimeout(() => { 
+             x-init="setTimeout(() => {
                  countLoaded = true;
                  const targetValue = {{ $totalScholars ?? 0 }};
                  const duration = 2000;
-                 
+
                  if (targetValue === 0) {
                      count = 0;
                      return;
                  }
-                 
+
                  const startTime = performance.now();
                  const updateCount = (timestamp) => {
                      const elapsedTime = timestamp - startTime;
                      const progress = Math.min(elapsedTime / duration, 1);
                      count = Math.round(progress * targetValue);
-                     
+
                      if (progress < 1) {
                          requestAnimationFrame(updateCount);
                      } else {
                          count = targetValue; // Ensure final value is exact
                      }
                  };
-                 
+
                  requestAnimationFrame(updateCount);
              }, 1100)">
             <div class="flex items-center justify-between">
@@ -245,7 +331,7 @@
                 </svg>
             </a>
         </div>
-        
+
         <div class="p-4">
             @if(count($recentFundRequests) > 0)
                 <div class="space-y-4">
@@ -304,7 +390,7 @@
                 </svg>
             </a>
         </div>
-        
+
         <div class="p-4">
             @if(count($recentLogs ?? []) > 0)
                 <div class="space-y-4">
@@ -365,19 +451,19 @@
         from { opacity: 0; }
         to { opacity: 1; }
     }
-    
+
     @keyframes pulse {
         0% { transform: scale(1); }
         50% { transform: scale(1.05); }
         100% { transform: scale(1); }
     }
-    
+
     [x-cloak] { display: none !important; }
-    
+
     .tooltip {
         position: relative;
     }
-    
+
     .tooltip-text {
         visibility: hidden;
         position: absolute;
@@ -397,7 +483,7 @@
         transition: opacity 0.3s;
         pointer-events: none;
     }
-    
+
     .tooltip-text::after {
         content: '';
         position: absolute;
@@ -408,15 +494,15 @@
         border-style: solid;
         border-color: rgba(51, 65, 85, 0.95) transparent transparent transparent;
     }
-    
+
     .tooltip:hover .tooltip-text {
         visibility: visible;
         opacity: 1;
         animation: fadeIn 0.3s;
     }
-    
+
     .tooltip-popup {
-        position: fixed; 
+        position: fixed;
         bottom: 100%;
         left: 50%;
         transform: translateX(-50%);
@@ -432,7 +518,7 @@
         pointer-events: none;
         animation: fadeIn 0.3s;
     }
-    
+
     .tooltip-popup::after {
         content: '';
         position: absolute;
@@ -443,7 +529,7 @@
         border-style: solid;
         border-color: rgba(51, 65, 85, 0.95) transparent transparent transparent;
     }
-    
+
     .program-tooltip {
         position: absolute;
         top: -25px;
@@ -460,7 +546,7 @@
         pointer-events: none;
         animation: fadeIn 0.3s;
     }
-    
+
     .program-tooltip::after {
         content: '';
         position: absolute;

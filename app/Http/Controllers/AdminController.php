@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Services\AuditService;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -84,12 +85,12 @@ class AdminController extends Controller
             ->filter(function($scholar) use ($currentYear) {
                 return \Carbon\Carbon::parse($scholar->updated_at)->year == $currentYear;
             })->count();
-            
+
         // Calculate program distribution
         $programCounts = collect();
         $programGroups = $scholars->groupBy('program');
         $totalScholars = $scholars->count();
-        
+
         if ($totalScholars > 0) {
             foreach ($programGroups as $program => $scholarsInProgram) {
                 $count = $scholarsInProgram->count();
@@ -100,7 +101,7 @@ class AdminController extends Controller
                     'percentage' => $percentage
                 ]);
             }
-            
+
             // Sort by count descending
             $programCounts = $programCounts->sortByDesc('count')->values();
         }
@@ -199,5 +200,52 @@ class AdminController extends Controller
             'fundsByType',
             'documentsByType'
         ));
+    }
+
+    /**
+     * Display the password change form.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showChangePasswordForm()
+    {
+        return view('admin.change-password');
+    }
+
+    /**
+     * Update the admin's password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', function ($attribute, $value, $fail) {
+                if (!Hash::check($value, Auth::user()->password)) {
+                    $fail('The current password is incorrect.');
+                }
+            }],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->new_password);
+
+        // Clear default password flags
+        $user->is_default_password = false;
+        $user->must_change_password = false;
+
+        // Set password expiration (90 days from now)
+        $user->setPasswordExpiration(90);
+
+        // Save the user
+        $user->save();
+
+        // Clear session warning flag
+        session()->forget('password_expiry_warning_shown');
+
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Password updated successfully. Your password will expire in 90 days.');
     }
 }

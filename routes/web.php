@@ -18,11 +18,12 @@ use App\Http\Controllers\ScholarProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\PublicPageController;
 
-// Redirect to login if not authenticated, otherwise to appropriate dashboard
+// Redirect to home page
 Route::get('/', function () {
-    return view('auth.scholar-login');
-});
+    return view('index');
+})->name('home');
 
 // Scholar Login Route
 Route::get('/scholar-login', function () {
@@ -34,21 +35,17 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+Route::get('/faculty', [PublicPageController::class, 'faculty'])->name('faculty');
+
 // Include authentication routes
 require __DIR__.'/auth.php';
 
 // Public marketing/info pages
-Route::get('/how-to-apply', function () {
-    return view('how-to-apply'); // You'll need to create this view
-})->name('how-to-apply');
+Route::get('/how-to-apply', [PublicPageController::class, 'howToApply'])->name('how-to-apply');
 
-Route::get('/about', function () {
-    return view('about'); // You'll need to create this view
-})->name('about');
+Route::get('/about', [PublicPageController::class, 'about'])->name('about');
 
-Route::get('/history', function () {
-    return view('history'); // You'll need to create this view
-})->name('history');
+Route::get('/history', [PublicPageController::class, 'history'])->name('history');
 
 // Scholar routes - only accessible to scholars
 Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function () {
@@ -113,6 +110,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Admin analytics
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
 
+    // Admin password change routes
+    Route::get('/password/change', [AdminController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('/password/update', [AdminController::class, 'changePassword'])->name('password.update');
+
     // Admin scholar management
     Route::get('/scholars', [ScholarController::class, 'index'])->name('scholars.index');
     Route::get('/scholars/create', [ScholarController::class, 'create'])->name('scholars.create');
@@ -138,21 +139,17 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::put('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('documents.reject');
     Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
 
-
-
     // Admin manuscript management
-    Route::get('/manuscripts', [ManuscriptController::class, 'adminIndex'])->name('manuscripts.index');
-    Route::get('/manuscripts/filter', [ManuscriptController::class, 'ajaxFilter'])->name('manuscripts.filter');
-    Route::get('/manuscripts/export', [ManuscriptController::class, 'export'])->name('manuscripts.export');
-    Route::get('/manuscripts/create', [ManuscriptController::class, 'create'])->name('manuscripts.create');
-    Route::post('/manuscripts', [ManuscriptController::class, 'store'])->name('manuscripts.store');
-    Route::get('/manuscripts/{id}', [ManuscriptController::class, 'show'])->name('manuscripts.show');
-    Route::get('/manuscripts/{id}/edit', [ManuscriptController::class, 'edit'])->name('manuscripts.edit');
-    Route::put('/manuscripts/{id}', [ManuscriptController::class, 'update'])->name('manuscripts.update');
-    Route::put('/manuscripts/{id}/approve', [ManuscriptController::class, 'approve'])->name('manuscripts.approve');
-    Route::put('/manuscripts/{id}/update-status/{status}', [ManuscriptController::class, 'updateStatus'])->name('manuscripts.update-status');
-    Route::put('/manuscripts/{id}/update-status-notes', [ManuscriptController::class, 'updateStatusAndNotes'])->name('manuscripts.update-status-notes');
-    Route::delete('/manuscripts/{id}', [ManuscriptController::class, 'destroy'])->name('manuscripts.destroy');
+    Route::get('/manuscripts', [\App\Http\Controllers\Admin\ManuscriptController::class, 'index'])->name('manuscripts.index');
+    Route::get('/manuscripts/filter', [\App\Http\Controllers\Admin\ManuscriptController::class, 'filter'])->name('manuscripts.filter');
+    Route::get('/manuscripts/export', [\App\Http\Controllers\Admin\ManuscriptController::class, 'export'])->name('manuscripts.export');
+    Route::get('/manuscripts/batch-download/{batchId}/{file}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'batchDownloadFile'])->name('manuscripts.batch-file')->where('file', '.*');
+    Route::get('/manuscripts/create', [\App\Http\Controllers\Admin\ManuscriptController::class, 'create'])->name('manuscripts.create');
+    Route::post('/manuscripts', [\App\Http\Controllers\Admin\ManuscriptController::class, 'store'])->name('manuscripts.store');
+    Route::get('/manuscripts/{id}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'show'])->name('manuscripts.show');
+    Route::get('/manuscripts/{id}/edit', [\App\Http\Controllers\Admin\ManuscriptController::class, 'edit'])->name('manuscripts.edit');
+    Route::put('/manuscripts/{id}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'update'])->name('manuscripts.update');
+    Route::delete('/manuscripts/{id}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'destroy'])->name('manuscripts.destroy');
 
     // Admin reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -165,6 +162,29 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
 
     // Admin User Management Routes
     Route::resource('users', UserController::class);
+
+    // Application Timeline Management Routes
+    Route::resource('application-timeline', \App\Http\Controllers\Admin\ApplicationTimelineController::class);
+    Route::patch('application-timeline/{applicationTimeline}/toggle-status', [\App\Http\Controllers\Admin\ApplicationTimelineController::class, 'toggleStatus'])
+        ->name('application-timeline.toggle-status');
+
+    // Important Notes Management Routes
+    Route::resource('important-notes', \App\Http\Controllers\Admin\ImportantNoteController::class);
+    Route::patch('important-notes/{importantNote}/toggle-status', [\App\Http\Controllers\Admin\ImportantNoteController::class, 'toggleStatus'])
+        ->name('important-notes.toggle-status');
+
+    // History Management Routes
+    Route::resource('history-timeline', \App\Http\Controllers\Admin\HistoryTimelineController::class);
+    Route::patch('history-timeline/{historyTimeline}/toggle-status', [\App\Http\Controllers\Admin\HistoryTimelineController::class, 'toggleStatus'])
+        ->name('history-timeline.toggle-status');
+
+    Route::resource('history-achievements', \App\Http\Controllers\Admin\HistoryAchievementController::class);
+    Route::patch('history-achievements/{historyAchievement}/toggle-status', [\App\Http\Controllers\Admin\HistoryAchievementController::class, 'toggleStatus'])
+        ->name('history-achievements.toggle-status');
+
+    Route::resource('history-content', \App\Http\Controllers\Admin\HistoryContentController::class);
+    Route::patch('history-content/{historyContent}/toggle-status', [\App\Http\Controllers\Admin\HistoryContentController::class, 'toggleStatus'])
+        ->name('history-content.toggle-status');
 });
 
 // Profile routes (for both admin and scholar users)
@@ -181,6 +201,30 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::get('/user-management/{id}/edit', [SuperAdminController::class, 'editUser'])->name('user_management.edit');
     Route::put('/user-management/{id}', [SuperAdminController::class, 'updateUser'])->name('user_management.update');
     Route::get('/system-settings', [SuperAdminController::class, 'systemSettings'])->name('system_settings');
+    Route::get('/system-configuration', [SuperAdminController::class, 'systemConfiguration'])->name('system_configuration');
+    Route::get('/data-management', [SuperAdminController::class, 'dataManagement'])->name('data_management');
+    Route::get('/website-management', [SuperAdminController::class, 'websiteManagement'])->name('website_management');
+
+    // Application Timeline Management Routes
+    Route::get('/application-timeline', [SuperAdminController::class, 'applicationTimeline'])->name('application_timeline');
+    Route::get('/application-timeline/create', [SuperAdminController::class, 'createTimelineItem'])->name('application_timeline.create');
+    Route::post('/application-timeline', [SuperAdminController::class, 'storeTimelineItem'])->name('application_timeline.store');
+    Route::get('/application-timeline/{id}/edit', [SuperAdminController::class, 'editTimelineItem'])->name('application_timeline.edit');
+    Route::put('/application-timeline/{id}', [SuperAdminController::class, 'updateTimelineItem'])->name('application_timeline.update');
+    Route::delete('/application-timeline/{id}', [SuperAdminController::class, 'deleteTimelineItem'])->name('application_timeline.delete');
+    Route::patch('/application-timeline/{id}/toggle-status', [SuperAdminController::class, 'toggleTimelineStatus'])->name('application_timeline.toggle_status');
+
+    // Announcement Management Routes
+    Route::post('/announcements', [SuperAdminController::class, 'storeAnnouncement'])->name('announcements.store');
+    Route::put('/announcements/{id}', [SuperAdminController::class, 'updateAnnouncement'])->name('announcements.update');
+    Route::delete('/announcements/{id}', [SuperAdminController::class, 'deleteAnnouncement'])->name('announcements.delete');
+    Route::patch('/announcements/{id}/toggle-status', [SuperAdminController::class, 'toggleAnnouncementStatus'])->name('announcements.toggle_status');
+
+    // Faculty Management Routes
+    Route::post('/faculty', [SuperAdminController::class, 'storeFaculty'])->name('faculty.store');
+    Route::put('/faculty/{id}', [SuperAdminController::class, 'updateFaculty'])->name('faculty.update');
+    Route::delete('/faculty/{id}', [SuperAdminController::class, 'deleteFaculty'])->name('faculty.delete');
+    Route::patch('/faculty/{id}/toggle-status', [SuperAdminController::class, 'toggleFacultyStatus'])->name('faculty.toggle_status');
 
     // Test repository routes - for testing the repository pattern implementation
     Route::get('/test-user-repository', [\App\Http\Controllers\TestRepositoryController::class, 'testUserRepository'])->name('test_user_repository');
@@ -197,14 +241,6 @@ Route::get('/dashboard', function() {
     return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('dashboard');
 
-// Home route as an alias to dashboard for consistency
-Route::get('/home', function() {
-    if (Auth::user()->role === 'scholar') {
-        return redirect()->route('scholar.dashboard');
-    }
-    return redirect()->route('admin.dashboard');
-})->middleware('auth')->name('home');
-
 // Example routes for demonstrating exception handling
 Route::prefix('example')->name('example.')->group(function () {
     Route::get('/exceptions', [\App\Http\Controllers\ExampleExceptionController::class, 'index'])->name('exceptions');
@@ -215,3 +251,5 @@ Route::prefix('example')->name('example.')->group(function () {
     Route::get('/not-found', [\App\Http\Controllers\ExampleExceptionController::class, 'notFound'])->name('not-found');
     Route::get('/server-error', [\App\Http\Controllers\ExampleExceptionController::class, 'serverError'])->name('server-error');
 });
+
+

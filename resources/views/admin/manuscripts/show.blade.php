@@ -68,24 +68,9 @@
                     </div>
                 </div>
 
-                <!-- Keywords Section -->
-                @if($manuscript->keywords)
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-lg font-medium text-gray-800 mb-3 flex items-center">
-                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full mr-3" style="background-color: #9061f9;">
-                            <i class="fas fa-tags text-sm text-white"></i>
-                        </span>
-                        Keywords
-                    </h3>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach(explode(',', $manuscript->keywords) as $keyword)
-                            <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                                {{ trim($keyword) }}
-                            </span>
-                        @endforeach
-                    </div>
+                <div class="mb-4">
+                    {{-- Keywords display removed as per request --}}
                 </div>
-                @endif
 
                 <!-- Documents Section -->
                 <div class="p-6">

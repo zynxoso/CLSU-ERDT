@@ -17,6 +17,7 @@ use App\Http\Requests\ScholarCreateRequest;
 use App\Http\Requests\ScholarUpdateRequest;
 use Illuminate\Support\Facades\Schema;
 use App\Services\NotificationService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ScholarController extends Controller
 {
@@ -221,6 +222,8 @@ class ScholarController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make('CLSU-scholar123'), // Use consistent default password instead of random one
                 'role' => 'scholar',
+                'is_default_password' => true,
+                'must_change_password' => true,
             ];
 
             $logMessage = "Attempting to create user with attributes: " . json_encode($userAttributes) . "\n";
@@ -324,6 +327,12 @@ class ScholarController extends Controller
             if ($request->has('research_area')) {
                 $scholarProfile->research_area = $request->research_area;
             }
+            if ($request->has('research_title')) {
+                $scholarProfile->research_title = $request->research_title;
+            }
+            if ($request->has('research_abstract')) {
+                $scholarProfile->research_abstract = $request->research_abstract;
+            }
 
             // Notes
             if ($request->has('notes')) {
@@ -385,8 +394,14 @@ class ScholarController extends Controller
      */
     public function show($id)
     {
-        $scholar = ScholarProfile::findOrFail($id);
-        return view('admin.scholars.show', compact('scholar'));
+        try {
+            $scholar = ScholarProfile::findOrFail($id);
+            return view('admin.scholars.show', compact('scholar'));
+        } catch (ModelNotFoundException $e) {
+            // Log the error or handle it as needed
+            // For example, redirect to a 404 page or show an error message
+            return response()->view('errors.404', [], 404);
+        }
     }
 
     /**
@@ -456,7 +471,7 @@ class ScholarController extends Controller
             $scholar->university = $request->university;
             $scholar->program = $request->program;
             $scholar->department = $request->department;
-            
+
             // Debug logging for status update
             \Illuminate\Support\Facades\Log::info('Scholar status update', [
                 'scholar_id' => $scholar->id,
@@ -464,7 +479,7 @@ class ScholarController extends Controller
                 'new_status' => $request->status,
                 'request_data' => $request->all()
             ]);
-            
+
             $scholar->status = $request->status;
             $scholar->start_date = $request->start_date;
             $scholar->expected_completion_date = $request->expected_completion_date;
@@ -495,6 +510,12 @@ class ScholarController extends Controller
             if ($request->has('research_area')) {
                 $scholar->research_area = $request->research_area;
             }
+            if ($request->has('research_title')) {
+                $scholar->research_title = $request->research_title;
+            }
+            if ($request->has('research_abstract')) {
+                $scholar->research_abstract = $request->research_abstract;
+            }
 
             // Notes
             if ($request->has('notes')) {
@@ -518,28 +539,28 @@ class ScholarController extends Controller
 
             // Create audit log for the update
             $this->createAuditLog('updated', 'scholar_profile', $scholar->id, $originalValues, $scholar->toArray());
-            
+
             // Send notification to scholar if updated by admin
             if (Auth::user()->role === 'admin' && $scholar->user_id) {
                 $changedFields = [];
                 $newValues = $scholar->toArray();
-                
+
                 // Determine which fields were changed
                 foreach ($originalValues as $field => $value) {
                     if (isset($newValues[$field]) && $value !== $newValues[$field] && !in_array($field, ['updated_at'])) {
                         $changedFields[] = str_replace('_', ' ', ucfirst($field));
                     }
                 }
-                
+
                 if (!empty($changedFields)) {
-                    $changedFieldsText = count($changedFields) > 3 
-                        ? implode(', ', array_slice($changedFields, 0, 3)) . ' and others' 
+                    $changedFieldsText = count($changedFields) > 3
+                        ? implode(', ', array_slice($changedFields, 0, 3)) . ' and others'
                         : implode(', ', $changedFields);
-                        
+
                     $title = 'Profile Updated';
                     $message = 'Your scholar profile has been updated by an administrator. The following information was changed: ' . $changedFieldsText;
                     $link = '/scholar/profile';
-                    
+
                     // Send in-app notification only (no email)
                     $notificationService->notify(
                         $scholar->user_id,
@@ -551,7 +572,7 @@ class ScholarController extends Controller
                     );
                 }
             }
-            
+
             // Commit transaction
             DB::commit();
 
@@ -560,12 +581,12 @@ class ScholarController extends Controller
                 : 'scholar.profile.show';
 
             $successMessage = 'Scholar profile updated successfully. Status set to: ' . $scholar->status;
-            
+
             // Add notification info to success message if admin updated a scholar
             if (Auth::user()->role === 'admin' && $scholar->user_id) {
                 $successMessage .= '<br><br>A notification has been sent to the scholar about this update.';
             }
-            
+
             return redirect()->route($successRoute)
                 ->with('success', $successMessage);
 
@@ -589,10 +610,10 @@ class ScholarController extends Controller
     {
         $user = Auth::user();
         $notifications = $notificationService->getRecentNotifications($user->id, 50);
-        
+
         // Mark all notifications as read
         $notificationService->markAllAsRead($user->id);
-        
+
         return view('scholar.notifications', compact('notifications'));
     }
 

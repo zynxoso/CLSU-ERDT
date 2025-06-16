@@ -80,12 +80,8 @@
                 <select id="manuscript_type" name="manuscript_type"
                     class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     <option value="">Select Type</option>
-                    <option value="Conference Paper" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Conference Paper' ? 'selected' : '' }}>Conference Paper</option>
-                    <option value="Journal Article" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Journal Article' ? 'selected' : '' }}>Journal Article</option>
-                    <option value="Thesis" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Thesis' ? 'selected' : '' }}>Thesis</option>
-                    <option value="Dissertation" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Dissertation' ? 'selected' : '' }}>Dissertation</option>
-                    <option value="Book Chapter" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Book Chapter' ? 'selected' : '' }}>Book Chapter</option>
-                    <option value="Other" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Other' ? 'selected' : '' }}>Other</option>
+                    <option value="Outline" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Outline' ? 'selected' : '' }}>Outline</option>
+                    <option value="Final" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Final' ? 'selected' : '' }}>Final</option>
                 </select>
                 @error('manuscript_type')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -106,15 +102,7 @@
         </div>
 
         <div class="mb-4">
-            <label for="keywords" class="block text-sm font-medium text-gray-700 mb-1">
-                Keywords
-            </label>
-            <input type="text" id="keywords" name="keywords" value="{{ old('keywords', $manuscript->keywords) }}"
-                class="w-full bg-white border @error('keywords') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @error('keywords')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-            <p class="text-xs text-gray-500 mt-1">Add 3-5 keywords that describe your manuscript, separated by commas</p>
+            {{-- Keywords input removed as per request --}}
         </div>
 
         <div class="mb-4">

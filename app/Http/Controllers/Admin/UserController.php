@@ -52,6 +52,8 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'is_default_password' => true,
+            'must_change_password' => true,
         ]);
 
         event(new Registered($user));

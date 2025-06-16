@@ -154,14 +154,14 @@
                                             <a href="{{ route('admin.scholars.edit', $scholar->id) }}" class="text-blue-600 hover:text-blue-900 mr-3" title="Edit Scholar">
                                                 <i class="fas fa-edit" style="color: black;"></i>
                                             </a>
-                                            <!-- <button 
+                                            <button 
                                                 type="button" 
                                                 wire:click="$dispatch('openModal', { component: 'delete-confirmation-modal', arguments: { id: {{ $scholar->id }}, name: '{{ $scholar->full_name }}' } })"
                                                 class="text-blue-600 hover:text-blue-900 mr-3"
                                                 title="Delete Scholar"
                                             >
                                                 <i class="fas fa-trash-alt" style="color: black;"></i>
-                                            </button> -->
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

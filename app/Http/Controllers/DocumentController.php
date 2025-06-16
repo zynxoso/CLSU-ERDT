@@ -21,6 +21,7 @@ class DocumentController extends Controller
     public function __construct(AuditService $auditService, FileSecurityService $fileSecurityService)
     {
         $this->middleware('auth');
+        $this->authorizeResource(Document::class, 'document', ['except' => ['scholarIndex', 'scholarCreate', 'scholarFilesJson', 'ajaxUpload', 'scholarStore', 'adminIndex']]);
         $this->auditService = $auditService;
         $this->fileSecurityService = $fileSecurityService;
     }
@@ -33,22 +34,14 @@ class DocumentController extends Controller
     public function scholarIndex()
     {
         $user = Auth::user();
-        
-        // Check if user is a scholar
-        if ($user->role !== 'scholar') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
-        
-        // Get scholar profile
+        $this->authorize('viewAny', Document::class);
         $scholarProfile = $user->scholarProfile;
         if (!$scholarProfile) {
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
-        
         $documents = Document::where('scholar_profile_id', $scholarProfile->id)
                            ->orderBy('created_at', 'desc')
                            ->paginate(10);
-        
         return view('scholar.documents.index', compact('documents'));
     }
     
@@ -60,18 +53,11 @@ class DocumentController extends Controller
     public function scholarCreate()
     {
         $user = Auth::user();
-        
-        // Check if user is a scholar
-        if ($user->role !== 'scholar') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
-        
-        // Get scholar profile
+        $this->authorize('create', Document::class);
         $scholarProfile = $user->scholarProfile;
         if (!$scholarProfile) {
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
-        
         $categories = [
             'Registration Form',
             'Enrollment Form',
@@ -81,7 +67,6 @@ class DocumentController extends Controller
             'Certificate',
             'Other'
         ];
-        
         return view('scholar.documents.create', compact('categories'));
     }
 
@@ -93,9 +78,7 @@ class DocumentController extends Controller
     public function scholarFilesJson(Request $request)
     {
         $user = Auth::user();
-        if ($user->role !== 'scholar') {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        $this->authorize('viewAny', Document::class);
         $scholarProfile = $user->scholarProfile;
         if (!$scholarProfile) {
             return response()->json(['error' => 'Scholar profile not found'], 404);
@@ -115,9 +98,7 @@ class DocumentController extends Controller
     public function ajaxUpload(Request $request)
     {
         $user = Auth::user();
-        if ($user->role !== 'scholar') {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        $this->authorize('create', Document::class);
         $scholarProfile = $user->scholarProfile;
         if (!$scholarProfile) {
             return response()->json(['error' => 'Scholar profile not found'], 404);
@@ -182,13 +163,7 @@ class DocumentController extends Controller
     public function scholarStore(Request $request)
     {
         $user = Auth::user();
-        
-        // Check if user is a scholar
-        if ($user->role !== 'scholar') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
-        
-        // Get scholar profile
+        $this->authorize('create', Document::class);
         $scholarProfile = $user->scholarProfile;
         if (!$scholarProfile) {
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
@@ -261,13 +236,7 @@ class DocumentController extends Controller
     {
         $user = Auth::user();
         $document = Document::findOrFail($id);
-        
-        // Check if user is authorized to view this document
-        if ($user->role === 'scholar' && $user->scholarProfile->id !== $document->scholar_profile_id) {
-            return redirect()->route('scholar.documents.index')
-                ->with('error', 'You are not authorized to view this document');
-        }
-        
+        $this->authorize('view', $document);
         return view('scholar.documents.show', compact('document'));
     }
 
@@ -356,12 +325,7 @@ class DocumentController extends Controller
     public function adminIndex()
     {
         $user = Auth::user();
-        
-        // Check if user is an admin
-        if ($user->role !== 'admin') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
-        
+        $this->authorize('viewAny', Document::class);
         $documents = Document::with('scholarProfile.user')
                            ->orderBy('created_at', 'desc')
                            ->paginate(10);
@@ -378,13 +342,7 @@ class DocumentController extends Controller
     public function download($id)
     {
         $document = Document::findOrFail($id);
-        $user = Auth::user();
-
-        // Check if user is authorized to download this document
-        if ($user->role !== 'admin' && $user->scholarProfile->id !== $document->scholar_profile_id) {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
-
+        $this->authorize('view', $document);
         if (Storage::disk('public')->exists($document->file_path)) {
             return Storage::disk('public')->download($document->file_path, $document->file_name);
         }

@@ -40,6 +40,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            \App\Http\Middleware\CheckPasswordExpiration::class,
         ],
 
         'api' => [
@@ -71,5 +72,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         'role' => \App\Http\Middleware\CheckRole::class,
+        'password.expiry' => \App\Http\Middleware\CheckPasswordExpiration::class,
     ];
 }

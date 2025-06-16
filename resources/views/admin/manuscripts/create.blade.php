@@ -11,6 +11,30 @@
     </div> -->
 
     <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- Progress Indicator -->
+        <div class="mb-8">
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <div class="text-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Manuscript Creation</h3>
+                    <p class="text-sm text-gray-600">Create a new manuscript entry in the system</p>
+                </div>
+
+                <div class="flex items-center justify-center">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold shadow-lg">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-sm font-semibold text-blue-600">Creating Manuscript</div>
+                            <div class="text-xs text-gray-500 mt-1">Fill in manuscript details</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <h1 class="text-2xl font-bold mb-6">Create Manuscript</h1>
 
         <form action="{{ route('admin.manuscripts.store') }}" method="POST" enctype="multipart/form-data">
@@ -40,11 +64,8 @@
                         <label for="manuscript_type" class="block text-sm font-medium text-gray-700 mb-1">Manuscript Type <span class="text-red-500">*</span></label>
                         <select id="manuscript_type" name="manuscript_type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                             <option value="">Select Type</option>
-                            <option value="journal" {{ old('manuscript_type') == 'journal' ? 'selected' : '' }}>Journal Article</option>
-                            <option value="conference" {{ old('manuscript_type') == 'conference' ? 'selected' : '' }}>Conference Paper</option>
-                            <option value="thesis" {{ old('manuscript_type') == 'thesis' ? 'selected' : '' }}>Thesis</option>
-                            <option value="book" {{ old('manuscript_type') == 'book' ? 'selected' : '' }}>Book</option>
-                            <option value="other" {{ old('manuscript_type') == 'other' ? 'selected' : '' }}>Other</option>
+                            <option value="Outline" {{ old('manuscript_type') == 'Outline' ? 'selected' : '' }}>Outline</option>
+                            <option value="Final" {{ old('manuscript_type') == 'Final' ? 'selected' : '' }}>Final</option>
                         </select>
                         @error('manuscript_type')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -59,12 +80,8 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="keywords" class="block text-sm font-medium text-gray-700 mb-1">Keywords <span class="text-red-500">*</span></label>
-                        <input type="text" id="keywords" name="keywords" value="{{ old('keywords') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="Separate keywords with commas">
-                        @error('keywords')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                    <div class="mb-4">
+                        {{-- Keywords input removed as per request --}}
                     </div>
 
                     <div>

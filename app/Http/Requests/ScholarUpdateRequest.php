@@ -91,6 +91,8 @@ class ScholarUpdateRequest extends FormRequest
 
             // Research information
             'research_area' => ['nullable', 'string', 'max:255'],
+            'research_title' => ['nullable', 'string', 'max:255'],
+            'research_abstract' => ['nullable', 'string', 'max:5000'],
             'notes' => ['nullable', 'string', 'max:1000'],
 
             // Location information (optional)

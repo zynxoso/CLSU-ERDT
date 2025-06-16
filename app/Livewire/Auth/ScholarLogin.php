@@ -5,6 +5,7 @@ namespace App\Livewire\Auth;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Models\Announcement;
 
 class ScholarLogin extends Component
 {
@@ -32,6 +33,15 @@ class ScholarLogin extends Component
 
     public function render()
     {
-        return view('livewire.auth.scholar-login')->layout('layouts.guest');
+        // Get active announcements for display
+        $announcements = Announcement::active()
+            ->published()
+            ->orderByPriority()
+            ->limit(4)
+            ->get();
+
+        return view('livewire.auth.scholar-login', [
+            'announcements' => $announcements
+        ])->layout('layouts.guest');
     }
 }
