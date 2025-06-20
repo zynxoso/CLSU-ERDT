@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Call other seeders
+        $this->call([
+            SuperAdminUserSeeder::class,
+            FacultyMemberSeeder::class,
+        ]);
+
         // Create admin user
         User::create([
             'name' => 'Admin User',
@@ -22,7 +28,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'email_verified_at' => now(),
         ]);
-     
+
         // Create a test scholar user
         $scholar = User::create([
             'name' => 'Test Scholar',
@@ -31,7 +37,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'scholar',
             'email_verified_at' => now(),
         ]);
-        
+
         // Create scholar profile
         $scholar->scholarProfile()->create([
             'first_name' => 'Test',
@@ -50,7 +56,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'Ongoing',
             'scholar_id' => 'ERDT-2023-001',
         ]);
-        
+
         // Create request types
         $requestTypes = [
             [
@@ -102,7 +108,7 @@ class DatabaseSeeder extends Seeder
                 'max_amount' => 15000.00,
             ],
         ];
-        
+
         foreach ($requestTypes as $type) {
             RequestType::create($type);
         }

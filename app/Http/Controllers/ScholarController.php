@@ -18,16 +18,20 @@ use App\Http\Requests\ScholarUpdateRequest;
 use Illuminate\Support\Facades\Schema;
 use App\Services\NotificationService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Services\AuditService;
 
 class ScholarController extends Controller
 {
+    protected $auditService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(AuditService $auditService)
     {
+        $this->auditService = $auditService;
         $this->middleware('auth');
 
         // Only restrict scholar-specific methods
@@ -347,16 +351,9 @@ class ScholarController extends Controller
             file_put_contents($logPath, $logMessage, FILE_APPEND);
 
             // Create audit log for the creation
-            try {
-                $this->createAuditLog('created', 'scholar_profile', $scholarProfile->id, null, $scholarProfile->toArray());
-                $logMessage = "Audit log created successfully\n";
-                file_put_contents($logPath, $logMessage, FILE_APPEND);
-            } catch (\Exception $e) {
-                // Log error but continue with the process
-                $logMessage = "ERROR creating audit log: " . $e->getMessage() . "\n";
-                file_put_contents($logPath, $logMessage, FILE_APPEND);
-                \Illuminate\Support\Facades\Log::error('Failed to create audit log: ' . $e->getMessage());
-            }
+            $this->auditService->logCreate('ScholarProfile', $scholarProfile->id, $scholarProfile->toArray());
+            $logMessage = "Audit log created successfully\n";
+            file_put_contents($logPath, $logMessage, FILE_APPEND);
 
             // Commit transaction
             DB::commit();
@@ -538,7 +535,7 @@ class ScholarController extends Controller
             }
 
             // Create audit log for the update
-            $this->createAuditLog('updated', 'scholar_profile', $scholar->id, $originalValues, $scholar->toArray());
+            $this->auditService->logUpdate('ScholarProfile', $scholar->id, $originalValues, $scholar->toArray());
 
             // Send notification to scholar if updated by admin
             if (Auth::user()->role === 'admin' && $scholar->user_id) {
@@ -644,22 +641,14 @@ class ScholarController extends Controller
      */
     private function createAuditLog(string $action, string $modelType, int $modelId, ?array $oldValues, ?array $newValues): void
     {
-        // Check if the AuditLog model exists
-        if (!class_exists('App\Models\AuditLog')) {
-            return;
-        }
-
         try {
-            \App\Models\AuditLog::create([
-                'user_id' => Auth::id(),
-                'action' => $action,
-                'entity_type' => $modelType,
-                'entity_id' => $modelId,
-                'old_values' => $oldValues ? json_encode($oldValues) : null,
-                'new_values' => $newValues ? json_encode($newValues) : null,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
+            if ($action === 'created') {
+                $this->auditService->logCreate($modelType, $modelId, $newValues);
+            } elseif ($action === 'updated') {
+                $this->auditService->logUpdate($modelType, $modelId, $oldValues, $newValues);
+            } elseif ($action === 'deleted') {
+                $this->auditService->logDelete($modelType, $modelId, $oldValues);
+            }
         } catch (\Exception $e) {
             // Log the error but don't halt the main operation
             \Illuminate\Support\Facades\Log::error('Failed to create audit log: ' . $e->getMessage());

@@ -53,6 +53,15 @@ class LoginRequest extends FormRequest
                 ]);
             }
             $user = Auth::guard('scholar')->user();
+
+            // Check if user is active
+            if (!$user->is_active) {
+                Auth::guard('scholar')->logout();
+                throw ValidationException::withMessages([
+                    'email' => 'Your account has been deactivated. Please contact the administrator.',
+                ]);
+            }
+
             if ($user->role !== 'scholar') {
                 Auth::guard('scholar')->logout();
                 throw ValidationException::withMessages([
@@ -69,6 +78,15 @@ class LoginRequest extends FormRequest
                 ]);
             }
             $user = Auth::guard('web')->user();
+
+            // Check if user is active
+            if (!$user->is_active) {
+                Auth::guard('web')->logout();
+                throw ValidationException::withMessages([
+                    'email' => 'Your account has been deactivated. Please contact the administrator.',
+                ]);
+            }
+
             if ($user->role === 'scholar') {
                 Auth::guard('web')->logout();
                 throw ValidationException::withMessages([

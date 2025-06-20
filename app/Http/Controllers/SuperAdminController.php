@@ -140,6 +140,86 @@ class SuperAdminController extends Controller
         ));
     }
 
+    /**
+     * Show the super admin profile edit form.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editProfile()
+    {
+        $user = Auth::user();
+        return view('super_admin.profile.edit', compact('user'));
+    }
+
+    /**
+     * Update the super admin profile.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        $this->auditService->log('profile_updated', 'User', $user->id,
+            'Updated profile - Name: ' . $request->name . ', Email: ' . $request->email
+        );
+
+        return redirect()->route('super_admin.profile.edit')
+            ->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Show the change password form for super admin.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showChangePasswordForm()
+    {
+        return view('super_admin.password.change');
+    }
+
+    /**
+     * Change the super admin password.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function changePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => ['required'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Set password expiration (90 days from now)
+        $user->setPasswordExpiration();
+
+        $this->auditService->log('password_changed', 'User', $user->id);
+
+        return redirect()->route('super_admin.dashboard')
+            ->with('success', 'Password changed successfully.');
+    }
 
     /**
      * Show the user management page.
@@ -400,7 +480,6 @@ class SuperAdminController extends Controller
             'department' => 'required|string|max:255',
             'specialization' => 'required|string|max:255',
             'education_background' => 'required|string',
-            'research_description' => 'required|string',
             'degree_level' => 'required|string|max:10',
             'university_origin' => 'nullable|string|max:255',
             'expertise_tags' => 'nullable|array',
@@ -447,7 +526,6 @@ class SuperAdminController extends Controller
             'department' => 'required|string|max:255',
             'specialization' => 'required|string|max:255',
             'education_background' => 'required|string',
-            'research_description' => 'required|string',
             'degree_level' => 'required|string|max:10',
             'university_origin' => 'nullable|string|max:255',
             'expertise_tags' => 'nullable|array',

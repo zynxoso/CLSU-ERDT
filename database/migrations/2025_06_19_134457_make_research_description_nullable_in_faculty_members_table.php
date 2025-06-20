@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('audit_logs', function (Blueprint $table) {
-            $table->renameColumn('model_type', 'entity_type');
-            $table->renameColumn('model_id', 'entity_id');
+        Schema::table('faculty_members', function (Blueprint $table) {
+            $table->text('research_description')->nullable()->change();
         });
     }
 
@@ -22,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('audit_logs', function (Blueprint $table) {
-            $table->renameColumn('entity_type', 'model_type');
-            $table->renameColumn('entity_id', 'model_id');
+        Schema::table('faculty_members', function (Blueprint $table) {
+            $table->text('research_description')->nullable(false)->change();
         });
     }
 };

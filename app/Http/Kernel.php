@@ -23,6 +23,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         // Debug middleware removed as per cleanup task
         \App\Http\Middleware\CyberSweepMiddleware::class, // Added for enhanced security scanning
+        \App\Http\Middleware\PerformanceMonitoringMiddleware::class, // Added for DDoS detection and performance monitoring
     ];
 
     /**
@@ -73,5 +74,7 @@ class Kernel extends HttpKernel
         'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         'role' => \App\Http\Middleware\CheckRole::class,
         'password.expiry' => \App\Http\Middleware\CheckPasswordExpiration::class,
+        'api.rate.limit' => \App\Http\Middleware\ApiRateLimitMiddleware::class,
+        'db.security' => \App\Http\Middleware\DatabaseSecurityMiddleware::class,
     ];
 }

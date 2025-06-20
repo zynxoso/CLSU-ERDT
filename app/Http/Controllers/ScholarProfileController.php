@@ -9,9 +9,18 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ScholarProfileUpdateRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use App\Services\AuditService;
 
 class ScholarProfileController extends Controller
 {
+    protected $auditService;
+
+    public function __construct(AuditService $auditService)
+    {
+        $this->auditService = $auditService;
+        $this->middleware('auth');
+    }
+
     /**
      * Display the scholar's profile.
      *
@@ -226,26 +235,17 @@ class ScholarProfileController extends Controller
         }
 
         try {
-        $scholarProfile->save();
+            $scholarProfile->save();
 
-            // Create audit log for the update if class exists
-            if (class_exists('App\Models\AuditLog')) {
-                \App\Models\AuditLog::create([
-                    'user_id' => Auth::id(),
-                    'action' => $originalData ? 'updated' : 'created',
-                    'model_type' => 'App\Models\ScholarProfile',
-                    'model_id' => $scholarProfile->id,
-                    'entity_type' => 'scholar_profile',
-                    'entity_id' => $scholarProfile->id,
-                    'old_values' => $originalData ? json_encode($originalData) : null,
-                    'new_values' => json_encode($scholarProfile->toArray()),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                ]);
+            // Create audit log using the AuditService
+            if ($originalData) {
+                $this->auditService->logUpdate('ScholarProfile', $scholarProfile->id, $originalData, $scholarProfile->toArray());
+            } else {
+                $this->auditService->logCreate('ScholarProfile', $scholarProfile->id, $scholarProfile->toArray());
             }
 
-        return redirect()->route('scholar.profile')
-            ->with('success', 'Your profile has been updated successfully.');
+            return redirect()->route('scholar.profile')
+                ->with('success', 'Your profile has been updated successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to update scholar profile: ' . $e->getMessage());
             return redirect()->back()

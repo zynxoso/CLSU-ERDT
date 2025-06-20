@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
 use App\Casts\EncryptedAttribute;
 use Illuminate\Support\Facades\Log;
+use App\Models\Scopes\ScholarAccessScope;
 
 class ScholarProfile extends Model
 {
@@ -107,6 +108,9 @@ class ScholarProfile extends Model
     protected static function boot()
     {
         parent::boot();
+
+        // Add global scope for role-based access control
+        static::addGlobalScope(new ScholarAccessScope);
 
         static::creating(function ($model) {
             // Create hash values for searchable fields

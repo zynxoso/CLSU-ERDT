@@ -77,7 +77,7 @@ class CacheService
     public function clearScholarCaches()
     {
         Cache::forget('all_scholars');
-        
+
         // Clear individual scholar caches
         $scholarIds = Scholar::pluck('id')->toArray();
         foreach ($scholarIds as $id) {

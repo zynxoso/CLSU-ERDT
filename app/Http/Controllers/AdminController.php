@@ -248,4 +248,105 @@ class AdminController extends Controller
         return redirect()->route('admin.dashboard')
             ->with('success', 'Password updated successfully. Your password will expire in 90 days.');
     }
+
+    /**
+     * Show the admin profile edit form.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editProfile()
+    {
+        return view('admin.profile');
+    }
+
+    /**
+     * Update the admin profile information.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'position' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'position' => $request->position,
+        ]);
+
+        $this->auditService->log('profile_updated', 'User', $user->id,
+            'Updated profile - Name: ' . $request->name . ', Email: ' . $request->email
+        );
+
+        return redirect()->route('admin.profile.edit')
+            ->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Update the admin password from profile page.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', function ($attribute, $value, $fail) {
+                if (!Hash::check($value, Auth::user()->password)) {
+                    $fail('The current password is incorrect.');
+                }
+            }],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->new_password);
+
+        // Clear default password flags
+        $user->is_default_password = false;
+        $user->must_change_password = false;
+
+        // Set password expiration (90 days from now)
+        $user->setPasswordExpiration(90);
+
+        // Save the user
+        $user->save();
+
+        $this->auditService->log('password_changed', 'User', $user->id, 'Password changed from profile page');
+
+        return redirect()->route('admin.profile.edit')
+            ->with('success', 'Password updated successfully.');
+    }
+
+    /**
+     * Update the admin notification preferences.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateNotifications(Request $request)
+    {
+        $user = Auth::user();
+
+        $user->update([
+            'email_notifications' => $request->has('email_notifications'),
+            'fund_request_notifications' => $request->has('fund_request_notifications'),
+            'document_notifications' => $request->has('document_notifications'),
+            'manuscript_notifications' => $request->has('manuscript_notifications'),
+        ]);
+
+        $this->auditService->log('notification_preferences_updated', 'User', $user->id, 'Updated notification preferences');
+
+        return redirect()->route('admin.profile.edit')
+            ->with('success', 'Notification preferences updated successfully.');
+    }
 }

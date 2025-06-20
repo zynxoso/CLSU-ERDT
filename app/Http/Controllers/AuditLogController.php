@@ -49,12 +49,12 @@ class AuditLogController extends Controller
             $query->where('action', $request->action);
         }
 
-        if ($request->has('entity_type') && $request->entity_type) {
-            $query->where('entity_type', $request->entity_type);
+        if ($request->has('model_type') && $request->model_type) {
+            $query->where('model_type', $request->model_type);
         }
 
-        if ($request->has('entity_id') && $request->entity_id) {
-            $query->where('entity_id', $request->entity_id);
+        if ($request->has('model_id') && $request->model_id) {
+            $query->where('model_id', $request->model_id);
         }
 
         if ($request->has('date_from') && $request->date_from) {
@@ -66,7 +66,7 @@ class AuditLogController extends Controller
         }
 
         // Get unique entity types and actions for filters
-        $entityTypes = AuditLog::distinct()->pluck('entity_type')->filter()->sort()->values();
+        $entityTypes = AuditLog::distinct()->pluck('model_type')->filter()->sort()->values();
         $actions = AuditLog::distinct()->pluck('action')->filter()->sort()->values();
         $users = User::orderBy('name')->get(['id', 'name', 'email']);
 
@@ -95,12 +95,12 @@ class AuditLogController extends Controller
             $query->where('action', $request->action);
         }
 
-        if ($request->has('entity_type') && $request->entity_type) {
-            $query->where('entity_type', $request->entity_type);
+        if ($request->has('model_type') && $request->model_type) {
+            $query->where('model_type', $request->model_type);
         }
 
-        if ($request->has('entity_id') && $request->entity_id) {
-            $query->where('entity_id', $request->entity_id);
+        if ($request->has('model_id') && $request->model_id) {
+            $query->where('model_id', $request->model_id);
         }
 
         if ($request->has('date_from') && $request->date_from) {
@@ -124,15 +124,15 @@ class AuditLogController extends Controller
 
             // Add CSV headers
             fputcsv($file, [
-                'ID', 
-                'Timestamp', 
-                'User', 
-                'Action', 
-                'Entity Type', 
-                'Entity ID', 
-                'IP Address', 
-                'Browser/Device', 
-                'Old Values', 
+                'ID',
+                'Timestamp',
+                'User',
+                'Action',
+                'Entity Type',
+                'Entity ID',
+                'IP Address',
+                'Browser/Device',
+                'Old Values',
                 'New Values'
             ]);
 
@@ -143,8 +143,8 @@ class AuditLogController extends Controller
                     $log->created_at->format('Y-m-d H:i:s'),
                     $log->user ? $log->user->name . ' (' . $log->user->email . ')' : 'System',
                     $log->action,
-                    $log->entity_type,
-                    $log->entity_id,
+                    $log->model_type,
+                    $log->model_id,
                     $log->ip_address,
                     $log->user_agent,
                     json_encode($log->old_values),

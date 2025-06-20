@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class AuditLogsList extends Component
 {
     use WithPagination;
-    
+
     protected $paginationTheme = 'tailwind';
     public $perPage = 10;
     public $search = '';
@@ -20,86 +20,86 @@ class AuditLogsList extends Component
     public $entityId = '';
     public $dateFrom = '';
     public $dateTo = '';
-    
+
     protected $queryString = [
         'search' => ['except' => ''],
         'user' => ['except' => ''],
         'action' => ['except' => ''],
-        'entityType' => ['except' => '', 'as' => 'entity_type'],
-        'entityId' => ['except' => '', 'as' => 'entity_id'],
+        'entityType' => ['except' => '', 'as' => 'model_type'],
+        'entityId' => ['except' => '', 'as' => 'model_id'],
         'dateFrom' => ['except' => '', 'as' => 'date_from'],
         'dateTo' => ['except' => '', 'as' => 'date_to'],
     ];
-    
+
     public function mount()
     {
         $this->user = request()->query('user', '');
         $this->action = request()->query('action', '');
-        $this->entityType = request()->query('entity_type', '');
-        $this->entityId = request()->query('entity_id', '');
+        $this->entityType = request()->query('model_type', '');
+        $this->entityId = request()->query('model_id', '');
         $this->dateFrom = request()->query('date_from', '');
         $this->dateTo = request()->query('date_to', '');
     }
-    
+
     public function updatedSearch()
     {
         $this->resetPage();
     }
-    
+
     public function updatedUser()
     {
         $this->resetPage();
     }
-    
+
     public function updatedAction()
     {
         $this->resetPage();
     }
-    
+
     public function updatedEntityType()
     {
         $this->resetPage();
     }
-    
+
     public function updatedEntityId()
     {
         $this->resetPage();
     }
-    
+
     public function updatedDateFrom()
     {
         $this->resetPage();
     }
-    
+
     public function updatedDateTo()
     {
         $this->resetPage();
     }
-    
+
     public function applyFilter()
     {
         $this->resetPage();
     }
-    
+
     public function clearFilters()
     {
         $this->reset(['search', 'user', 'action', 'entityType', 'entityId', 'dateFrom', 'dateTo']);
         $this->resetPage();
     }
-    
+
     public function setQuickFilter($type, $value)
     {
         if ($type === 'action') {
             $this->action = $value;
-        } elseif ($type === 'entity_type') {
+        } elseif ($type === 'model_type') {
             $this->entityType = $value;
         } elseif ($type === 'date_from') {
             $this->dateFrom = $value;
         }
-        
+
         $this->resetPage();
     }
-    
+
     public function render()
     {
         $query = AuditLog::query()
@@ -111,7 +111,7 @@ class AuditLogsList extends Component
                             ->orWhere('email', 'like', '%' . $this->search . '%');
                     })
                     ->orWhere('ip_address', 'like', '%' . $this->search . '%')
-                    ->orWhere('entity_type', 'like', '%' . $this->search . '%');
+                    ->orWhere('model_type', 'like', '%' . $this->search . '%');
                 });
             })
             ->when($this->user, function ($query) {
@@ -124,10 +124,10 @@ class AuditLogsList extends Component
                 return $query->where('action', $this->action);
             })
             ->when($this->entityType, function ($query) {
-                return $query->where('entity_type', $this->entityType);
+                return $query->where('model_type', $this->entityType);
             })
             ->when($this->entityId, function ($query) {
-                return $query->where('entity_id', $this->entityId);
+                return $query->where('model_id', $this->entityId);
             })
             ->when($this->dateFrom, function ($query) {
                 return $query->whereDate('created_at', '>=', $this->dateFrom);
@@ -136,15 +136,15 @@ class AuditLogsList extends Component
                 return $query->whereDate('created_at', '<=', $this->dateTo);
             })
             ->latest();
-            
+
         $auditLogs = $query->paginate($this->perPage);
-        
+
         // Get unique actions for filter dropdown
         $actions = AuditLog::select('action')->distinct()->pluck('action');
-        
+
         // Get unique entity types for filter dropdown
-        $entityTypes = AuditLog::select('entity_type')->distinct()->pluck('entity_type');
-        
+        $entityTypes = AuditLog::select('model_type')->distinct()->pluck('model_type');
+
         return view('livewire.admin.audit-logs-list', [
             'auditLogs' => $auditLogs,
             'actions' => $actions,

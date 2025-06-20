@@ -5,6 +5,23 @@
 
     RewriteEngine On
 
+    # DDoS Protection - Block suspicious request patterns
+    # Block requests with suspicious query strings
+    RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} ^.*(\[|\]|\(|\)|<|>|ê|"|;|\?|\*|=$).* [NC,OR]
+    RewriteCond %{QUERY_STRING} ^.*("|'|<|>|\|{|\}).* [NC,OR]
+    RewriteCond %{QUERY_STRING} ^.*(%0|%A|%B|%C|%D|%E|%F|127\.0).* [NC]
+    RewriteRule .* - [F,L]
+
+    # Block common DDoS attack patterns
+    RewriteCond %{REQUEST_METHOD} ^(HEAD|TRACE|DELETE|TRACK) [NC]
+    RewriteRule ^(.*)$ - [F,L]
+
+    # Limit request size (prevent large payload attacks)
+    LimitRequestBody 10485760
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -23,3 +40,36 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Security Headers for DDoS mitigation
+<IfModule mod_headers.c>
+    # Prevent clickjacking
+    Header always append X-Frame-Options SAMEORIGIN
+
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options nosniff
+
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Rate limiting headers
+    Header set X-RateLimit-Policy "By using this service, you agree to our rate limiting policy"
+</IfModule>
+
+# Connection limits and timeouts
+<IfModule mod_reqtimeout.c>
+    # Set request timeout to prevent slowloris attacks
+    RequestReadTimeout header=20-40,MinRate=500 body=20,MinRate=500
+</IfModule>
+
+# Disable server signature to prevent information disclosure
+ServerSignature Off
+
+# File access restrictions
+<Files ~ "^\.">
+    Order allow,deny
+    Deny from All
+</Files>

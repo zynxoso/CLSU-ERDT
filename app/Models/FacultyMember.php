@@ -15,7 +15,6 @@ class FacultyMember extends Model
         'department',
         'specialization',
         'education_background',
-        'research_description',
         'photo_path',
         'expertise_tags',
         'degree_level',

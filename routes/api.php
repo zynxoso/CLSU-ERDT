@@ -28,12 +28,12 @@ use App\Models\Notification;
 */
 
 // Example API route that returns the authenticated user
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum', 'api.rate.limit:default'])->get('/user', function (Request $request) {
     return ApiResponse::success(new UserResource($request->user()));
 });
 
 // Example API routes for future implementation
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'api.rate.limit:default'])->group(function () {
 
     // User routes
     Route::get('/users/{id}', function ($id) {
@@ -72,13 +72,13 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     });
 });
 
-// Health check route (no authentication required)
+// Health check route (public endpoint with lenient rate limiting)
 Route::get('/health', function () {
     return ApiResponse::success(['status' => 'ok'], 'API is operational');
-});
+})->middleware('api.rate.limit:public');
 
-// Example routes for demonstrating exception handling (no authentication required)
-Route::prefix('example')->group(function () {
+// Example routes for demonstrating exception handling (public endpoints with moderate rate limiting)
+Route::prefix('example')->middleware('api.rate.limit:public')->group(function () {
     Route::get('/bad-request', [\App\Http\Controllers\ExampleExceptionController::class, 'badRequest']);
     Route::get('/validation-error', [\App\Http\Controllers\ExampleExceptionController::class, 'validationError']);
     Route::get('/unauthorized', [\App\Http\Controllers\ExampleExceptionController::class, 'unauthorized']);
@@ -86,4 +86,17 @@ Route::prefix('example')->group(function () {
     Route::get('/not-found', [\App\Http\Controllers\ExampleExceptionController::class, 'notFound']);
     Route::get('/server-error', [\App\Http\Controllers\ExampleExceptionController::class, 'serverError']);
     Route::get('/try-catch', [\App\Http\Controllers\ExampleExceptionController::class, 'tryCatchExample']);
+});
+
+// Analytics API endpoints (strict rate limiting for sensitive data)
+Route::prefix('admin')->middleware(['auth:sanctum', 'api.rate.limit:admin'])->group(function () {
+    Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'apiData'])->name('api.admin.analytics');
+});
+
+// Scholar API endpoints (default rate limiting)
+Route::prefix('scholar')->middleware(['auth:sanctum', 'api.rate.limit:default'])->group(function () {
+    Route::get('/analytics', function (Request $request) {
+        // Future implementation for scholar analytics
+        return ApiResponse::success(['message' => 'Scholar analytics API - Coming soon']);
+    })->name('api.scholar.analytics');
 });

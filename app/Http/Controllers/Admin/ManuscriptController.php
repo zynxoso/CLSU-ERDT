@@ -986,21 +986,62 @@ class ManuscriptController extends Controller
      */
     private function getContentType($filePath)
     {
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
+        return $mimeType;
+    }
 
-        $contentTypes = [
-            'pdf' => 'application/pdf',
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'xls' => 'application/vnd.ms-excel',
-            'doc' => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'txt' => 'text/plain',
-            'json' => 'application/json',
-            'zip' => 'application/zip',
-            'phar' => 'application/octet-stream',
-            'gz' => 'application/gzip',
-        ];
+    /**
+     * Update just the status and notes of a manuscript and notify the scholar.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatusAndNotes(Request $request, $id)
+    {
+        $manuscript = Manuscript::findOrFail($id);
 
-        return $contentTypes[$extension] ?? 'application/octet-stream';
+        // Check if user is admin
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('admin.manuscripts.show', $manuscript->id)
+                ->with('error', 'Unauthorized access');
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
+            'admin_notes' => 'nullable|string',
+            'notify_scholar' => 'sometimes|boolean'
+        ]);
+
+        $oldValues = $manuscript->toArray();
+        $oldStatus = $manuscript->status;
+
+        // Update manuscript status and notes
+        // Ensure the status is properly quoted by using the setAttribute method
+        $manuscript->setAttribute('status', $validated['status']);
+        $manuscript->admin_notes = $validated['admin_notes'] ?? $manuscript->admin_notes;
+        $manuscript->save();
+
+        // Log the status change
+        $this->auditService->logCustomAction("status_change_from_{$oldStatus}_to_{$validated['status']}", 'Manuscript', $manuscript->id);
+
+        // Notify scholar if requested
+        if ($request->has('notify_scholar') && $request->notify_scholar) {
+            // Get the scholar user
+            $scholarProfile = $manuscript->scholarProfile;
+            if ($scholarProfile && $scholarProfile->user) {
+                $scholarProfile->user->notify(new \App\Notifications\ManuscriptStatusChanged(
+                    $manuscript,
+                    $oldStatus,
+                    $validated['status'],
+                    $validated['admin_notes'] ?? null
+                ));
+            }
+        }
+
+        return redirect()->route('admin.manuscripts.show', $manuscript->id)
+            ->with('success', "Manuscript status updated and scholar will be notified.");
     }
 }

@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class AuditService
 {
@@ -14,7 +16,7 @@ class AuditService
      * @param  string  $entityType
      * @param  int  $entityId
      * @param  array  $newValues
-     * @return \App\Models\AuditLog
+     * @return \App\Models\AuditLog|null
      */
     public function logCreate($entityType, $entityId, $newValues)
     {
@@ -28,7 +30,7 @@ class AuditService
      * @param  int  $entityId
      * @param  array  $oldValues
      * @param  array  $newValues
-     * @return \App\Models\AuditLog
+     * @return \App\Models\AuditLog|null
      */
     public function logUpdate($entityType, $entityId, $oldValues, $newValues)
     {
@@ -41,7 +43,7 @@ class AuditService
      * @param  string  $entityType
      * @param  int  $entityId
      * @param  array  $oldValues
-     * @return \App\Models\AuditLog
+     * @return \App\Models\AuditLog|null
      */
     public function logDelete($entityType, $entityId, $oldValues)
     {
@@ -56,20 +58,61 @@ class AuditService
      * @param  string  $action
      * @param  array|null  $oldValues
      * @param  array|null  $newValues
-     * @return \App\Models\AuditLog
+     * @return \App\Models\AuditLog|null
      */
     public function logAction($entityType, $entityId, $action, $oldValues = null, $newValues = null)
     {
-        return AuditLog::create([
-            'user_id' => Auth::id(),
-            'action' => $action,
-            'model_type' => $entityType,
-            'model_id' => $entityId,
-            'old_values' => $oldValues,
-            'new_values' => $newValues,
-            'ip_address' => Request::ip(),
-            'user_agent' => Request::userAgent(),
-        ]);
+        try {
+            // Ensure we have required fields
+            if (empty($entityType)) {
+                Log::warning('AuditService: Attempted to log action with empty entityType', [
+                    'action' => $action,
+                    'entityId' => $entityId,
+                    'user_id' => Auth::id()
+                ]);
+                $entityType = 'Unknown';
+            }
+
+            if (empty($action)) {
+                Log::warning('AuditService: Attempted to log action with empty action', [
+                    'entityType' => $entityType,
+                    'entityId' => $entityId,
+                    'user_id' => Auth::id()
+                ]);
+                $action = 'unknown';
+            }
+
+            $data = [
+                'user_id' => Auth::id(),
+                'action' => $action,
+                'model_type' => $entityType,
+                'model_id' => $entityId,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'ip_address' => Request::ip(),
+                'user_agent' => Request::userAgent(),
+            ];
+
+            // Log the data being inserted for debugging
+            Log::info('AuditService: Creating audit log', [
+                'data' => $data,
+                'user_id' => Auth::id()
+            ]);
+
+            return AuditLog::create($data);
+
+        } catch (Exception $e) {
+            Log::error('Failed to create audit log: ' . $e->getMessage(), [
+                'entityType' => $entityType,
+                'entityId' => $entityId,
+                'action' => $action,
+                'user_id' => Auth::id(),
+                'exception' => $e->getTraceAsString()
+            ]);
+
+            // Return null instead of throwing exception to prevent breaking the main functionality
+            return null;
+        }
     }
 
     /**
@@ -125,9 +168,9 @@ class AuditService
      * @param string $modelType The type of model
      * @param int|null $modelId The ID of the model
      * @param array|null $context Additional context
-     * @return \App\Models\AuditLog
+     * @return \App\Models\AuditLog|null
      */
-    public function logCustomAction(string $action, string $modelType, ?int $modelId = null, ?array $context = null): AuditLog
+    public function logCustomAction(string $action, string $modelType, ?int $modelId = null, ?array $context = null): ?AuditLog
     {
         return $this->logAction($modelType, $modelId, $action, null, $context);
     }
@@ -140,25 +183,45 @@ class AuditService
      * @param int|null $entityId The ID of the entity
      * @param string|null $description Description of the action (stored in new_values)
      * @param array|null $data Additional data (merged with description)
-     * @return \App\Models\AuditLog
+     * @return \App\Models\AuditLog|null
      */
-    public function log(string $action, string $entityType, ?int $entityId = null, ?string $description = null, ?array $data = null): AuditLog
+    public function log(string $action, string $entityType, ?int $entityId = null, ?string $description = null, ?array $data = null): ?AuditLog
     {
-        // If description is provided, include it in the data array
-        if ($description !== null) {
-            $data = $data ?? [];
-            $data['description'] = $description;
-        }
+        try {
+            // If description is provided, include it in the data array
+            if ($description !== null) {
+                $data = $data ?? [];
+                $data['description'] = $description;
+            }
 
-        return AuditLog::create([
-            'user_id' => Auth::id(),
-            'action' => $action,
-            'model_type' => $entityType,
-            'model_id' => $entityId,
-            'old_values' => null,
-            'new_values' => $data,
-            'ip_address' => Request::ip(),
-            'user_agent' => Request::userAgent(),
-        ]);
+            $logData = [
+                'user_id' => Auth::id(),
+                'action' => $action,
+                'model_type' => $entityType,
+                'model_id' => $entityId,
+                'old_values' => null,
+                'new_values' => $data,
+                'ip_address' => Request::ip(),
+                'user_agent' => Request::userAgent(),
+            ];
+
+            Log::info('AuditService: Creating generic audit log', [
+                'data' => $logData,
+                'user_id' => Auth::id()
+            ]);
+
+            return AuditLog::create($logData);
+
+        } catch (Exception $e) {
+            Log::error('Failed to create generic audit log: ' . $e->getMessage(), [
+                'action' => $action,
+                'entityType' => $entityType,
+                'entityId' => $entityId,
+                'user_id' => Auth::id(),
+                'exception' => $e->getTraceAsString()
+            ]);
+
+            return null;
+        }
     }
 }

@@ -6,9 +6,12 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Models\Announcement;
+use App\Models\User;
 
 class ScholarLogin extends Component
 {
+    public $layout = 'layouts.guest';
+
     public $email = '';
     public $password = '';
     public $remember = false;
@@ -22,7 +25,25 @@ class ScholarLogin extends Component
     {
         $this->validate();
 
+        // First, check if the user exists and get their role
+        $user = User::where('email', $this->email)->first();
+
+        if ($user && in_array($user->role, ['admin', 'super_admin'])) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
+
         if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
+
+        // Double-check after successful authentication
+        $authenticatedUser = Auth::user();
+        if (in_array($authenticatedUser->role, ['admin', 'super_admin'])) {
+            Auth::logout();
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
@@ -42,6 +63,6 @@ class ScholarLogin extends Component
 
         return view('livewire.auth.scholar-login', [
             'announcements' => $announcements
-        ])->layout('layouts.guest');
+        ]);
     }
 }
