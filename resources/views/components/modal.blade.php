@@ -52,11 +52,11 @@ $maxWidth = [
         class="relative w-full {{ $maxWidth }} p-4 mx-auto my-8"
         @click.outside="open = false"
     >
-        <div class="relative overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-800">
+        <div class="relative overflow-hidden rounded-lg bg-white shadow-xl border border-gray-200">
             @if($closeButton)
             <button
                 type="button"
-                class="absolute top-3 right-3 inline-flex items-center justify-center rounded-md p-1.5 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transform transition-all duration-200 hover:rotate-90"
+                class="absolute top-3 right-3 inline-flex items-center justify-center rounded-md p-1.5 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-clsu-maroon transform transition-all duration-200 hover:rotate-90"
                 @click="open = false"
             >
                 <span class="sr-only">Close</span>
@@ -66,18 +66,18 @@ $maxWidth = [
             </button>
             @endif
 
-            <div class="px-6 py-4">
-                <div class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <div class="px-6 py-4 bg-white">
+                <div class="text-lg font-medium text-gray-900 mb-2">
                     {{ $title ?? '' }}
                 </div>
 
-                <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <div class="mt-2 text-sm text-gray-600">
                     {{ $slot }}
                 </div>
             </div>
 
             @if (isset($footer))
-                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 text-right rounded-b-lg">
+                <div class="px-6 py-4 bg-white border-t border-gray-200 text-right rounded-b-lg">
                     {{ $footer }}
                 </div>
             @endif

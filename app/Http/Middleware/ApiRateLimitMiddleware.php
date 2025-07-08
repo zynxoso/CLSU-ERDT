@@ -25,7 +25,7 @@ class ApiRateLimitMiddleware
         $limits = $this->getRateLimits();
         $config = $limits[$limitType] ?? $limits['default'];
 
-        // Check for dynamic rate limiting (applied by PerformanceMonitoringMiddleware)
+        // Check for dynamic rate limiting
         $dynamicLimit = $this->getDynamicRateLimit($request);
         if ($dynamicLimit) {
             $config = $dynamicLimit;

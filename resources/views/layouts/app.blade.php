@@ -8,13 +8,12 @@
     <title>@yield('title', 'CLSU-ERDT')</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('storage/logo/erdt_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/erdt_logo.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -157,206 +156,127 @@
     <!-- Modal Manager for Livewire Components -->
     <livewire:admin.modal-manager />
 
-    <!-- Universal Loading Overlay System -->
-    <div id="universal-loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[60] flex items-center justify-center hidden">
-        <!-- Simple Spinning Circle -->
-        <div class="w-16 h-16 border-4 border-gray-300 border-t-red-700 rounded-full animate-spin"></div>
-    </div>
-
     @yield('scripts')
 
     <!-- Livewire Scripts -->
     @livewireScripts
 
+    <!-- SweetAlert2 CDN Fallback -->
+    <script>
+        // Check if SweetAlert is loaded, if not load from CDN
+        if (typeof window.Swal === 'undefined') {
+            console.log('Loading SweetAlert2 from CDN as fallback...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js';
+            script.onload = function() {
+                window.Swal = Swal;
+                console.log('SweetAlert2 loaded from CDN');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+
     <!-- SweetAlert Flash Messages -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Success message
-            @if(session('success'))
-                window.toast.success({!! json_encode(session('success')) !!});
-            @endif
+            // Wait for SweetAlert to be available
+            function waitForSwal(callback) {
+                if (typeof window.toast !== 'undefined') {
+                    callback();
+                } else {
+                    setTimeout(() => waitForSwal(callback), 100);
+                }
+            }
 
-            // Error message
-            @if(session('error'))
-                window.toast.error("{{ session('error') }}");
-            @endif
+            waitForSwal(function() {
+                // Success message
+                @if(session('success'))
+                    window.toast.success({!! json_encode(session('success')) !!});
+                @endif
 
-            // Warning message
-            @if(session('warning'))
-                window.toast.warning("{{ session('warning') }}");
-            @endif
+                // Error message
+                @if(session('error'))
+                    window.toast.error("{{ session('error') }}");
+                @endif
 
-            // Info message
-            @if(session('info'))
-                window.toast.info("{{ session('info') }}");
-            @endif
+                // Warning message
+                @if(session('warning'))
+                    window.toast.warning("{{ session('warning') }}");
+                @endif
 
-            // Listen for Livewire events
-            document.addEventListener('livewire:initialized', () => {
-                Livewire.on('scholarDeleted', () => {
-                    window.toast.success('Scholar deleted successfully');
+                // Info message
+                @if(session('info'))
+                    window.toast.info("{{ session('info') }}");
+                @endif
+
+                // Listen for Livewire events
+                document.addEventListener('livewire:initialized', () => {
+                    Livewire.on('scholarDeleted', () => {
+                        window.toast.success('Scholar deleted successfully');
+                    });
                 });
             });
         });
-
-        // Universal Loading System
-        (function() {
-            const loadingOverlay = document.getElementById('universal-loading-overlay');
-
-            let loadingTimeout;
-            let isLoading = false;
-            let skipNextLoading = false; // Flag to skip loading for sidebar clicks
-
-            // Show loading with delay
-            function showLoading(delay = 300) {
-                if (isLoading || skipNextLoading) {
-                    skipNextLoading = false; // Reset the flag
-                    return;
-                }
-
-                loadingTimeout = setTimeout(() => {
-                    loadingOverlay.classList.remove('hidden');
-                    loadingOverlay.classList.add('animate-fadeIn');
-                    isLoading = true;
-                }, delay);
-            }
-
-            // Hide loading
-            function hideLoading() {
-                clearTimeout(loadingTimeout);
-                if (isLoading) {
-                    loadingOverlay.classList.add('animate-fadeOut');
-                    setTimeout(() => {
-                        loadingOverlay.classList.add('hidden');
-                        loadingOverlay.classList.remove('animate-fadeIn', 'animate-fadeOut');
-                        isLoading = false;
-                    }, 200);
-                }
-            }
-
-            // Add event listeners to sidebar navigation links
-            function setupSidebarNavigation() {
-                // Target both admin and scholar sidebar navigation links
-                const sidebarSelectors = [
-                    '.fixed.inset-y-0.left-0 nav a', // Admin sidebar
-                    '.sidebar nav a', // Scholar sidebar (if different selector)
-                    '[class*="sidebar"] a', // Any element with sidebar in class
-                    'nav a[href*="admin."]', // Admin routes
-                    'nav a[href*="scholar."]' // Scholar routes
-                ];
-
-                sidebarSelectors.forEach(selector => {
-                    const sidebarLinks = document.querySelectorAll(selector);
-                    sidebarLinks.forEach(link => {
-                        link.addEventListener('click', function(e) {
-                            // Skip loading for sidebar navigation
-                            skipNextLoading = true;
-                        });
-                    });
-                });
-            }
-
-            // Initialize sidebar navigation setup
-            setupSidebarNavigation();
-
-            // Re-setup after Livewire updates (in case sidebar is re-rendered)
-            document.addEventListener('livewire:navigated', () => {
-                setupSidebarNavigation();
-                hideLoading();
-            });
-
-            // Livewire loading events
-            document.addEventListener('livewire:navigating', () => {
-                // Skip loading for login pages
-                if (window.location.pathname.includes('login') || window.location.pathname.includes('auth')) {
-                    return;
-                }
-                showLoading(100);
-            });
-
-            // Generic Livewire events
-            document.addEventListener('livewire:start', (event) => {
-                // Skip loading for login-related components
-                if (window.location.pathname.includes('login') ||
-                    window.location.pathname.includes('auth') ||
-                    (event.detail && event.detail.component && event.detail.component.includes('scholar-login'))) {
-                    return;
-                }
-                showLoading(200);
-            });
-
-            document.addEventListener('livewire:finish', () => {
-                hideLoading();
-            });
-
-            // Form submissions
-            document.addEventListener('submit', (event) => {
-                // Skip loading for login forms and Livewire forms
-                if (!event.target.hasAttribute('wire:submit') &&
-                    !event.target.closest('.login-form') &&
-                    !event.target.id.includes('login') &&
-                    !event.target.action.includes('login')) {
-                    showLoading(100);
-                }
-            });
-
-            // AJAX requests (fetch/XMLHttpRequest) - Modified to exclude polling requests
-            const originalFetch = window.fetch;
-            window.fetch = function(...args) {
-                const url = args[0];
-
-                // Skip loading for background polling requests
-                if (typeof url === 'string') {
-                    // Don't show loading for status update polling
-                    if (url.includes('/api/scholar/status-updates') ||
-                        url.includes('/api/fund-requests/status') ||
-                        url.includes('/polling') ||
-                        url.includes('/heartbeat') ||
-                        url.includes('/check-updates')) {
-                        return originalFetch.apply(this, args);
-                    }
-
-                    // Don't show loading for analytics refresh
-                    if (url.includes('/api/analytics') || url.includes('/refresh')) {
-                        return originalFetch.apply(this, args);
-                    }
-                }
-
-                // Show loading for user-initiated requests
-                showLoading(200);
-                return originalFetch.apply(this, args)
-                    .finally(() => hideLoading());
-            };
-
-            // Page navigation loading (modified to respect skipNextLoading flag)
-            window.addEventListener('beforeunload', () => {
-                if (!skipNextLoading) {
-                    showLoading(0);
-                }
-            });
-
-            // Turbo/SPA navigation (if using Turbo or similar)
-            if (window.Turbo) {
-                document.addEventListener('turbo:visit', () => {
-                    showLoading(100);
-                });
-
-                document.addEventListener('turbo:load', () => {
-                    hideLoading();
-                });
-            }
-
-            // Make functions globally available
-            window.universalLoading = {
-                show: showLoading,
-                hide: hideLoading,
-                skipNext: () => { skipNextLoading = true; },
-                // New function to make silent requests (no loading spinner)
-                silentFetch: function(url, options = {}) {
-                    return originalFetch(url, options);
-                }
-            };
-        })();
     </script>
+
+    <!-- Toast Notifications -->
+    <div x-data="{
+        toasts: [],
+        addToast(toast) {
+            const id = Date.now();
+            this.toasts.push({ ...toast, id });
+            setTimeout(() => this.removeToast(id), toast.duration || 5000);
+        },
+        removeToast(id) {
+            this.toasts = this.toasts.filter(toast => toast.id !== id);
+        }
+    }"
+    @show-toast.window="addToast($event.detail)"
+    class="fixed top-4 right-4 z-50 space-y-2">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="true"
+                 x-transition:enter="transform ease-out duration-300 transition"
+                 x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+                 x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden">
+                <div class="p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div x-show="toast.type === 'success'" class="w-6 h-6 text-green-400">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div x-show="toast.type === 'error'" class="w-6 h-6 text-red-400">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div x-show="toast.type === 'info'" class="w-6 h-6 text-blue-400">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-3 w-0 flex-1 pt-0.5">
+                            <p class="text-sm font-medium text-gray-900" x-text="toast.title || 'Notification'"></p>
+                            <p class="mt-1 text-sm text-gray-500" x-text="toast.message"></p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex">
+                            <button @click="removeToast(toast.id)"
+                                    class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
 </body>
 </html>

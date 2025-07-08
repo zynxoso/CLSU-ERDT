@@ -31,13 +31,30 @@ class CyberSweepMiddleware
             return $next($request);
         }
 
+        // Skip file upload security for manuscript-related and fund request routes
+        $excludedRoutes = [
+            'scholar.manuscripts.store',
+            'scholar.manuscripts.update',
+            'admin.manuscripts.store',
+            'admin.manuscripts.update',
+            'scholar.fund-requests.store',
+            'scholar.fund-requests.update',
+            'admin.fund-requests.store',
+            'admin.fund-requests.update'
+        ];
+
+        $currentRoute = $request->route() ? $request->route()->getName() : '';
+        $isExcludedRoute = in_array($currentRoute, $excludedRoutes) ||
+                          strpos($request->getPathInfo(), '/manuscripts') !== false ||
+                          strpos($request->getPathInfo(), '/fund-requests') !== false;
+
         // Scan for suspicious patterns in request data
         $this->scanRequestData($request);
 
-        // Enhanced file scanning with FileSecurityService
-        if ($request->hasFile('document') || $request->hasFile('file')) {
+        // Enhanced file scanning with FileSecurityService (skip for excluded uploads)
+        if (($request->hasFile('document') || $request->hasFile('file')) && !$isExcludedRoute) {
             $fileValidation = $this->scanUploadedFilesAdvanced($request);
-            
+
             // Block request if critical security issues found
             if (!$fileValidation['valid'] && $fileValidation['critical']) {
                 Log::critical('File upload blocked due to security threats', [
@@ -45,7 +62,7 @@ class CyberSweepMiddleware
                     'user_id' => $request->user() ? $request->user()->id : 'guest',
                     'errors' => $fileValidation['errors']
                 ]);
-                
+
                 abort(400, 'File upload blocked due to security policy violations');
             }
         }
@@ -124,11 +141,11 @@ class CyberSweepMiddleware
         foreach ($files as $file) {
             $userId = $request->user() ? (string)$request->user()->id : null;
             $validation = $this->fileSecurityService->validateFile($file, $userId);
-            
+
             if (!$validation['valid']) {
                 $overallResult['valid'] = false;
                 $overallResult['errors'] = array_merge($overallResult['errors'], $validation['errors']);
-                
+
                 // Determine if errors are critical (should block upload)
                 $criticalPatterns = [
                     'suspicious content patterns',
@@ -136,12 +153,12 @@ class CyberSweepMiddleware
                     'path traversal',
                     'invalid characters'
                 ];
-                
+
                 foreach ($validation['errors'] as $error) {
                     foreach ($criticalPatterns as $pattern) {
                         if (stripos($error, $pattern) !== false) {
                             $overallResult['critical'] = true;
-                            
+
                             // Quarantine the suspicious file
                             $this->fileSecurityService->quarantineFile($file, $error);
                             break 2;
@@ -149,7 +166,7 @@ class CyberSweepMiddleware
                     }
                 }
             }
-            
+
             $overallResult['warnings'] = array_merge($overallResult['warnings'], $validation['warnings']);
         }
 

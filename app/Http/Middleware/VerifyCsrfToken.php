@@ -14,7 +14,8 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // API endpoints that need CSRF exemption
+        'api/*',
     ];
 
     /**
@@ -26,26 +27,26 @@ class VerifyCsrfToken extends Middleware
      */
     public function handle($request, Closure $next)
     {
-        // Only debug POST requests
-        if ($request->isMethod('post')) {
-            $logPath = storage_path('logs/csrf_debug.log');
-            $logMessage = "==== CSRF Check at " . now() . " ====\n";
-            $logMessage .= "URL: " . $request->fullUrl() . "\n";
-
-            // Check if token exists in request
-            $hasToken = $request->has('_token');
-            $tokenValue = $request->input('_token', 'NO TOKEN PRESENT');
-            $logMessage .= "Has Token: " . ($hasToken ? 'Yes' : 'No') . "\n";
-            $logMessage .= "Token Value: " . $tokenValue . "\n";
-
-            // Check if the token is valid
-            $isValid = $this->tokensMatch($request);
-            $logMessage .= "Token Valid: " . ($isValid ? 'Yes' : 'No') . "\n";
-
-            // Additional request details
-            $logMessage .= "Form Data: " . json_encode($request->except(['password', '_token']), JSON_PRETTY_PRINT) . "\n";
-
-            file_put_contents($logPath, $logMessage . "\n", FILE_APPEND);
+        // Check for session mismatch issues
+        if ($request->isMethod('post') && !$request->expectsJson()) {
+            // Ensure session is started
+            if (!$request->hasSession()) {
+                Log::warning('CSRF: No session found for POST request', [
+                    'url' => $request->fullUrl(),
+                    'ip' => $request->ip()
+                ]);
+            }
+            
+            // Log CSRF token mismatches for debugging
+            if (!$this->tokensMatch($request)) {
+                Log::warning('CSRF token mismatch', [
+                    'url' => $request->fullUrl(),
+                    'session_token' => $request->session()->token(),
+                    'request_token' => $request->input('_token') ?: $request->header('X-CSRF-TOKEN'),
+                    'user_agent' => $request->userAgent(),
+                    'ip' => $request->ip()
+                ]);
+            }
         }
 
         return parent::handle($request, $next);

@@ -1,22 +1,24 @@
-/* Admin Analytics Dashboard Styles */
+/* Admin Analytics Dashboard Styles - CLSU White Theme */
 .analytics-dashboard {
-    background-color: #111827;
+    background-color: #ffffff;
     min-height: calc(100vh - 64px);
-    color: #e2e8f0;
+    color: #212529;
 }
 
 .analytics-dashboard__header {
-    background-color: #1f2937;
+    background-color: #ffffff;
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(128, 0, 0, 0.1);
 }
 
 .analytics-dashboard__header-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: #800000; /* CLSU Maroon */
 }
 
 .analytics-dashboard__kpi-grid {
@@ -39,11 +41,17 @@
 }
 
 .analytics-dashboard__kpi-card {
-    background-color: #1f2937;
+    background-color: #ffffff;
     border-radius: 0.5rem;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #374151;
+    box-shadow: 0 4px 6px -1px rgba(128, 0, 0, 0.1), 0 2px 4px -1px rgba(128, 0, 0, 0.06);
+    border: 1px solid #dee2e6;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analytics-dashboard__kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px -1px rgba(128, 0, 0, 0.15), 0 4px 8px -1px rgba(128, 0, 0, 0.1);
 }
 
 .analytics-dashboard__kpi-card-header {
@@ -55,22 +63,23 @@
 
 .analytics-dashboard__kpi-card-title {
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: #6c757d;
+    font-weight: 500;
 }
 
 .analytics-dashboard__kpi-card-value {
     font-size: 1.875rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: #800000; /* CLSU Maroon */
     margin-bottom: 0.5rem;
 }
 
 .analytics-dashboard__kpi-card-trend--up {
-    color: #22c55e;
+    color: #006400; /* CLSU Green */
 }
 
 .analytics-dashboard__kpi-card-trend--down {
-    color: #ef4444;
+    color: #dc3545; /* Red for negative trends */
 }
 
 .analytics-dashboard__charts-grid {
@@ -86,21 +95,34 @@
 }
 
 .analytics-dashboard__chart-card {
-    background-color: #1f2937;
+    background-color: #ffffff;
     border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #374151;
+    box-shadow: 0 4px 6px -1px rgba(128, 0, 0, 0.1), 0 2px 4px -1px rgba(128, 0, 0, 0.06);
+    border: 1px solid #dee2e6;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analytics-dashboard__chart-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px -1px rgba(128, 0, 0, 0.15), 0 4px 8px -1px rgba(128, 0, 0, 0.1);
 }
 
 .analytics-dashboard__chart-card-header {
-    background-color: #111827;
+    background-color: #f8f9fa;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #374151;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.analytics-dashboard__chart-card-header h3 {
+    color: #800000; /* CLSU Maroon */
+    font-weight: 600;
+    margin: 0;
 }
 
 .analytics-dashboard__chart-card-body {
     padding: 1.5rem;
     height: 300px;
     position: relative;
+    background-color: #ffffff;
 }

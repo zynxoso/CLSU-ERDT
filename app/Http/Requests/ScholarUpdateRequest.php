@@ -36,6 +36,15 @@ class ScholarUpdateRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore(
+                    optional(\App\Models\ScholarProfile::find($scholarId))->user_id
+                )
+            ],
             'contact_number' => [
                 'required',
                 'string',
@@ -55,6 +64,7 @@ class ScholarUpdateRequest extends FormRequest
             'university' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
             'program' => ['required', 'string', 'max:255'],
+            'major' => ['required', 'string', 'max:255'],
             'status' => [
                 'required',
                 'string',
@@ -82,12 +92,6 @@ class ScholarUpdateRequest extends FormRequest
             // Previous education
             'bachelor_degree' => ['nullable', 'string', 'max:255'],
             'bachelor_university' => ['nullable', 'string', 'max:255'],
-            'bachelor_graduation_year' => [
-                'nullable',
-                'integer',
-                'min:1950',
-                'max:'.$currentYear
-            ],
 
             // Research information
             'research_area' => ['nullable', 'string', 'max:255'],
@@ -122,10 +126,10 @@ class ScholarUpdateRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'email' => 'email address',
             'contact_number' => 'phone number',
             'bachelor_degree' => 'bachelor\'s degree',
             'bachelor_university' => 'bachelor\'s university',
-            'bachelor_graduation_year' => 'graduation year',
         ];
     }
 

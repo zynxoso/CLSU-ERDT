@@ -4,9 +4,6 @@
 
 @section('content')
 <div class="mb-6">
-    <a href="{{ route('scholar.manuscripts.show', $manuscript->id) }}" class="text-red-800 hover:text-red-900 transition-colors duration-200">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Manuscript
-    </a>
     <h1 class="text-2xl font-bold text-gray-800 mt-2">Edit Manuscript</h1>
 </div>
 
@@ -117,11 +114,17 @@
             <p class="text-xs text-gray-500 mt-1">Maximum file size: 10MB. Only upload a new file if you want to replace the existing one.</p>
 
             @if($manuscript->documents && $manuscript->documents->count() > 0)
-            <div class="mt-2">
-                <p class="text-sm text-gray-600 font-medium">Current Files:</p>
-                <ul class="list-disc pl-5 text-xs text-gray-500">
+            <div class="mt-4 bg-gray-50 border border-gray-200 rounded-md p-3">
+                <p class="text-sm text-gray-700 font-medium mb-2">📄 Current Files:</p>
+                <ul class="space-y-1">
                     @foreach($manuscript->documents as $document)
-                        <li>{{ $document->title }}</li>
+                        <li class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                            <span class="flex-1">{{ $document->title }}</span>
+                            <span class="text-xs text-gray-500 ml-2">
+                                ({{ number_format($document->file_size / 1024, 1) }} KB)
+                            </span>
+                        </li>
                     @endforeach
                 </ul>
             </div>

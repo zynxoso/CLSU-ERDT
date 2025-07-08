@@ -7,12 +7,12 @@
 
         <p class="mb-3">Are you sure you want to delete this scholar? This action cannot be undone.</p>
         <p class="font-semibold text-gray-700 mb-4">{{ $name }}</p>
-        
+
         <div class="mb-4">
             <label for="confirmation" class="block text-sm font-medium text-gray-700 mb-1">Type <span class="font-bold text-red-500">delete</span> to confirm:</label>
-            <input 
-                type="text" 
-                id="confirmation" 
+            <input
+                type="text"
+                id="confirmation"
                 class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 wire:model.live="confirmText"
                 placeholder="delete"

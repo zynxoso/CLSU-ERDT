@@ -184,7 +184,9 @@
         <!-- Step 3: Upload Manuscript -->
         <div id="step3" class="step hidden">
             <div class="mb-4">
-                <label for="dropzone-file" class="block text-sm font-medium text-gray-700 mb-1">Upload Manuscript File (PDF)</label>
+                <label for="dropzone-file" class="block text-sm font-medium text-gray-700 mb-1">
+                    Upload Manuscript File (PDF) <span class="text-red-500">*</span>
+                </label>
                 <div class="flex items-center justify-center w-full">
                     <label for="dropzone-file" class="flex flex-col items-center justify-center w-full min-h-[8rem] sm:min-h-[12rem] md:min-h-[16rem] border-2 border-red-300 border-dashed rounded-lg cursor-pointer bg-red-50 hover:bg-red-100 transition-colors duration-200 px-2 sm:px-6">
                         <div class="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 w-full">
@@ -192,13 +194,13 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                             </svg>
                             <p class="mb-2 text-sm sm:text-base text-red-700 text-center"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                            <p class="text-xs sm:text-sm text-red-600 text-center">PDF (Max. 10MB)</p>
+                            <p class="text-xs sm:text-sm text-red-600 text-center">PDF Only (Max. 10MB)</p>
                         </div>
-                        <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pdf">
+                        <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pdf" required>
                     </label>
                 </div>
                 <div id="selected-file-info" class="mt-4"></div>
-                <p class="text-xs text-gray-500 mt-1">Upload supporting documents like registration forms, receipts, or other relevant files.</p>
+                <p class="text-xs text-gray-500 mt-1">Upload your manuscript file in PDF format. Maximum file size: 10MB.</p>
             </div>
 
             <div class="mb-4">
@@ -210,7 +212,7 @@
                 @error('notes')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
-                <p class="text-xs text-gray-500 mt-1">Include any additional information or special instructions</p>
+                <p class="text-xs text-gray-500 mt-1">Include any additional information or special instructions about your manuscript</p>
             </div>
 
             <div class="flex justify-between">
@@ -225,18 +227,70 @@
     </form>
 </div>
 
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function confirmSubmission(event) {
         event.preventDefault();
+
+        // Basic client-side validation before submission
+        const fileInput = document.getElementById('dropzone-file');
+        const titleInput = document.getElementById('title');
+        const abstractInput = document.getElementById('abstract');
+        const manuscriptTypeInput = document.getElementById('manuscript_type');
+
+        let validationErrors = [];
+
+        // Check required fields
+        if (!titleInput.value.trim()) {
+            validationErrors.push('Manuscript title is required');
+        }
+
+        if (!abstractInput.value.trim()) {
+            validationErrors.push('Abstract is required');
+        }
+
+        if (!manuscriptTypeInput.value) {
+            validationErrors.push('Manuscript type is required');
+        }
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            validationErrors.push('Please upload a manuscript file');
+        } else {
+            // Basic file validation
+            const file = fileInput.files[0];
+            const fileExt = file.name.split('.').pop().toLowerCase();
+
+            if (fileExt !== 'pdf') {
+                validationErrors.push('Only PDF files are allowed');
+            }
+
+            if (file.size > 10485760) {
+                validationErrors.push('File size must not exceed 10MB');
+            }
+        }
+
+        if (validationErrors.length > 0) {
+            Swal.fire({
+                title: 'Validation Error',
+                html: '<div class="text-left"><p class="mb-2">Please fix the following issues:</p><ul class="list-disc pl-5">' +
+                      validationErrors.map(error => `<li>${error}</li>`).join('') + '</ul></div>',
+                icon: 'error',
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
         Swal.fire({
             title: 'Save Manuscript as Draft?',
             text: "This will save your manuscript as a draft. You can edit and submit it for review later.",
             icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: '#7f1d1d',
+            confirmButtonColor: '#228b22',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, save as draft!'
+            confirmButtonText: 'Save as draft!',
+            cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
                 document.getElementById('manuscriptForm').submit();
@@ -375,7 +429,7 @@
             updateProgressTracker(2);
         });
 
-        // File upload preview
+        // File upload preview with basic validation
         const fileInput = document.getElementById('dropzone-file');
         const infoDiv = document.getElementById('selected-file-info');
 
@@ -384,28 +438,63 @@
             if (fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const fileName = file.name;
-                const fileSize = (file.size / 1024).toFixed(1); // KB
+                const fileSize = file.size;
+                const fileSizeKB = (fileSize / 1024).toFixed(1);
+                const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
                 const fileExt = fileName.split('.').pop().toLowerCase();
 
-                let fileIcon = '';
-                if (['pdf'].includes(fileExt)) {
-                    fileIcon = '<i class="fas fa-file-pdf text-red-600 text-2xl"></i>';
-                } else if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
-                    fileIcon = '<i class="fas fa-file-image text-green-600 text-2xl"></i>';
-                } else if (['doc', 'docx'].includes(fileExt)) {
-                    fileIcon = '<i class="fas fa-file-word text-blue-600 text-2xl"></i>';
+                let validationErrors = [];
+
+                // Basic validation
+                // 1. File extension validation
+                if (fileExt !== 'pdf') {
+                    validationErrors.push('Only PDF files are allowed');
+                }
+
+                // 2. File size validation (10MB = 10485760 bytes)
+                if (fileSize > 10485760) {
+                    validationErrors.push('File size exceeds 10MB limit');
+                }
+
+                let fileIcon = '<i class="fas fa-file-pdf text-red-600 text-2xl"></i>';
+                let statusClass = '';
+                let statusIcon = '';
+
+                if (validationErrors.length > 0) {
+                    statusClass = 'border-red-300 bg-red-50';
+                    statusIcon = '<i class="fas fa-exclamation-triangle text-red-600"></i>';
                 } else {
-                    fileIcon = '<i class="fas fa-file-alt text-gray-600 text-2xl"></i>';
+                    statusClass = 'border-green-300 bg-green-50';
+                    statusIcon = '<i class="fas fa-check-circle text-green-600"></i>';
+                }
+
+                let validationMessagesHtml = '';
+                if (validationErrors.length > 0) {
+                    validationMessagesHtml += '<div class="mt-2 text-sm text-red-700"><strong>Errors:</strong><ul class="list-disc pl-5 mt-1">';
+                    validationErrors.forEach(error => {
+                        validationMessagesHtml += `<li>${error}</li>`;
+                    });
+                    validationMessagesHtml += '</ul></div>';
                 }
 
                 infoDiv.innerHTML = `
-                    <div class="flex items-center space-x-4 border border-red-300 rounded-lg p-3 bg-white">
-                        <div>${fileIcon}</div>
-                        <div class="flex-1">
-                            <p class="font-semibold truncate">${fileName}</p>
-                            <p class="text-xs text-gray-500">${fileSize} KB</p>
+                    <div class="flex items-start space-x-4 border ${statusClass} rounded-lg p-4">
+                        <div class="flex-shrink-0">${fileIcon}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p class="font-semibold text-gray-900 truncate">${fileName}</p>
+                                    <p class="text-sm text-gray-600">Size: ${fileSizeMB} MB (${fileSizeKB} KB)</p>
+                                    <p class="text-xs text-gray-500">Type: ${fileExt.toUpperCase()}</p>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    ${statusIcon}
+                                    <button type="button" id="remove-file" class="text-red-600 hover:text-red-800 font-semibold text-sm">Remove</button>
+                                </div>
+                            </div>
+                            ${validationMessagesHtml}
+                            ${validationErrors.length === 0 ? '<div class="mt-2 text-sm text-green-700"><i class="fas fa-check mr-1"></i>File is ready for upload</div>' : ''}
                         </div>
-                        <button type="button" id="remove-file" class="text-red-600 hover:text-red-800 font-semibold">Remove</button>
                     </div>
                 `;
 
@@ -414,8 +503,137 @@
                     fileInput.value = '';
                     infoDiv.innerHTML = '';
                 });
+
+                // Disable submit button if there are validation errors
+                const submitBtn = document.querySelector('button[type="submit"]');
+                if (validationErrors.length > 0) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> Fix File Issues First';
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Manuscript';
+                }
             }
         });
     });
 </script>
+
+<!-- Troubleshooting Guide Modal -->
+<div id="troubleshootingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">File Upload Troubleshooting Guide</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="max-h-96 overflow-y-auto">
+                <div class="space-y-4">
+                    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                        <h4 class="font-semibold text-red-800 mb-2">🚫 Common Upload Errors</h4>
+                        <div class="space-y-2 text-sm text-red-700">
+                            <div>
+                                <strong>Error:</strong> "File upload blocked due to security policy violations"
+                                <br><strong>Solution:</strong> Your PDF file failed security validation. Try these steps:
+                                <ul class="list-disc pl-5 mt-1">
+                                    <li>Re-save your document as a new PDF using "Save as PDF" or "Export as PDF"</li>
+                                    <li>Ensure the file is not password protected</li>
+                                    <li>Use a simple filename with only letters, numbers, and hyphens</li>
+                                    <li>Avoid using online PDF converters - use your word processor's built-in PDF export</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                        <h4 class="font-semibold text-yellow-800 mb-2">⚠️ File Format Issues</h4>
+                        <div class="space-y-2 text-sm text-yellow-700">
+                            <div>
+                                <strong>Problem:</strong> "MIME type does not match file extension"
+                                <br><strong>Solution:</strong> The file may be corrupted or renamed. Create a fresh PDF:
+                                <ul class="list-disc pl-5 mt-1">
+                                    <li>Open your document in Microsoft Word, Google Docs, or similar</li>
+                                    <li>Use "File → Save As" or "File → Download As" → PDF</li>
+                                    <li>Don't rename files from .doc to .pdf manually</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                        <h4 class="font-semibold text-blue-800 mb-2">✅ Best Practices</h4>
+                        <div class="text-sm text-blue-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>Use Microsoft Word:</strong> File → Save As → PDF</li>
+                                <li><strong>Use Google Docs:</strong> File → Download → PDF Document (.pdf)</li>
+                                <li><strong>Use LibreOffice:</strong> File → Export as PDF</li>
+                                <li><strong>Filename:</strong> Use "My_Research_Paper.pdf" format</li>
+                                <li><strong>Size:</strong> Keep under 10MB (compress images if needed)</li>
+                                <li><strong>Content:</strong> Ensure no embedded scripts or macros</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-md p-4">
+                        <h4 class="font-semibold text-green-800 mb-2">🔧 Still Having Issues?</h4>
+                        <div class="text-sm text-green-700">
+                            <p class="mb-2">If you continue to experience upload problems:</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Try using a different browser (Chrome, Firefox, Safari)</li>
+                                <li>Clear your browser cache and cookies</li>
+                                <li>Disable browser extensions temporarily</li>
+                                <li>Check your internet connection stability</li>
+                                <li>Contact technical support with the specific error message</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Troubleshooting modal functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('troubleshootingModal');
+    const closeModal = document.getElementById('closeModal');
+
+    // Add troubleshooting link to the form
+    const troubleshootingLink = document.createElement('div');
+    troubleshootingLink.className = 'mt-4 text-center';
+    troubleshootingLink.innerHTML = `
+        <button type="button" id="showTroubleshooting" class="text-blue-600 hover:text-blue-800 text-sm underline">
+            <i class="fas fa-question-circle mr-1"></i>
+            Having trouble uploading? Click here for help
+        </button>
+    `;
+
+    // Insert after the form
+    const form = document.getElementById('manuscriptForm');
+    form.parentNode.insertBefore(troubleshootingLink, form.nextSibling);
+
+    // Show modal
+    document.getElementById('showTroubleshooting').addEventListener('click', function() {
+        modal.classList.remove('hidden');
+    });
+
+    // Close modal
+    closeModal.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+});
+</script>
+
 @endsection

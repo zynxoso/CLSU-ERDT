@@ -39,93 +39,13 @@ class ManuscriptController extends Controller
             return redirect()->route('home')->with('error', 'Unauthorized access');
         }
 
-        // Get filtered manuscripts
-        $manuscripts = $this->getFilteredManuscripts($request);
-
-        return view('admin.manuscripts.index', compact('manuscripts'));
+        // Return the view with Livewire component
+        return view('admin.manuscripts.index');
     }
 
-    /**
-     * AJAX filter for manuscripts
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function filter(Request $request)
-    {
-        // Check if user is admin
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['error' => 'Unauthorized access'], 403);
-        }
 
-        // Get filtered manuscripts
-        $manuscripts = $this->getFilteredManuscripts($request);
 
-        // Render the manuscript list HTML
-        $html = view('admin.manuscripts._manuscript_list', compact('manuscripts'))->render();
 
-        // Render pagination
-        $pagination = $manuscripts->links()->toHtml();
-
-        return response()->json([
-            'html' => $html,
-            'pagination' => $pagination
-        ]);
-    }
-
-    /**
-     * Get filtered manuscripts based on request parameters
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    private function getFilteredManuscripts(Request $request)
-    {
-        $query = Manuscript::with(['scholarProfile.user', 'documents']);
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by scholar/author name
-        if ($request->filled('scholar')) {
-            $query->whereHas('scholarProfile.user', function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->scholar . '%');
-            });
-        }
-
-        // Filter by title search
-        if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter by submission date range
-        if ($request->filled('submission_date_from')) {
-            $query->where('created_at', '>=', $request->submission_date_from);
-        }
-
-        if ($request->filled('submission_date_to')) {
-            $query->where('created_at', '<=', $request->submission_date_to . ' 23:59:59');
-        }
-
-        // Filter by manuscript type
-        if ($request->filled('type')) {
-            $query->where('manuscript_type', $request->type);
-        }
-
-        // Filter by keywords
-        if ($request->filled('keywords')) {
-            $keywords = explode(',', $request->keywords);
-            $query->where(function($q) use ($keywords) {
-                foreach ($keywords as $keyword) {
-                    $q->orWhere('keywords', 'like', '%' . trim($keyword) . '%');
-                }
-            });
-        }
-
-        return $query->orderBy('updated_at', 'desc')->paginate(10);
-    }
 
     /**
      * Export manuscripts with filtering options
@@ -1017,31 +937,55 @@ class ManuscriptController extends Controller
 
         $oldValues = $manuscript->toArray();
         $oldStatus = $manuscript->status;
+        $newStatus = $validated['status'];
 
         // Update manuscript status and notes
-        // Ensure the status is properly quoted by using the setAttribute method
-        $manuscript->setAttribute('status', $validated['status']);
+        $manuscript->setAttribute('status', $newStatus);
         $manuscript->admin_notes = $validated['admin_notes'] ?? $manuscript->admin_notes;
         $manuscript->save();
 
         // Log the status change
-        $this->auditService->logCustomAction("status_change_from_{$oldStatus}_to_{$validated['status']}", 'Manuscript', $manuscript->id);
+        $this->auditService->logCustomAction("status_change_from_{$oldStatus}_to_{$newStatus}", 'Manuscript', $manuscript->id);
 
-        // Notify scholar if requested
-        if ($request->has('notify_scholar') && $request->notify_scholar) {
-            // Get the scholar user
+        // Always notify scholar when status changes (unless it's the same status)
+        if ($oldStatus !== $newStatus) {
             $scholarProfile = $manuscript->scholarProfile;
             if ($scholarProfile && $scholarProfile->user) {
-                $scholarProfile->user->notify(new \App\Notifications\ManuscriptStatusChanged(
-                    $manuscript,
-                    $oldStatus,
-                    $validated['status'],
-                    $validated['admin_notes'] ?? null
-                ));
+                // Send Laravel notification (email + database) if checkbox is checked
+                if ($request->has('notify_scholar') && $request->notify_scholar) {
+                    $scholarProfile->user->notify(new \App\Notifications\ManuscriptStatusChanged(
+                        $manuscript,
+                        $oldStatus,
+                        $newStatus,
+                        $validated['admin_notes'] ?? null
+                    ));
+                }
+
+                // Always send CustomNotification for unified in-app display
+                $notificationService = app(\App\Services\NotificationService::class);
+                $title = 'Manuscript Status Updated';
+                $message = "Your manuscript \"{$manuscript->title}\" status has been changed from \"{$oldStatus}\" to \"{$newStatus}\".";
+
+                if ($validated['admin_notes']) {
+                    $message .= "\n\nAdmin Notes: " . $validated['admin_notes'];
+                }
+
+                $notificationService->notify(
+                    $scholarProfile->user->id,
+                    $title,
+                    $message,
+                    'manuscript',
+                    route('scholar.manuscripts.show', $manuscript->id),
+                    false // Email is handled by Laravel notification above
+                );
             }
         }
 
+        $notificationMessage = $oldStatus !== $newStatus
+            ? "Manuscript status updated successfully. Scholar has been notified of the status change."
+            : "Manuscript updated successfully.";
+
         return redirect()->route('admin.manuscripts.show', $manuscript->id)
-            ->with('success', "Manuscript status updated and scholar will be notified.");
+            ->with('success', $notificationMessage);
     }
 }

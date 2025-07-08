@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\Auditable;
+use App\Services\SystemSettingsService;
+use Carbon\Carbon;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, Auditable;
 
@@ -30,6 +31,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_changed_at',
         'must_change_password',
         'is_default_password',
+        'email_notifications',
+        'fund_request_notifications',
+        'document_notifications',
+        'manuscript_notifications',
     ];
 
     /**
@@ -48,7 +53,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
@@ -56,6 +60,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_changed_at' => 'datetime',
         'must_change_password' => 'boolean',
         'is_default_password' => 'boolean',
+        'email_notifications' => 'boolean',
+        'fund_request_notifications' => 'boolean',
+        'document_notifications' => 'boolean',
+        'manuscript_notifications' => 'boolean',
     ];
 
     /**
@@ -71,7 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function customNotifications()
     {
-        return $this->hasMany(Notification::class);
+        return $this->hasMany(CustomNotification::class);
     }
 
     /**
@@ -128,13 +136,14 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return bool
      */
-    public function isPasswordExpired()
+    public function isPasswordExpired(?int $days = null): bool
     {
-        if (!$this->password_expires_at) {
-            return false;
+        if (!$this->password_changed_at) {
+            return true;
         }
 
-        return now()->isAfter($this->password_expires_at);
+        $expiryDays = $days ?? SystemSettingsService::getPasswordExpiryDays();
+        return Carbon::parse($this->password_changed_at)->addDays($expiryDays)->isPast();
     }
 
     /**
@@ -152,14 +161,17 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Set password expiration date (90 days from now by default).
+     * Set password expiration date using dynamic settings.
      *
-     * @param int $days
+     * @param int|null $days Optional override for expiry days
      * @return void
      */
-    public function setPasswordExpiration($days = 90)
+    public function setPasswordExpiration($days = null)
     {
-        $this->password_expires_at = now()->addDays($days);
+        // Use provided days or get from system settings
+        $expiryDays = $days ?? \App\Models\SiteSetting::get('password_expiry_days', 90);
+
+        $this->password_expires_at = now()->addDays($expiryDays);
         $this->password_changed_at = now();
         $this->must_change_password = false;
         $this->is_default_password = false;
@@ -191,4 +203,69 @@ class User extends Authenticatable implements MustVerifyEmail
         return now()->diffInDays($this->password_expires_at, false);
     }
 
+    /**
+     * Get the active status (accessor for is_active).
+     *
+     * @return bool
+     */
+    public function getActiveAttribute()
+    {
+        return $this->is_active;
+    }
+
+    /**
+     * Safely check if user has fund request notifications enabled
+     * Falls back to true if the column doesn't exist yet
+     */
+    public function hasFundRequestNotifications(): bool
+    {
+        // If the attribute doesn't exist or user is admin, return true
+        return $this->fund_request_notifications ?? ($this->role === 'admin');
+    }
+
+    /**
+     * Safely check if user has email notifications enabled
+     * Falls back to true if the column doesn't exist yet
+     */
+    public function hasEmailNotifications(): bool
+    {
+        // If the attribute doesn't exist or user is admin with email, return true
+        return $this->email_notifications ?? ($this->role === 'admin' && !empty($this->email));
+    }
+
+    /**
+     * Safely check if user has manuscript notifications enabled
+     * Falls back to true if the column doesn't exist yet
+     */
+    public function hasManuscriptNotifications(): bool
+    {
+        // If the attribute doesn't exist, default to true
+        return $this->manuscript_notifications ?? true;
+    }
+
+    /**
+     * Get the user's unread notifications count.
+     *
+     * @return int
+     */
+    public function getUnreadNotificationsCount()
+    {
+        return $this->customNotifications()
+            ->where('is_read', false)
+            ->count();
+    }
+
+    /**
+     * Get the user's recent notifications.
+     *
+     * @param int $limit
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getRecentNotifications($limit = 5)
+    {
+        return $this->customNotifications()
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
 }

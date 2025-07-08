@@ -132,12 +132,11 @@ Created `ApiRateLimitMiddleware` with the following features:
 
 #### **Public Endpoints** (Rate Limited: 200/min)
 - Health checks: `/api/health`
-- Example endpoints: `/api/example/*`
 
 #### **API Endpoints** (Rate Limited: 60/min)
-- User data: `/api/user`
-- Resource endpoints: `/api/v1/*`
 - Analytics: `/api/admin/analytics`
+- Scholar status updates: `/api/scholar/status-updates`
+- Scholar analytics: `/api/scholar/analytics` (placeholder for future implementation)
 
 ## 🚨 **DDoS Detection & Response**
 
@@ -214,7 +213,7 @@ X-Block-Reason: Suspicious activity detected (when IP blocked)
 Added to `app/Http/Kernel.php`:
 ```php
 // Global middleware
-\App\Http\Middleware\PerformanceMonitoringMiddleware::class,
+// Performance monitoring handled via console commands
 
 // Route middleware
 'api.rate.limit' => \App\Http\Middleware\ApiRateLimitMiddleware::class,

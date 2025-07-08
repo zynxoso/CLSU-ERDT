@@ -2,20 +2,16 @@
 
 @section('content')
 @auth
-<div x-data="{ shown: false }" x-init="setTimeout(() => shown = true, 100)" class="container">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h1 class="mb-4"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'"
-                class="transition-all duration-500 ease-out transform">Dashboard</h1>
+            <h1 class="mb-4">Dashboard</h1>
 
             @if(auth()->user()->role === 'scholar')
                 <!-- Scholar Dashboard -->
                 <div class="row">
-                    <div class="col-md-4 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-100 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Profile Status</h5>
                                 <p class="card-text">
@@ -24,15 +20,13 @@
                                     <strong>University:</strong> {{ auth()->user()->scholarProfile->university ?? 'Not Set' }}
                                 </p>
                                 <a href="{{ route('scholars.show', auth()->user()->scholarProfile->id ?? 0) }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View Profile</a>
+                                   class="btn btn-primary">View Profile</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-4 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-200 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Fund Requests</h5>
                                 <p class="card-text">
@@ -41,15 +35,13 @@
                                     <strong>Rejected:</strong> <span class="badge bg-danger text-white" style="background-color: #ef4444;"><i class="fas fa-times mr-1" style="color: white;"></i> {{ $rejectedRequests ?? 0 }}</span>
                                 </p>
                                 <a href="{{ route('fund-requests.index') }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View Requests</a>
+                                   class="btn btn-primary">View Requests</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-4 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-300 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Manuscripts</h5>
                                 <p class="card-text">
@@ -58,24 +50,22 @@
                                     <strong>Published:</strong> <span class="badge bg-success text-white" style="background-color: #10b981;"><i class="fas fa-book mr-1" style="color: white;"></i> {{ $publishedManuscripts ?? 0 }}</span>
                                 </p>
                                 <a href="{{ route('scholar.manuscripts.index') }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View Manuscripts</a>
+                                   class="btn btn-primary">View Manuscripts</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="row mt-4">
-                    <div class="col-md-12"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-400 ease-out transform">
-                        <div class="card hover:shadow-lg transition-all duration-300">
+                    <div class="col-md-12">
+                        <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Recent Notifications</h5>
                                 @if(isset($notifications) && count($notifications) > 0)
                                     <div class="list-group">
                                         @foreach($notifications as $notification)
                                             <a href="{{ $notification->link ?? '#' }}"
-                                               class="list-group-item list-group-item-action {{ $notification->is_read ? '' : 'list-group-item-primary' }} hover:bg-gray-100 transition-colors duration-200">
+                                               class="list-group-item list-group-item-action {{ $notification->is_read ? '' : 'list-group-item-primary' }}">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <h6 class="mb-1">{{ $notification->title }}</h6>
                                                     <small>{{ $notification->created_at->diffForHumans() }}</small>
@@ -94,148 +84,58 @@
             @else
                 <!-- Admin Dashboard -->
                 <div class="row">
-                    <div class="col-md-3 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-100 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
                             <div class="card-body text-center">
                                 <h5 class="card-title">Scholars</h5>
-                                <h2 class="display-4" x-data="{ count: 0 }"
-                                    x-init="
-                                        $nextTick(() => {
-                                            setTimeout(() => {
-                                                let start = 0;
-                                                const end = {{ $scholarCount ?? 0 }};
-                                                const duration = 1000;
-                                                const range = end - start;
-                                                let current = start;
-                                                const increment = end > start ? 1 : -1;
-                                                const stepTime = Math.abs(Math.floor(duration / range));
-                                                const timer = setInterval(() => {
-                                                    current += increment;
-                                                    count = current;
-                                                    if (current == end) {
-                                                        clearInterval(timer);
-                                                    }
-                                                }, stepTime);
-                                            }, 500);
-                                        })
-                                    " x-text="count">0</h2>
+                                <h2 class="display-4">{{ $scholarCount ?? 0 }}</h2>
                                 <p class="card-text">Total registered scholars</p>
                                 <a href="{{ route('scholars.index') }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">Manage Scholars</a>
+                                   class="btn btn-primary">Manage Scholars</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-200 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
                             <div class="card-body text-center">
                                 <h5 class="card-title">Pending Requests</h5>
-                                <h2 class="display-4" x-data="{ count: 0 }"
-                                    x-init="
-                                        $nextTick(() => {
-                                            setTimeout(() => {
-                                                let start = 0;
-                                                const end = {{ $pendingRequestsCount ?? 0 }};
-                                                const duration = 1000;
-                                                const range = end - start;
-                                                let current = start;
-                                                const increment = end > start ? 1 : -1;
-                                                const stepTime = Math.abs(Math.floor(duration / range));
-                                                const timer = setInterval(() => {
-                                                    current += increment;
-                                                    count = current;
-                                                    if (current == end) {
-                                                        clearInterval(timer);
-                                                    }
-                                                }, stepTime);
-                                            }, 700);
-                                        })
-                                    " x-text="count">0</h2>
+                                <h2 class="display-4">{{ $pendingRequestsCount ?? 0 }}</h2>
                                 <p class="card-text">Awaiting review</p>
                                 <a href="{{ route('fund-requests.index') }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">Review Requests</a>
+                                   class="btn btn-primary">Review Requests</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-300 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
                             <div class="card-body text-center">
                                 <h5 class="card-title">Disbursements</h5>
-                                <h2 class="display-4" x-data="{ count: 0 }"
-                                    x-init="
-                                        $nextTick(() => {
-                                            setTimeout(() => {
-                                                let start = 0;
-                                                const end = {{ $disbursementsCount ?? 0 }};
-                                                const duration = 1000;
-                                                const range = end - start;
-                                                let current = start;
-                                                const increment = end > start ? 1 : -1;
-                                                const stepTime = Math.abs(Math.floor(duration / range));
-                                                const timer = setInterval(() => {
-                                                    current += increment;
-                                                    count = current;
-                                                    if (current == end) {
-                                                        clearInterval(timer);
-                                                    }
-                                                }, stepTime);
-                                            }, 900);
-                                        })
-                                    " x-text="count">0</h2>
+                                <h2 class="display-4">{{ $disbursementsCount ?? 0 }}</h2>
                                 <p class="card-text">Total processed</p>
                                 <a href="{{ route('disbursements.index') }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View Disbursements</a>
+                                   class="btn btn-primary">View Disbursements</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3 mb-4"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-400 ease-out transform">
-                        <div class="card h-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform">
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
                             <div class="card-body text-center">
                                 <h5 class="card-title">Manuscripts</h5>
-                                <h2 class="display-4" x-data="{ count: 0 }"
-                                    x-init="
-                                        $nextTick(() => {
-                                            setTimeout(() => {
-                                                let start = 0;
-                                                const end = {{ $manuscriptsCount ?? 0 }};
-                                                const duration = 1000;
-                                                const range = end - start;
-                                                let current = start;
-                                                const increment = end > start ? 1 : -1;
-                                                const stepTime = Math.abs(Math.floor(duration / range));
-                                                const timer = setInterval(() => {
-                                                    current += increment;
-                                                    count = current;
-                                                    if (current == end) {
-                                                        clearInterval(timer);
-                                                    }
-                                                }, stepTime);
-                                            }, 1100);
-                                        })
-                                    " x-text="count">0</h2>
+                                <h2 class="display-4">{{ $manuscriptsCount ?? 0 }}</h2>
                                 <p class="card-text">Total submissions</p>
                                 <a href="{{ route('admin.manuscripts.index') }}"
-                                   class="btn btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View all manuscripts</a>
+                                   class="btn btn-primary">View all manuscripts</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="row mt-4">
-                    <div class="col-md-6"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-500 ease-out transform">
-                        <div class="card hover:shadow-lg transition-all duration-300">
+                    <div class="col-md-6">
+                        <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Recent Fund Requests</h5>
                                 @if(isset($recentRequests) && count($recentRequests) > 0)
@@ -252,7 +152,7 @@
                                             </thead>
                                             <tbody>
                                                 @foreach($recentRequests as $request)
-                                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                    <tr>
                                                         <td>{{ $request->scholarProfile->full_name }}</td>
                                                         <td>{{ $request->requestType->name }}</td>
                                                         <td>₱{{ number_format($request->amount, 2) }}</td>
@@ -260,7 +160,7 @@
                                                             @if($request->status === 'Submitted')
                                                                 <span class="badge bg-primary text-white" style="background-color: #3b82f6;"><i class="fas fa-file-alt mr-1" style="color: white;"></i> Submitted</span>
                                                             @elseif($request->status === 'Under Review')
-                                                                <span class="badge bg-warning text-white animate-pulse" style="background-color: #f59e0b;"><i class="fas fa-search mr-1" style="color: white;"></i> Under Review</span>
+                                                                <span class="badge bg-warning text-white" style="background-color: #f59e0b;"><i class="fas fa-search mr-1" style="color: white;"></i> Under Review</span>
                                                             @elseif($request->status === 'Approved')
                                                                 <span class="badge bg-success text-white" style="background-color: #10b981;"><i class="fas fa-check mr-1" style="color: white;"></i> Approved</span>
                                                             @elseif($request->status === 'Rejected')
@@ -271,7 +171,7 @@
                                                         </td>
                                                         <td>
                                                             <a href="{{ route('fund-requests.show', $request->id) }}"
-                                                               class="btn btn-sm btn-primary hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105 active:scale-95">View</a>
+                                                               class="btn btn-sm btn-primary">View</a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -285,10 +185,8 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6"
-                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                         class="transition-all duration-500 delay-600 ease-out transform">
-                        <div class="card hover:shadow-lg transition-all duration-300">
+                    <div class="col-md-6">
+                        <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title text-gray-800">Recent Audit Logs</h5>
                                 @if(isset($recentLogs) && count($recentLogs) > 0)
@@ -304,7 +202,7 @@
                                             </thead>
                                             <tbody class="text-gray-700">
                                                 @foreach($recentLogs as $log)
-                                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                    <tr>
                                                         <td>{{ $log->user->name ?? 'System' }}</td>
                                                         <td>
                                                             <span class="px-2 py-1 text-xs rounded-full inline-flex items-center
@@ -346,33 +244,6 @@
         </div>
     </div>
 </div>
-
-@section('styles')
-<style>
-    /* Fix for Alpine.js to prevent flash of unstyled content */
-    [x-cloak] { display: none !important; }
-
-    /* Additional animation classes */
-    @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-    }
-
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
-    }
-
-    /* Pulse animation */
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-    }
-
-    .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-</style>
-@endsection
 
 <script>window.location = "/login";</script>
 @endauth

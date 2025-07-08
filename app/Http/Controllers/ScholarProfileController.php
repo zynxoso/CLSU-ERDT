@@ -10,6 +10,7 @@ use App\Http\Requests\ScholarProfileUpdateRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditService;
+use Illuminate\Http\RedirectResponse;
 
 class ScholarProfileController extends Controller
 {
@@ -119,10 +120,10 @@ class ScholarProfileController extends Controller
     /**
      * Update the specified scholar profile in storage.
      *
-     * @param  \App\Http\Requests\ScholarProfileUpdateRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  ScholarProfileUpdateRequest  $request
+     * @return RedirectResponse
      */
-    public function update(ScholarProfileUpdateRequest $request)
+    public function update(ScholarProfileUpdateRequest $request): RedirectResponse
     {
         $user = Auth::user();
 
@@ -156,7 +157,7 @@ class ScholarProfileController extends Controller
         // Update academic information - always set university to CLSU
         $scholarProfile->university = 'Central Luzon State University';
         if (isset($validatedData['department'])) {
-        $scholarProfile->department = $validatedData['department'];
+            $scholarProfile->department = $validatedData['department'];
         }
         if (isset($validatedData['program'])) {
             $scholarProfile->program = $validatedData['program'];
@@ -169,28 +170,32 @@ class ScholarProfileController extends Controller
         }
 
         // Update personal information
-        if (isset($validatedData['birthdate'])) {
-            $scholarProfile->birth_date = $validatedData['birthdate'];
+        if (isset($validatedData['first_name'])) {
+            $scholarProfile->first_name = $validatedData['first_name'];
+        }
+        if (isset($validatedData['middle_name'])) {
+            $scholarProfile->middle_name = $validatedData['middle_name'];
+        }
+        if (isset($validatedData['last_name'])) {
+            $scholarProfile->last_name = $validatedData['last_name'];
+        }
+        if (isset($validatedData['birth_date'])) {
+            $scholarProfile->birth_date = $validatedData['birth_date'];
         }
         if (isset($validatedData['gender'])) {
             $scholarProfile->gender = $validatedData['gender'];
         }
 
-        // Update contact information
+        // Update contact information - sync both phone and contact_number fields
         if (isset($validatedData['phone'])) {
             $scholarProfile->phone = $validatedData['phone'];
+            $scholarProfile->contact_number = $validatedData['phone']; // Sync for admin views
         }
         if (isset($validatedData['address'])) {
             $scholarProfile->address = $validatedData['address'];
         }
 
         // Update optional academic fields
-        if (isset($validatedData['major'])) {
-            $scholarProfile->major = $validatedData['major'];
-        }
-        if (isset($validatedData['gpa'])) {
-            $scholarProfile->gpa = $validatedData['gpa'];
-        }
         if (isset($validatedData['start_date'])) {
             $scholarProfile->start_date = $validatedData['start_date'];
         }
@@ -198,7 +203,15 @@ class ScholarProfileController extends Controller
             $scholarProfile->expected_completion_date = $validatedData['expected_completion_date'];
         }
 
-        // Update research information
+        // Update bachelor's degree information
+        if (isset($validatedData['bachelor_degree'])) {
+            $scholarProfile->bachelor_degree = $validatedData['bachelor_degree'];
+        }
+        if (isset($validatedData['bachelor_university'])) {
+            $scholarProfile->bachelor_university = $validatedData['bachelor_university'];
+        }
+
+        // Update research information (commented out fields in form)
         if (isset($validatedData['research_title'])) {
             $scholarProfile->research_title = $validatedData['research_title'];
         }
@@ -212,23 +225,53 @@ class ScholarProfileController extends Controller
             $scholarProfile->advisor = $validatedData['advisor'];
         }
 
+        // Handle profile photo removal
+        if ($request->has('remove_photo') && $request->remove_photo == '1') {
+            try {
+                // Delete existing photo if it exists
+                if ($scholarProfile->profile_photo) {
+                    $photoPath = public_path('images/' . $scholarProfile->profile_photo);
+                    if (file_exists($photoPath)) {
+                        unlink($photoPath);
+                    }
+                }
+                $scholarProfile->profile_photo = null;
+                Log::info('Profile photo removed for scholar profile ' . $scholarProfile->id);
+            } catch (\Exception $e) {
+                Log::error('Failed to remove profile photo: ' . $e->getMessage(), [
+                    'scholar_profile_id' => $scholarProfile->id,
+                    'exception' => $e
+                ]);
+            }
+        }
+
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             try {
                 // Delete old photo if exists
-                if ($user->profile_photo) {
-                    Storage::delete('public/' . $user->profile_photo);
+                if ($scholarProfile->profile_photo) {
+                    $oldPhotoPath = public_path('images/' . $scholarProfile->profile_photo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
                 }
 
-                // Store new photo
-                $path = $request->file('profile_photo')->store('profile-photos', 'public');
-                $user->profile_photo = str_replace('public/', '', $path);
-                $user->save();
+                // Ensure images directory exists
+                $imagesDir = public_path('images');
+                if (!is_dir($imagesDir)) {
+                    mkdir($imagesDir, 0755, true);
+                }
 
-                Log::info('Profile photo updated successfully for user ' . $user->id);
+                // Store new photo in public/images
+                $file = $request->file('profile_photo');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move($imagesDir, $fileName);
+                $scholarProfile->profile_photo = $fileName;
+
+                Log::info('Profile photo updated successfully for scholar profile ' . $scholarProfile->id);
             } catch (\Exception $e) {
                 Log::error('Failed to upload profile photo: ' . $e->getMessage(), [
-                    'user_id' => $user->id,
+                    'scholar_profile_id' => $scholarProfile->id,
                     'exception' => $e
                 ]);
             }
@@ -237,6 +280,15 @@ class ScholarProfileController extends Controller
         try {
             $scholarProfile->save();
 
+            // Update user's name if name fields were changed
+            if (isset($validatedData['first_name']) || isset($validatedData['middle_name']) || isset($validatedData['last_name'])) {
+                $newName = $scholarProfile->first_name . ' ' . ($scholarProfile->middle_name ? $scholarProfile->middle_name . ' ' : '') . $scholarProfile->last_name;
+                if ($user->name !== $newName) {
+                    $user->name = $newName;
+                    $user->save();
+                }
+            }
+
             // Create audit log using the AuditService
             if ($originalData) {
                 $this->auditService->logUpdate('ScholarProfile', $scholarProfile->id, $originalData, $scholarProfile->toArray());
@@ -244,7 +296,7 @@ class ScholarProfileController extends Controller
                 $this->auditService->logCreate('ScholarProfile', $scholarProfile->id, $scholarProfile->toArray());
             }
 
-            return redirect()->route('scholar.profile')
+            return redirect()->route('scholar.profile.edit')
                 ->with('success', 'Your profile has been updated successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to update scholar profile: ' . $e->getMessage());
@@ -292,22 +344,27 @@ class ScholarProfileController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // Get dynamic password expiry days from settings
+        $passwordExpiryDays = \App\Models\SiteSetting::get('password_expiry_days', 90);
+
         $user->password = Hash::make($request->new_password);
 
         // Clear default password flags
         $user->is_default_password = false;
         $user->must_change_password = false;
 
-        // Set password expiration (90 days from now)
-        $user->setPasswordExpiration(90);
+        // Set password expiration using dynamic settings
+        $user->setPasswordExpiration();
 
         // Save the user
         $user->save();
 
         // Clear session warning flag
         session()->forget('password_expiry_warning_shown');
+        session()->forget('show_password_modal');
 
         return redirect()->route('scholar.dashboard')
-            ->with('success', 'Password updated successfully. Your password will expire in 90 days.');
+            ->with('success', "Password updated successfully. Your password will expire in {$passwordExpiryDays} days.");
     }
 }

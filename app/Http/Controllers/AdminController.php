@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Models\AuditLog;
 use App\Services\AuditService;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\ChangePasswordRequest;
+use App\Models\CustomNotification;
 
 class AdminController extends Controller
 {
@@ -116,6 +118,16 @@ class AdminController extends Controller
             ->limit(3)
             ->get();
 
+        // Fetch recent notifications for the admin
+        $recentNotifications = CustomNotification::where('user_id', $user->id)
+            ->whereIn('type', [
+                'App\\Notifications\\NewFundRequestSubmitted',
+                'App\\Notifications\\NewManuscriptSubmitted'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'user',
             'scholars',
@@ -141,7 +153,8 @@ class AdminController extends Controller
             'notifications',
             'recentScholarActivity',
             'recentLogs',
-            'programCounts'
+            'programCounts',
+            'recentNotifications'
         ));
     }
 
@@ -215,38 +228,41 @@ class AdminController extends Controller
     /**
      * Update the admin's password.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\ChangePasswordRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $request->validate([
-            'current_password' => ['required', function ($attribute, $value, $fail) {
-                if (!Hash::check($value, Auth::user()->password)) {
-                    $fail('The current password is incorrect.');
-                }
-            }],
-            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
         $user = Auth::user();
-        $user->password = Hash::make($request->new_password);
+        $validated = $request->validated();
+
+        // Get dynamic password expiry days from settings
+        $passwordExpiryDays = \App\Models\SiteSetting::get('password_expiry_days', 90);
+
+        $user->password = Hash::make($validated['new_password']);
 
         // Clear default password flags
         $user->is_default_password = false;
         $user->must_change_password = false;
 
-        // Set password expiration (90 days from now)
-        $user->setPasswordExpiration(90);
+        // Set password expiration using dynamic settings
+        $user->setPasswordExpiration();
 
         // Save the user
         $user->save();
 
         // Clear session warning flag
         session()->forget('password_expiry_warning_shown');
+        session()->forget('show_password_modal');
 
-        return redirect()->route('admin.dashboard')
-            ->with('success', 'Password updated successfully. Your password will expire in 90 days.');
+        // Log the password change
+        $this->auditService->log('password_changed', 'User', $user->id, 'Password changed successfully');
+
+        // Determine redirect location - default to settings page for better UX
+        $redirectRoute = 'admin.settings';
+
+        return redirect()->route($redirectRoute)
+            ->with('success', "Password updated successfully. Your password will expire in {$passwordExpiryDays} days.");
     }
 
     /**
@@ -309,14 +325,18 @@ class AdminController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // Get dynamic password expiry days from settings
+        $passwordExpiryDays = \App\Models\SiteSetting::get('password_expiry_days', 90);
+
         $user->password = Hash::make($request->new_password);
 
         // Clear default password flags
         $user->is_default_password = false;
         $user->must_change_password = false;
 
-        // Set password expiration (90 days from now)
-        $user->setPasswordExpiration(90);
+        // Set password expiration using dynamic settings
+        $user->setPasswordExpiration();
 
         // Save the user
         $user->save();
@@ -324,7 +344,7 @@ class AdminController extends Controller
         $this->auditService->log('password_changed', 'User', $user->id, 'Password changed from profile page');
 
         return redirect()->route('admin.profile.edit')
-            ->with('success', 'Password updated successfully.');
+            ->with('success', "Password updated successfully. Your password will expire in {$passwordExpiryDays} days.");
     }
 
     /**
@@ -348,5 +368,84 @@ class AdminController extends Controller
 
         return redirect()->route('admin.profile.edit')
             ->with('success', 'Notification preferences updated successfully.');
+    }
+
+    /**
+     * Display the admin settings page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function settings()
+    {
+        // Get mock settings data - in a real application, this would come from a settings table
+        $settings = (object) [
+            'site_name' => 'CLSU-ERDT Scholarship Management System',
+            'site_description' => 'Central Luzon State University - Engineering Research and Development for Technology Scholarship Management System',
+            'contact_email' => 'erdt@clsu.edu.ph',
+            'contact_phone' => '+63 44 456 0680',
+            'default_stipend' => 20000,
+            'default_book_allowance' => 10000,
+            'default_research_allowance' => 50000,
+            'max_scholarship_duration' => 36,
+            'required_documents' => ['Transcript', 'ID', 'Enrollment', 'Grades'],
+        ];
+
+        // Get users for the user management section with pagination
+        $users = \App\Models\User::where('role', '!=', 'scholar')->paginate(10);
+
+        return view('admin.settings.index', compact('settings', 'users'));
+    }
+
+    /**
+     * Update general settings.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'site_name' => 'required|string|max:255',
+            'site_description' => 'nullable|string',
+            'contact_email' => 'required|email|max:255',
+            'contact_phone' => 'nullable|string|max:20',
+        ]);
+
+        // In a real application, you would save these to a settings table
+        // For now, we'll just log the action and show a success message
+
+        $this->auditService->log('settings_updated', 'Settings', null,
+            'Updated general settings - Site Name: ' . $request->site_name
+        );
+
+        return redirect()->route('admin.settings')
+            ->with('success', 'General settings updated successfully.');
+    }
+
+    /**
+     * Update scholarship settings.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateScholarshipSettings(Request $request)
+    {
+        $request->validate([
+            'default_stipend' => 'required|numeric|min:0',
+            'default_book_allowance' => 'required|numeric|min:0',
+            'default_research_allowance' => 'required|numeric|min:0',
+            'max_scholarship_duration' => 'required|integer|min:1',
+            'required_documents' => 'nullable|array',
+        ]);
+
+        // In a real application, you would save these to a settings table
+        // For now, we'll just log the action and show a success message
+
+        $this->auditService->log('scholarship_settings_updated', 'Settings', null,
+            'Updated scholarship settings - Default Stipend: ₱' . number_format($request->default_stipend)
+        );
+
+        return redirect()->route('admin.settings')
+            ->with('success', 'Scholarship settings updated successfully.');
     }
 }

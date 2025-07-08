@@ -84,6 +84,11 @@ class ScholarCreateRequest extends FormRequest
             'university' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
             'program' => ['required', 'string', 'max:255'],
+            'major' => ['required', 'string', 'max:255'],
+            'degree_level' => ['required', 'string', 'in:Masteral,PhD'],
+            'enrollment_type' => ['required', 'string', 'in:New,Lateral'],
+            'study_time' => ['required', 'string', 'in:Full-time,Part-time'],
+            'scholarship_duration' => ['required', 'integer', 'min:1', 'max:60'],
             'status' => [
                 'required',
                 'string',
@@ -111,12 +116,6 @@ class ScholarCreateRequest extends FormRequest
             // Previous education
             'bachelor_degree' => ['nullable', 'string', 'max:255'],
             'bachelor_university' => ['nullable', 'string', 'max:255'],
-            'bachelor_graduation_year' => [
-                'nullable',
-                'integer',
-                'min:1950',
-                'max:'.$currentYear
-            ],
 
             // Research information
             'research_area' => ['nullable', 'string', 'max:255'],
@@ -149,7 +148,6 @@ class ScholarCreateRequest extends FormRequest
             'contact_number' => 'phone number',
             'bachelor_degree' => 'bachelor\'s degree',
             'bachelor_university' => 'bachelor\'s university',
-            'bachelor_graduation_year' => 'graduation year',
         ];
     }
 

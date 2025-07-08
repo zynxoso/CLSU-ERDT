@@ -14,19 +14,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call other seeders
+        // Create admin users first
         $this->call([
             SuperAdminUserSeeder::class,
-            FacultyMemberSeeder::class,
+            AdminUserSeeder::class,
+            RequestTypeSeeder::class,
+            SiteSettingSeeder::class,
         ]);
 
-        // Create admin user
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@clsu-erdt.edu.ph',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'email_verified_at' => now(),
+        if (app()->environment('local', 'development', 'testing')) {
+            $this->seedTestData();
+        }
+    }
+
+    /**
+     * Seed test data for development and testing environments
+     */
+    private function seedTestData(): void
+    {
+        // Create some regular users that will be scholars
+        \App\Models\User::factory(10)->create([
+            'role' => 'scholar',
+        ]);
+
+        // Create test data
+        $this->call([
+            ScholarProfileSeeder::class,
+            AnnouncementSeeder::class,
+            ApplicationTimelineSeeder::class,
+            FacultyMemberSeeder::class,
+            ImportantNoteSeeder::class,
         ]);
 
         // Create a test scholar user
@@ -35,82 +52,20 @@ class DatabaseSeeder extends Seeder
             'email' => 'scholar@example.com',
             'password' => Hash::make('password'),
             'role' => 'scholar',
-            'email_verified_at' => now(),
+            'is_active' => true,
         ]);
 
         // Create scholar profile
         $scholar->scholarProfile()->create([
             'first_name' => 'Test',
             'last_name' => 'Scholar',
-            'gender' => 'Male',
-            'birth_date' => '1995-01-01',
             'contact_number' => '09123456789',
             'address' => '123 Main St',
-            'city' => 'Science City of Muñoz',
-            'province' => 'Nueva Ecija',
-            'postal_code' => '3120',
             'university' => 'Central Luzon State University',
-            'degree_program' => 'MS in Agricultural Engineering',
-            'year_level' => '2nd Year',
-            'expected_graduation' => '2024-05-31',
+            'program' => 'MS in Agricultural Engineering',
             'status' => 'Ongoing',
-            'scholar_id' => 'ERDT-2023-001',
+            'start_date' => '2023-01-01',
+            'expected_completion_date' => '2024-05-31',
         ]);
-
-        // Create request types
-        $requestTypes = [
-            [
-                'name' => 'Tuition Fee',
-                'description' => 'Request for tuition fee reimbursement or payment',
-                'required_documents' => ['Enrollment Form', 'Official Receipt', 'Certificate of Registration'],
-                'max_amount' => 50000.00,
-            ],
-            [
-                'name' => 'Stipend',
-                'description' => 'Monthly stipend for living expenses',
-                'required_documents' => ['Enrollment Certificate', 'Progress Report'],
-                'max_amount' => 20000.00,
-            ],
-            [
-                'name' => 'Learning Materials and Connectivity Allowance',
-                'description' => 'Allowance for books, materials, and internet connection',
-                'required_documents' => ['Receipts', 'Justification Letter'],
-                'max_amount' => 10000.00,
-            ],
-            [
-                'name' => 'Transportation Allowance',
-                'description' => 'Allowance for transportation expenses',
-                'required_documents' => ['Travel Itinerary', 'Receipts'],
-                'max_amount' => 5000.00,
-            ],
-            [
-                'name' => 'Thesis/Dissertation Outright Grant',
-                'description' => 'Grant for thesis or dissertation research',
-                'required_documents' => ['Research Proposal', 'Budget Proposal', 'Adviser Endorsement'],
-                'max_amount' => 100000.00,
-            ],
-            [
-                'name' => 'Research Support Grant - Equipment',
-                'description' => 'Grant for research equipment',
-                'required_documents' => ['Equipment Specifications', 'Quotations', 'Justification Letter'],
-                'max_amount' => 50000.00,
-            ],
-            [
-                'name' => 'Research Dissemination Grant',
-                'description' => 'Grant for conference attendance or publication fees',
-                'required_documents' => ['Conference Acceptance Letter', 'Abstract', 'Budget Proposal'],
-                'max_amount' => 30000.00,
-            ],
-            [
-                'name' => 'Mentor\'s Fee',
-                'description' => 'Fee for thesis/dissertation mentor',
-                'required_documents' => ['Mentor Agreement', 'Progress Report'],
-                'max_amount' => 15000.00,
-            ],
-        ];
-
-        foreach ($requestTypes as $type) {
-            RequestType::create($type);
-        }
     }
 }

@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <div class="bg-base-200 shadow-xl rounded-lg p-6 mb-8">
+    <div class="bg-base-200 shadow rounded-lg p-6 mb-8">
         <h3 class="text-xl font-semibold mb-4">Filter Fund Requests</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -84,9 +84,9 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto bg-base-200 shadow-xl rounded-lg p-6">
+    <div class="overflow-x-auto bg-base-200 shadow rounded-lg p-6">
         <div wire:loading class="text-center text-lg font-semibold text-primary mb-4">Loading Fund Requests...</div>
-        <div wire:loading.class="opacity-50" wire:target="status, purpose, date">
+        <div wire:target="status, purpose, date">
             @if($fundRequests->count() > 0)
                 <table class="table w-full">
                     <thead>

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Models\Manuscript;
 use App\Models\Document;
 use App\Services\AuditService;
@@ -41,21 +42,8 @@ class ManuscriptController extends Controller
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
 
-        $query = Manuscript::where('scholar_profile_id', $scholarProfile->id);
-
-        // Filter by status if provided
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by manuscript type if provided
-        if ($request->has('type') && $request->type) {
-            $query->where('manuscript_type', $request->type);
-        }
-
-        $manuscripts = $query->orderBy('created_at', 'desc')->paginate(10);
-
-        return view('scholar.manuscripts.index', compact('manuscripts'));
+        // Return the view with Livewire component
+        return view('scholar.manuscripts.index');
     }
 
     /**
@@ -304,8 +292,8 @@ class ManuscriptController extends Controller
                 'co_authors.max' => 'The co-authors field must not exceed 255 characters.',
                 'keywords.max' => 'The keywords field must not exceed 255 characters.',
                 'file.file' => 'The uploaded file is invalid.',
-                'file.mimes' => 'The file must be a PDF document.',
-                'file.max' => 'The file size must not exceed 10MB.'
+                'file.mimes' => 'The file must be a PDF document. Please ensure you are uploading a genuine PDF file created using legitimate PDF software (not a renamed file).',
+                'file.max' => 'The file size must not exceed 10MB. Please compress your PDF or reduce its size before uploading.'
             ]);
 
             \Illuminate\Support\Facades\Log::info('Manuscript validation passed', [
@@ -435,8 +423,20 @@ class ManuscriptController extends Controller
         }
 
         // Update the status to Submitted
+        $oldStatus = $manuscript->status;
         $manuscript->status = 'Submitted';
         $manuscript->save();
+
+        // Notify all admins about the new manuscript submission
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            if ($admin->manuscript_notifications) {
+                $admin->notify(new \App\Notifications\NewManuscriptSubmitted($manuscript));
+            }
+        }
+
+        // Log the submission
+        $this->auditService->logCustomAction('submitted', 'Manuscript', $manuscript->id);
 
         return redirect()->route('scholar.manuscripts.index')->with('success', 'Manuscript submitted successfully and is now final.');
     }

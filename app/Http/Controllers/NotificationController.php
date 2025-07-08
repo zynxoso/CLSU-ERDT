@@ -3,25 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Notification;
-use App\Services\NotificationService;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CustomNotification;
 
 class NotificationController extends Controller
 {
-    protected $notificationService;
-    
-    /**
-     * Create a new controller instance.
-     *
-     * @param  \App\Services\NotificationService  $notificationService
-     * @return void
-     */
-    public function __construct(NotificationService $notificationService)
-    {
-        $this->middleware('auth');
-        $this->notificationService = $notificationService;
-    }
-    
     /**
      * Display a listing of the notifications.
      *
@@ -29,69 +15,70 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = Notification::where('user_id', auth()->id())
+        $user = Auth::user();
+
+        // Fetch all notifications for the admin, ordered by created_at desc
+        $notifications = CustomNotification::where('user_id', $user->id)
+            ->whereIn('type', [
+                'App\\Notifications\\NewFundRequestSubmitted',
+                'App\\Notifications\\NewManuscriptSubmitted'
+            ])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
-        
-        return view('notifications.index', compact('notifications'));
+
+        return view('admin.notifications.index', compact('notifications'));
     }
-    
+
     /**
      * Mark a notification as read.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function markAsRead($id)
     {
-        $notification = Notification::where('id', $id)
-            ->where('user_id', auth()->id())
+        $user = Auth::user();
+
+        $notification = CustomNotification::where('id', $id)
+            ->where('user_id', $user->id)
             ->firstOrFail();
-        
-        $this->notificationService->markAsRead($notification->id);
-        
-        return redirect()->back()->with('success', 'Notification marked as read.');
+
+        $notification->is_read = true;
+        $notification->save();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Notification marked as read');
     }
-    
+
     /**
      * Mark all notifications as read.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function markAllAsRead()
     {
-        $this->notificationService->markAllAsRead(auth()->id());
-        
-        return redirect()->back()->with('success', 'All notifications marked as read.');
+        $user = Auth::user();
+
+        CustomNotification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'All notifications marked as read');
     }
-    
+
     /**
-     * Get unread notification count for the current user.
-     *
-     * @return \Illuminate\Http\Response
+     * Get unread notifications count for the authenticated admin.
      */
     public function getUnreadCount()
     {
-        $count = Notification::where('user_id', auth()->id())
+        $user = Auth::user();
+
+        $count = CustomNotification::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
-        
+
         return response()->json(['count' => $count]);
-    }
-    
-    /**
-     * Get recent notifications for the current user.
-     *
-     * @param  int  $limit
-     * @return \Illuminate\Http\Response
-     */
-    public function getRecent($limit = 5)
-    {
-        $notifications = Notification::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get();
-        
-        return response()->json(['notifications' => $notifications]);
     }
 }

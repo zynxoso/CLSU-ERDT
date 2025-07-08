@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 // Make Swal available globally
 window.Swal = Swal;
 
-// Default configuration for SweetAlert
+// Default configuration for SweetAlert Toast
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -16,7 +16,10 @@ const Toast = Swal.mixin({
     }
 });
 
-// Global functions for common alert types
+// Make Toast available globally
+window.Toast = Toast;
+
+// Global toast functions for session flash messages
 window.toast = {
     success: (message) => Toast.fire({
         icon: 'success',
@@ -36,27 +39,12 @@ window.toast = {
     })
 };
 
-// Global confirmation function
-window.confirmAction = (title, text, callback, cancelCallback = null) => {
-    Swal.fire({
-        title: title,
-        text: text,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, proceed!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            if (callback && typeof callback === 'function') {
-                callback();
-            }
-        } else if (cancelCallback && typeof cancelCallback === 'function') {
-            cancelCallback();
-        }
-    });
-};
+// Console log to verify SweetAlert is loaded
+console.log('SweetAlert2 loaded successfully');
 
-export { Swal, Toast };
+// Ensure SweetAlert is available immediately
+if (typeof window !== 'undefined') {
+    window.Swal = Swal;
+    window.Toast = Toast;
+}
 

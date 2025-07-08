@@ -221,9 +221,11 @@ class ScholarController extends Controller
             }
 
             // Create user account
+            $validated = $request->validated();
+
             $userAttributes = [
-                'name' => $request->first_name . ' ' . ($request->middle_name ? ' ' . $request->middle_name : '') . ' ' . $request->last_name,
-                'email' => $request->email,
+                'name' => $validated['first_name'] . ' ' . ($validated['middle_name'] ? ' ' . $validated['middle_name'] : '') . ' ' . $validated['last_name'],
+                'email' => $validated['email'],
                 'password' => Hash::make('CLSU-scholar123'), // Use consistent default password instead of random one
                 'role' => 'scholar',
                 'is_default_password' => true,
@@ -269,82 +271,34 @@ class ScholarController extends Controller
             $scholarProfile->user_id = $user->id;
 
             // Personal information
-            $scholarProfile->first_name = $request->first_name;
-            $scholarProfile->middle_name = $request->middle_name;
-            $scholarProfile->last_name = $request->last_name;
-            $scholarProfile->contact_number = $request->contact_number;
-            $scholarProfile->address = $request->address;
+            $scholarProfile->first_name = $validated['first_name'];
+            $scholarProfile->middle_name = $validated['middle_name'];
+            $scholarProfile->last_name = $validated['last_name'];
+            $scholarProfile->contact_number = $validated['contact_number'];
 
-            // Optional personal fields
-            if ($request->has('gender')) {
-                $scholarProfile->gender = $request->gender;
-            }
-            if ($request->has('birth_date')) {
-                $scholarProfile->birth_date = $request->birth_date;
-            }
-
-            // Location information
-            if ($request->has('city')) {
-                $scholarProfile->city = $request->city;
-            }
-            if ($request->has('province')) {
-                $scholarProfile->province = $request->province;
-            }
-            if ($request->has('postal_code')) {
-                $scholarProfile->postal_code = $request->postal_code;
-            }
-            if ($request->has('country')) {
-                $scholarProfile->country = $request->country;
-            }
+            // Address information
+            $scholarProfile->address = $validated['address'];
+            $scholarProfile->city = $validated['city'];
+            $scholarProfile->province = $validated['province'];
+            $scholarProfile->postal_code = $validated['postal_code'];
+            $scholarProfile->country = $validated['country'];
 
             // Academic information
-            $scholarProfile->university = $request->university;
-            $scholarProfile->program = $request->program;
-            $scholarProfile->department = $request->department;
-            $scholarProfile->status = $request->status;
-            $scholarProfile->start_date = $request->start_date;
-            $scholarProfile->expected_completion_date = $request->expected_completion_date;
+            $scholarProfile->university = $validated['university'];
+            $scholarProfile->program = $validated['program'];
+            $scholarProfile->department = $validated['department'];
+            $scholarProfile->major = $validated['major'];
+            $scholarProfile->degree_level = $validated['degree_level'];
+            $scholarProfile->status = $validated['status'];
+            $scholarProfile->start_date = $validated['start_date'];
+            $scholarProfile->expected_completion_date = $validated['expected_completion_date'];
+            $scholarProfile->enrollment_type = $validated['enrollment_type'];
+            $scholarProfile->study_time = $validated['study_time'];
+            $scholarProfile->scholarship_duration = $validated['scholarship_duration'];
 
-            if ($request->has('actual_completion_date')) {
-                $scholarProfile->actual_completion_date = $request->actual_completion_date;
-            }
-            if ($request->has('degree_program')) {
-                $scholarProfile->degree_program = $request->degree_program;
-            }
-            if ($request->has('year_level')) {
-                $scholarProfile->year_level = $request->year_level;
-            }
-            if ($request->has('scholar_id')) {
-                $scholarProfile->scholar_id = $request->scholar_id;
-            }
-
-            // Optional academic background fields
-            if ($request->has('bachelor_degree')) {
-                $scholarProfile->bachelor_degree = $request->bachelor_degree;
-            }
-            if ($request->has('bachelor_university')) {
-                $scholarProfile->bachelor_university = $request->bachelor_university;
-            }
-            if ($request->has('bachelor_graduation_year')) {
-                $scholarProfile->bachelor_graduation_year = $request->bachelor_graduation_year;
-            }
-            if ($request->has('research_area')) {
-                $scholarProfile->research_area = $request->research_area;
-            }
-            if ($request->has('research_title')) {
-                $scholarProfile->research_title = $request->research_title;
-            }
-            if ($request->has('research_abstract')) {
-                $scholarProfile->research_abstract = $request->research_abstract;
-            }
-
-            // Notes
-            if ($request->has('notes')) {
-                $scholarProfile->notes = $request->notes;
-            }
-            if ($request->has('admin_notes')) {
-                $scholarProfile->admin_notes = $request->admin_notes;
-            }
+            // Academic background
+            $scholarProfile->bachelor_degree = $validated['bachelor_degree'];
+            $scholarProfile->bachelor_university = $validated['bachelor_university'];
 
             $scholarProfile->save();
             $logMessage = "Scholar profile saved with ID: " . $scholarProfile->id . "\n";
@@ -468,6 +422,7 @@ class ScholarController extends Controller
             $scholar->university = $request->university;
             $scholar->program = $request->program;
             $scholar->department = $request->department;
+            $scholar->major = $request->major;
 
             // Debug logging for status update
             \Illuminate\Support\Facades\Log::info('Scholar status update', [
@@ -501,9 +456,6 @@ class ScholarController extends Controller
             if ($request->has('bachelor_university')) {
                 $scholar->bachelor_university = $request->bachelor_university;
             }
-            if ($request->has('bachelor_graduation_year')) {
-                $scholar->bachelor_graduation_year = $request->bachelor_graduation_year;
-            }
             if ($request->has('research_area')) {
                 $scholar->research_area = $request->research_area;
             }
@@ -531,6 +483,12 @@ class ScholarController extends Controller
 
             if ($user && $user->name !== $newName) {
                 $user->name = $newName;
+                $user->save();
+            }
+
+            // Update user email if changed
+            if ($user && $request->has('email') && $user->email !== $request->email) {
+                $user->email = $request->email;
                 $user->save();
             }
 

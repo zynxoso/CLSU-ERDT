@@ -14,58 +14,39 @@ return new class extends Migration
         Schema::table('fund_requests', function (Blueprint $table) {
             // Add encrypted financial fields only if they don't exist
             if (!Schema::hasColumn('fund_requests', 'bank_account_number')) {
-                $table->text('bank_account_number')->nullable()->after('details');
+                $table->text('bank_account_number')->nullable();
             }
             if (!Schema::hasColumn('fund_requests', 'bank_name')) {
-                $table->text('bank_name')->nullable()->after('bank_account_number');
+                $table->text('bank_name')->nullable();
             }
             if (!Schema::hasColumn('fund_requests', 'account_holder_name')) {
-                $table->text('account_holder_name')->nullable()->after('bank_name');
+                $table->text('account_holder_name')->nullable();
             }
             if (!Schema::hasColumn('fund_requests', 'routing_number')) {
-                $table->text('routing_number')->nullable()->after('account_holder_name');
+                $table->text('routing_number')->nullable();
             }
             if (!Schema::hasColumn('fund_requests', 'tax_identification_number')) {
-                $table->text('tax_identification_number')->nullable()->after('routing_number');
+                $table->text('tax_identification_number')->nullable();
             }
             if (!Schema::hasColumn('fund_requests', 'tax_identification_hash')) {
-                $table->string('tax_identification_hash')->nullable()->index()->after('tax_identification_number');
+                $table->string('tax_identification_hash')->nullable()->index();
             }
             if (!Schema::hasColumn('fund_requests', 'amount_breakdown')) {
-                $table->text('amount_breakdown')->nullable()->after('tax_identification_hash');
+                $table->text('amount_breakdown')->nullable();
             }
 
             // Add missing columns that should exist based on the model
             if (!Schema::hasColumn('fund_requests', 'reference_number')) {
-                $table->string('reference_number')->nullable()->unique()->after('request_type_id');
+                $table->string('reference_number')->nullable()->unique();
             }
-            if (!Schema::hasColumn('fund_requests', 'status')) {
-                $table->enum('status', ['pending', 'approved', 'rejected', 'disbursed'])->default('pending')->after('amount_breakdown');
-            }
+            // Don't add status, reviewed_by, reviewed_at as they already exist
             if (!Schema::hasColumn('fund_requests', 'status_history')) {
-                $table->json('status_history')->nullable()->after('status');
+                $table->json('status_history')->nullable();
             }
             if (!Schema::hasColumn('fund_requests', 'admin_notes')) {
-                $table->text('admin_notes')->nullable()->after('status_history');
-            }
-            if (!Schema::hasColumn('fund_requests', 'reviewed_by')) {
-                $table->unsignedBigInteger('reviewed_by')->nullable()->after('admin_notes');
-            }
-            if (!Schema::hasColumn('fund_requests', 'reviewed_at')) {
-                $table->timestamp('reviewed_at')->nullable()->after('reviewed_by');
+                $table->text('admin_notes')->nullable();
             }
         });
-
-        // Add foreign key constraint for reviewed_by if it doesn't exist
-        if (Schema::hasColumn('fund_requests', 'reviewed_by')) {
-            try {
-                Schema::table('fund_requests', function (Blueprint $table) {
-                    $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
-                });
-            } catch (\Exception $e) {
-                // Foreign key might already exist, ignore the error
-            }
-        }
     }
 
     /**

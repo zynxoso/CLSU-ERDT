@@ -1,67 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Enhanced Navigation with Glassmorphism -->
-<nav style="background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(34, 197, 94, 0.2);">
-    <div class="container mx-auto px-4 py-4">
-        <div class="flex justify-between items-center">
-            <a href="{{ route('home') }}" class="flex items-center group">
-                <div class="relative">
-                    <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-12 w-12 rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
-                    <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: linear-gradient(to right, rgba(34, 197, 94, 0.2), rgba(127, 29, 29, 0.2));"></div>
-                </div>
-                <div class="ml-4">
-                    <span class="font-bold text-xl tracking-tight text-gray-800">CLSU-ERDT</span>
-                    <div class="text-xs font-medium text-blue-800">Engineering Excellence</div>
-                </div>
-            </a>
-
-            <div class="hidden md:flex space-x-8">
-                <a href="{{ route('home') }}" class="text-gray-600 hover:text-blue-800 font-medium relative group py-2 transition-colors duration-200">
-                    Home
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-                <a href="{{ route('how-to-apply') }}" class="text-gray-600 hover:text-blue-800 font-medium relative group py-2 transition-colors duration-200">
-                    How to Apply
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-                <a href="{{ route('about') }}" class="text-gray-600 hover:text-blue-800 font-medium relative group py-2 transition-colors duration-200">
-                    About
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-                <a href="{{ route('history') }}" class="text-blue-800 font-semibold relative py-2">
-                    History
-                    <span class="absolute bottom-0 left-0 w-full h-0.5" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-            </div>
-
-            <button id="mobile-menu-button" class="md:hidden text-gray-500 hover:text-blue-800 focus:outline-none p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4" style="border-top: 1px solid rgba(34, 197, 94, 0.2);">
-            <a href="{{ route('home') }}" class="block py-3 text-gray-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg px-3 transition-colors duration-200">Home</a>
-            <a href="{{ route('how-to-apply') }}" class="block py-3 text-gray-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg px-3 transition-colors duration-200">How to Apply</a>
-            <a href="{{ route('about') }}" class="block py-3 text-gray-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg px-3 transition-colors duration-200">About</a>
-            <a href="{{ route('history') }}" class="block py-3 text-blue-800 font-semibold bg-blue-50 rounded-lg px-3">History</a>
-        </div>
-    </div>
-
-    <!-- Reading Progress Bar -->
-    <div class="h-1" style="background-color: rgba(34, 139, 34, 0.2);">
-        <div id="reading-progress" class="h-full transition-all duration-300" style="width: 0%; background: linear-gradient(to right, #228B22, #8B0000);"></div>
-    </div>
-</nav>
+<!-- Include the navigation component -->
+<x-navigation />
 
 <!-- Hero Section -->
-<div class="bg-gray-50 py-24 p-12">
+<div class="bg-gray-50 py-6 p-12">
     <div class="container mx-auto px-4">
         <div class="text-center max-w-4xl mx-auto">
-            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-6 bg-purple-100 text-purple-700">
+            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-green-100 text-green-700">
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -98,24 +45,24 @@
 </div>
 
 <!-- Statistics Section -->
-<div class="py-20 bg-white">
+<div class="py-20" style="background-color: #108f01;">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div class="text-center">
-                <div class="text-4xl font-bold text-green-700 mb-2">1998</div>
-                <div class="text-gray-600 text-base">Program Established</div>
+                <div class="text-4xl font-bold text-white mb-2">1998</div>
+                <div class="text-white text-base">Program Established</div>
             </div>
             <div class="text-center">
-                <div class="text-4xl font-bold text-green-700 mb-2">25+</div>
-                <div class="text-gray-600 text-base">Years of Excellence</div>
+                <div class="text-4xl font-bold text-white mb-2">25+</div>
+                <div class="text-white text-base">Years of Excellence</div>
             </div>
             <div class="text-center">
-                <div class="text-4xl font-bold text-green-700 mb-2">500+</div>
-                <div class="text-gray-600 text-base">Graduates Produced</div>
+                <div class="text-4xl font-bold text-white mb-2">500+</div>
+                <div class="text-white text-base">Graduates Produced</div>
             </div>
             <div class="text-center">
-                <div class="text-4xl font-bold text-green-700 mb-2">100+</div>
-                <div class="text-gray-600 text-base">Research Projects</div>
+                <div class="text-4xl font-bold text-white mb-2">100+</div>
+                <div class="text-white text-base">Research Projects</div>
             </div>
         </div>
     </div>
@@ -155,139 +102,18 @@
                             Our journey began with a vision to bridge the gap between academic excellence and industry needs, creating a program that not only educates but also innovates. Through strategic partnerships with leading universities and industry leaders, CLSU-ERDT has evolved into a premier center of excellence that continues to shape the future of engineering in the Philippines and beyond.
                         </p>
                     @endif
+
+                    <p class="text-lg text-gray-700 leading-relaxed mt-6">
+                        Launched in April 2007, the ERDT program was established to build a critical mass of research scientists and engineers. CLSU joined the consortium to contribute expertise in agricultural engineering, with its College of Engineering playing a key role since 2009. Under the leadership of deans like Dr. Arnold R. Elepano and Dr. Rossana Marie C. Amongo, CLSU has advanced research in ABE, aligning with the Philippines' National Science and Technology Plan.
+                    </p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Timeline Section -->
-<div class="py-16 bg-white" id="timeline">
-    <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-blue-100 text-blue-700">
-                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Historical Timeline
-            </div>
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Key Milestones</h2>
-            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-blue-500 to-blue-700"></div>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">Explore the significant moments that have shaped our journey to excellence.</p>
-        </div>
-
-        <div class="max-w-4xl mx-auto">
-            @if($timelineItems->count() > 0)
-                <div class="relative">
-                    <!-- Timeline line -->
-                    <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-500 to-blue-500"></div>
-
-                    <div class="space-y-12">
-                        @foreach($timelineItems as $index => $item)
-                            <div class="relative flex items-start">
-                                <!-- Timeline dot -->
-                                <div class="absolute left-6 w-4 h-4 bg-green-600 rounded-full border-4 border-white shadow-lg"></div>
-
-                                <!-- Content -->
-                                <div class="ml-16 bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div>
-                                            <h3 class="text-xl font-bold text-gray-800">{{ $item->title }}</h3>
-                                            @if($item->year)
-                                                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700 mt-2">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                    {{ $item->year }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @if($item->description)
-                                        <p class="text-gray-600 leading-relaxed">{{ $item->description }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @else
-                <div class="bg-white rounded-lg shadow-md p-12 text-center">
-                    <div class="flex justify-center mb-6">
-                        <div class="bg-gray-100 p-4 rounded-full">
-                            <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Timeline Coming Soon</h3>
-                    <p class="text-gray-500">Historical timeline information will be available shortly.</p>
-                </div>
-            @endif
-        </div>
-    </div>
-</div>
-
-<!-- Achievements Section -->
-<div class="py-16 bg-gray-50" id="achievements">
-    <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-orange-100 text-orange-700">
-                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Major Achievements
-            </div>
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Proud Accomplishments</h2>
-            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-orange-500 to-orange-700"></div>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">Celebrating the remarkable achievements that define our legacy of excellence.</p>
-        </div>
-
-        <div class="max-w-6xl mx-auto">
-            @if($achievements->count() > 0)
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    @foreach($achievements as $achievement)
-                        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-orange-500">
-                            <div class="flex items-start mb-4">
-                                <div class="flex-shrink-0 bg-orange-100 text-orange-700 p-3 rounded-lg mr-4">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $achievement->title }}</h3>
-                                    @if($achievement->year)
-                                        <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 mb-3">
-                                            {{ $achievement->year }}
-                                        </div>
-                                    @endif
-                                    @if($achievement->description)
-                                        <p class="text-gray-600 leading-relaxed">{{ $achievement->description }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="bg-white rounded-lg shadow-md p-12 text-center">
-                    <div class="flex justify-center mb-6">
-                        <div class="bg-gray-100 p-4 rounded-full">
-                            <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Achievements Coming Soon</h3>
-                    <p class="text-gray-500">Achievement highlights will be available shortly.</p>
-                </div>
-            @endif
         </div>
     </div>
 </div>
 
 <!-- Vision for the Future Section -->
-<div class="py-16 bg-white" id="vision">
+<div class="py-16 id="vision" style="background-color: #108f01;">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-12">
             <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-purple-100 text-purple-700">
@@ -296,10 +122,10 @@
                 </svg>
                 Future Vision
             </div>
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
                 {{ $visionContent['title'] ?? 'Our Vision for the Future' }}
             </h2>
-            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-purple-500 to-purple-700"></div>
+            <div class="w-20 h-1 mx-auto mb-6 rounded bg-white"></div>
         </div>
 
         <div class="max-w-6xl mx-auto">
@@ -324,7 +150,7 @@
                             <p class="text-gray-600 text-sm">Leading breakthrough research in emerging technologies and sustainable engineering solutions.</p>
                         </div>
                         <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300">
-                            <div class="bg-blue-100 text-blue-700 p-3 rounded-lg w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <div class="bg-green-100 text-green-700 p-3 rounded-lg w-16 h-16 flex items-center justify-center mx-auto mb-4">
                                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -333,7 +159,7 @@
                             <p class="text-gray-600 text-sm">Expanding our reach to address global challenges and collaborate internationally.</p>
                         </div>
                         <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300">
-                            <div class="bg-purple-100 text-purple-700 p-3 rounded-lg w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <div class="bg-green-100 text-green-700 p-3 rounded-lg w-16 h-16 flex items-center justify-center mx-auto mb-4">
                                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
@@ -482,4 +308,6 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
     </svg>
 </button>
+
+<x-footer />
 @endsection

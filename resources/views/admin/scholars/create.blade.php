@@ -3,347 +3,144 @@
 @section('title', 'Add New Scholar')
 
 @section('content')
-<div class="min-h-screen">
+<div class="min-h-screen" style="background-color: #FAFAFA;">
     <div class="container mx-auto">
         <div class="mb-6">
-            <!-- <a href="{{ route('admin.scholars.index') }}" class="text-blue-400 hover:text-blue-300">
-                <i class="fas fa-arrow-left mr-2"></i> Back to Scholars
-            </a> -->
-            <h1 class="text-2xl font-bold text-gray-900 mt-2">Add New Scholar</h1>
-            <!-- <p class="text-gray-500 mt-1">ERDT PRISM: A Portal for a Responsive and Integrated Scholarship Management</p> -->
+            <h1 class="text-2xl font-bold mt-2" style="color: #424242;">Add New Scholar</h1>
         </div>
-
-        <!-- Multi-step Progress Indicator -->
-        {{-- <div class="mb-8">
-            <div class="bg-gradient-to-r from-red-50 to-green-50 rounded-xl p-8 border border-red-100 shadow-sm">
-                <div class="text-center mb-8">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Scholar Registration Process</h3>
-                    <p class="text-sm text-gray-600">Complete the steps below to register a new scholar</p>
-                </div>
-
-                <div class="flex items-center justify-between relative">
-                    <!-- Step 1: Basic Information -->
-                    <div class="flex flex-col items-center text-center relative z-10">
-                        <div class="relative mb-4">
-                            <div id="step-indicator-1" class="w-16 h-16 rounded-full bg-red-700 text-white flex items-center justify-center text-xl font-bold shadow-lg transition-all duration-300 border-4 border-white">
-                                <i class="fas fa-user" ></i>
-                            </div>
-                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300" id="step-check-1">
-                                <i class="fas fa-check text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="max-w-24">
-                            <div class="text-sm font-semibold text-red-700 mb-1">Basic Information</div>
-                            <div class="text-xs text-gray-500">Personal Details</div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Line 1 -->
-                    <div class="flex-1 mx-6 relative">
-                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div id="progress-line-1" class="h-full bg-gradient-to-r from-red-600 to-green-600 rounded-full transition-all duration-700 ease-in-out transform origin-left" style="width: 0%; transform: scaleX(0)"></div>
-                        </div>
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div class="w-3 h-3 bg-white border-2 border-gray-300 rounded-full transition-all duration-300" id="progress-dot-1"></div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Address & Contact -->
-                    <div class="flex flex-col items-center text-center relative z-10">
-                        <div class="relative mb-4">
-                            <div id="step-indicator-2" class="w-16 h-16 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xl font-bold shadow-lg transition-all duration-300 border-4 border-white">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300" id="step-check-2">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="max-w-24">
-                            <div class="text-sm font-semibold text-gray-500 mb-1">Address & Contact</div>
-                            <div class="text-xs text-gray-400">Location Info</div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Line 2 -->
-                    <div class="flex-1 mx-6 relative">
-                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div id="progress-line-2" class="h-full bg-gradient-to-r from-red-600 to-green-600 rounded-full transition-all duration-700 ease-in-out transform origin-left" style="width: 0%; transform: scaleX(0)"></div>
-                        </div>
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div class="w-3 h-3 bg-white border-2 border-gray-300 rounded-full transition-all duration-300" id="progress-dot-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Scholarship Details -->
-                    <div class="flex flex-col items-center text-center relative z-10">
-                        <div class="relative mb-4">
-                            <div id="step-indicator-3" class="w-16 h-16 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xl font-bold shadow-lg transition-all duration-300 border-4 border-white">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300" id="step-check-3">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="max-w-24">
-                            <div class="text-sm font-semibold text-gray-500 mb-1">Scholarship Details</div>
-                            <div class="text-xs text-gray-400">Academic Info</div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Line 3 -->
-                    <div class="flex-1 mx-6 relative">
-                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div id="progress-line-3" class="h-full bg-gradient-to-r from-red-600 to-green-600 rounded-full transition-all duration-700 ease-in-out transform origin-left" style="width: 0%; transform: scaleX(0)"></div>
-                        </div>
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div class="w-3 h-3 bg-white border-2 border-gray-300 rounded-full transition-all duration-300" id="progress-dot-3"></div>
-                        </div>
-                    </div>
-
-                    <!-- Step 4: Review & Submit -->
-                    <div class="flex flex-col items-center text-center relative z-10">
-                        <div class="relative mb-4">
-                            <div id="step-indicator-4" class="w-16 h-16 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xl font-bold shadow-lg transition-all duration-300 border-4 border-white">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300" id="step-check-4">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="max-w-24">
-                            <div class="text-sm font-semibold text-gray-500 mb-1">Review & Submit</div>
-                            <div class="text-xs text-gray-400">Final Check</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Progress Status Text -->
-                <div class="mt-6 text-center">
-                    <div id="progress-status" class="text-sm text-gray-600 font-medium">
-                        Step 1 of 4: Enter basic information
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="bg-white rounded-lg p-6 border shadow-sm" style="border-color: #E0E0E0;">
             <form action="{{ route('admin.scholars.store') }}" method="POST" id="multi-step-scholar-form">
                 @csrf
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                 <!-- Step 1: Basic Information -->
-                <div id="step-1" class="step-content">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Step 1: Basic Information</h2>
+                <fieldset id="step-1" class="step-content" aria-labelledby="legend-step-1">
+                    <legend id="legend-step-1" class="text-xl font-semibold mb-4" style="color: #424242;">Basic Information</legend>
 
-                    <div class="mb-6 bg-red-50 p-4 rounded-lg border border-red-200">
-                        <h3 class="text-lg font-semibold text-red-800 mb-2">
-                            <i class="fas fa-info-circle mr-2" style="color: #b91c1c;"></i> Scholar Login Information
+                    <div class="mb-6 p-4 rounded-lg border" style="background-color: #FFF3E0; border-color: #FFCA28;">
+                        <h3 class="text-lg font-semibold mb-2" style="color: #E65100;">
+                            <i class="fas fa-info-circle mr-2" style="color: #FFCA28;"></i> Scholar Login Information
                         </h3>
-                        <p class="text-sm text-red-700 mb-3">When you create a scholar account, the system will generate the following login credentials:</p>
+                        <p class="text-sm mb-3" style="color: #BF360C;">When you create a scholar account, the system will generate the following login credentials:</p>
 
-                        <div class="flex flex-col md:flex-row md:items-center mb-2 p-3 bg-white rounded border border-red-100">
-                            <div class="font-medium text-red-900 md:w-1/4">Login Email:</div>
-                            <div class="md:w-3/4 text-gray-700">The email address you provide in the form below</div>
+                        <div class="flex flex-col md:flex-row md:items-center mb-2 p-3 bg-white rounded border" style="border-color: #FFE082;">
+                            <div class="font-medium md:w-1/4" style="color: #E65100;">Login Email:</div>
+                            <div class="md:w-3/4" style="color: #424242;">The email address you provide in the form below</div>
                         </div>
 
-                        <div class="flex flex-col md:flex-row md:items-center p-3 bg-white rounded border border-red-100">
-                            <div class="font-medium text-red-900 md:w-1/4">Default Password:</div>
+                        <div class="flex flex-col md:flex-row md:items-center p-3 bg-white rounded border" style="border-color: #FFE082;">
+                            <div class="font-medium md:w-1/4" style="color: #E65100;">Default Password:</div>
                             <div class="md:w-3/4 flex items-center">
-                                <code class="bg-gray-100 px-2 py-1 rounded text-gray-700 font-mono">CLSU-scholar123</code>
-                                <button type="button" class="ml-2 px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 focus:outline-none text-sm transition-colors duration-200" onclick="copyPassword()">
+                                <code class="px-2 py-1 rounded font-mono" style="background-color: #F5F5F5; color: #424242;">CLSU-scholar123</code>
+                                <button type="button" class="ml-2 px-2 py-1 rounded text-sm" style="background-color: #FFF3E0; color: #E65100;" onclick="copyPassword()">
                                     <i class="fas fa-copy mr-1"></i> Copy
                                 </button>
                             </div>
                         </div>
 
-                        <p class="text-sm text-red-700 mt-3">
-                            <i class="fas fa-exclamation-triangle mr-1" style="color: #b91c1c;"></i> Important: Please inform the scholar about their default password. They should change it after their first login.
+                        <p class="text-sm mt-3" style="color: #BF360C;">
+                            <i class="fas fa-exclamation-triangle mr-1" style="color: #FFCA28;"></i> Important: The scholar will receive instructions to set their password after account creation.
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            @error('first_name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="last_name" name="last_name" value="{{ old('last_name') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            @error('last_name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="middle_name" class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
-                            <input type="text" id="middle_name" name="middle_name" value="{{ old('middle_name') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200">
-                            @error('middle_name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-red-500">*</span></label>
-                            <input type="email" id="email" name="email" value="{{ old('email') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            <p class="text-xs text-gray-500 mt-1">The scholar will use this email to login.</p>
-                            @error('email')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-red-500">*</span></label>
-                            <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200" required>
-                            @error('contact_number')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+                    <x-forms.input name="first_name" label="First Name" required :error="$errors->first('first_name')" />
+                    <x-forms.input name="last_name" label="Last Name" required :error="$errors->first('last_name')" />
+                    <x-forms.input name="middle_name" label="Middle Name" :error="$errors->first('middle_name')" />
+                    <x-forms.input name="email" label="Email Address" type="email" required help="The scholar will use this email to login." :error="$errors->first('email')" />
+                    <x-forms.input name="contact_number" label="Phone Number" required :error="$errors->first('contact_number')" />
 
                     <div class="flex justify-end mt-6">
-                        <button type="button" id="next-step-1" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-300">
+                        <button type="button" id="next-step-1" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
                             Next: Address & Contact <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
-                </div>
+                </fieldset>
 
                 <!-- Step 2: Address & Contact -->
-                <div id="step-2" class="step-content hidden">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Step 2: Address & Contact Information</h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2">
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Street Address <span class="text-red-500">*</span></label>
-                            <input type="text" id="address" name="address" value="{{ old('address') }}" placeholder="Street number, building, barangay" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            @error('address')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City/Municipality <span class="text-red-500">*</span></label>
-                            <input type="text" id="city" name="city" value="{{ old('city') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            @error('city')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="province" class="block text-sm font-medium text-gray-700 mb-1">Province <span class="text-red-500">*</span></label>
-                            <input type="text" id="province" name="province" value="{{ old('province') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            @error('province')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="postal_code" class="block text-sm font-medium text-gray-700 mb-1">Postal Code <span class="text-red-500">*</span></label>
-                            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                            @error('postal_code')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country <span class="text-red-500">*</span></label>
-                            <select id="country" name="country" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
-                                <option value="Philippines" {{ old('country', 'Philippines') == 'Philippines' ? 'selected' : '' }}>Philippines</option>
-                                <option value="Other" {{ old('country') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            @error('country')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
+                <fieldset id="step-2" class="step-content hidden" aria-labelledby="legend-step-2">
+                    <legend id="legend-step-2" class="text-xl font-semibold mb-4" style="color: #424242;">Address & Contact Information</legend>
+                    <x-forms.input name="address" label="Street Address" required placeholder="Street number, building, barangay" :error="$errors->first('address')" />
+                    <x-forms.input name="city" label="City/Municipality" required :error="$errors->first('city')" />
+                    <x-forms.input name="province" label="Province" required :error="$errors->first('province')" />
+                    <x-forms.input name="postal_code" label="Postal Code" required :error="$errors->first('postal_code')" />
+                    <x-forms.select name="country" label="Country" required :options="['Philippines' => 'Philippines', 'Other' => 'Other']" value="{{ old('country', 'Philippines') }}" :error="$errors->first('country')" />
                     <div class="flex justify-between mt-6">
-                        <button type="button" id="prev-step-2" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-300">
+                        <button type="button" id="prev-step-2" class="px-6 py-2 text-white rounded-lg" style="background-color: #757575;">
                             <i class="fas fa-arrow-left mr-2"></i> Previous
                         </button>
-                        <button type="button" id="next-step-2" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300">
+                        <button type="button" id="next-step-2" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
                             Next: Scholarship Details <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
-                </div>
+                </fieldset>
 
                 <!-- Step 3: Scholarship Details -->
                 <div id="step-3" class="step-content hidden">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Step 3: Scholarship Details</h2>
+                    <h2 class="text-xl font-semibold mb-4" style="color: #424242;">Scholarship Details</h2>
 
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">University Information</h3>
+                        <h3 class="text-lg font-semibold mb-4" style="color: #424242;">University Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="university" class="block text-sm font-medium text-gray-700 mb-1">University <span class="text-red-500">*</span></label>
-                                <input type="text" id="university" name="university" value="Central Luzon State University" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-100" readonly required>
-                                <p class="text-xs text-gray-500 mt-1">CLSU - Central Luzon State University</p>
+                                <label for="university" class="block text-sm font-medium mb-1" style="color: #424242;">University <span style="color: #D32F2F;">*</span></label>
+                                <input type="text" id="university" name="university" value="Central Luzon State University" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly required>
+                                <p class="text-xs mt-1" style="color: #757575;">CLSU - Central Luzon State University</p>
                                 @error('university')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-red-500">*</span></label>
-                                <input type="text" id="department" name="department" value="Department of Agricultural and Biosystems Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-100" readonly required>
-                                <p class="text-xs text-gray-500 mt-1">ABE Department at CLSU</p>
+                                <label for="department" class="block text-sm font-medium mb-1" style="color: #424242;">Department <span style="color: #D32F2F;">*</span></label>
+                                <input type="text" id="department" name="department" value="Department of Agricultural and Biosystems Engineering" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly required>
+                                <p class="text-xs mt-1" style="color: #757575;">ABE Department at CLSU</p>
                                 @error('department')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="program" class="block text-sm font-medium text-gray-700 mb-1">Program <span class="text-red-500">*</span></label>
-                                <input type="text" id="program" name="program" value="Agricultural Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-100" readonly required>
-                                <p class="text-xs text-gray-500 mt-1">Agricultural Engineering Program</p>
+                                <label for="program" class="block text-sm font-medium mb-1" style="color: #424242;">Program <span style="color: #D32F2F;">*</span></label>
+                                <input type="text" id="program" name="program" value="Agricultural Engineering" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly required>
+                                <p class="text-xs mt-1" style="color: #757575;">Agricultural Engineering Program</p>
                                 @error('program')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="major" class="block text-sm font-medium text-gray-700 mb-1">Major/Specialization <span class="text-red-500">*</span></label>
-                                <select id="major" name="major" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="major" class="block text-sm font-medium mb-1" style="color: #424242;">Major/Specialization <span style="color: #D32F2F;">*</span></label>
+                                <select id="major" name="major" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                     <option value="">Select Major/Specialization</option>
-                                    <option value="Agricultural and Biosystems Engineering" {{ old('major') == 'Agricultural and Biosystems Engineering' ? 'selected' : '' }}>Agricultural and Biosystems Engineering</option>
-                                    <option value="Agricultural Machinery and Equipment" {{ old('major') == 'Agricultural Machinery and Equipment' ? 'selected' : '' }}>Agricultural Machinery and Equipment</option>
-                                    <option value="Irrigation and Water Management" {{ old('major') == 'Irrigation and Water Management' ? 'selected' : '' }}>Irrigation and Water Management</option>
-                                    <option value="Post-Harvest Technology" {{ old('major') == 'Post-Harvest Technology' ? 'selected' : '' }}>Post-Harvest Technology</option>
-                                    <option value="Agricultural Structures and Environment" {{ old('major') == 'Agricultural Structures and Environment' ? 'selected' : '' }}>Agricultural Structures and Environment</option>
-                                    <option value="Food Engineering" {{ old('major') == 'Food Engineering' ? 'selected' : '' }}>Food Engineering</option>
-                                    <option value="Renewable Energy Systems" {{ old('major') == 'Renewable Energy Systems' ? 'selected' : '' }}>Renewable Energy Systems</option>
-                                    <option value="Precision Agriculture" {{ old('major') == 'Precision Agriculture' ? 'selected' : '' }}>Precision Agriculture</option>
-                                    <option value="Agricultural Process Engineering" {{ old('major') == 'Agricultural Process Engineering' ? 'selected' : '' }}>Agricultural Process Engineering</option>
-                                    <option value="Soil and Water Engineering" {{ old('major') == 'Soil and Water Engineering' ? 'selected' : '' }}>Soil and Water Engineering</option>
+                                    <option value="AB Machinery and Power Engineering" {{ old('major') == 'AB Machinery and Power Engineering' ? 'selected' : '' }}>AB Machinery and Power Engineering</option>
+                                    <option value="AB Land and Water Resources Engineering" {{ old('major') == 'AB Land and Water Resources Engineering' ? 'selected' : '' }}>AB Land and Water Resources Engineering</option>
+                                    <option value="AB Structures and Environment Engineering" {{ old('major') == 'AB Structures and Environment Engineering' ? 'selected' : '' }}>AB Structures and Environment Engineering</option>
+                                    <option value="AB Process Engineering" {{ old('major') == 'AB Process Engineering' ? 'selected' : '' }}>AB Process Engineering</option>
                                 </select>
-                                <p class="text-xs text-gray-500 mt-1">Choose your specific area of specialization within ABE</p>
+                                <p class="text-xs mt-1" style="color: #757575;">Choose your specific area of specialization within ABE</p>
                                 @error('major')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="degree_level" class="block text-sm font-medium text-gray-700 mb-1">Degree Level <span class="text-red-500">*</span></label>
-                                <select id="degree_level" name="degree_level" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="degree_level" class="block text-sm font-medium mb-1" style="color: #424242;">Degree Level <span style="color: #D32F2F;">*</span></label>
+                                <select id="degree_level" name="degree_level" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                     <option value="Masteral" {{ old('degree_level') == 'Masteral' ? 'selected' : '' }}>Masteral</option>
                                     <option value="PhD" {{ old('degree_level') == 'PhD' ? 'selected' : '' }}>PhD</option>
                                 </select>
                                 @error('degree_level')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Scholarship Status & Timeline</h3>
+                        <h3 class="text-lg font-semibold mb-4" style="color: #424242;">Scholarship Status & Timeline</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
-                                <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="status" class="block text-sm font-medium mb-1" style="color: #424242;">Status <span style="color: #D32F2F;">*</span></label>
+                                <select id="status" name="status" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                     <option value="New" {{ old('status') == 'New' ? 'selected' : '' }}>New</option>
                                     <option value="Ongoing" {{ old('status') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
                                     <option value="On Extension" {{ old('status') == 'On Extension' ? 'selected' : '' }}>On Extension</option>
@@ -351,190 +148,147 @@
                                     <option value="Terminated" {{ old('status') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
                                 </select>
                                 @error('status')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date <span class="text-red-500">*</span></label>
-                                <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="start_date" class="block text-sm font-medium mb-1" style="color: #424242;">Start Date <span style="color: #D32F2F;">*</span></label>
+                                <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                 @error('start_date')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="expected_completion_date" class="block text-sm font-medium text-gray-700 mb-1">Expected Completion Date <span class="text-red-500">*</span></label>
-                                <input type="date" id="expected_completion_date" name="expected_completion_date" value="{{ old('expected_completion_date') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="expected_completion_date" class="block text-sm font-medium mb-1" style="color: #424242;">Expected Completion Date <span style="color: #D32F2F;">*</span></label>
+                                <input type="date" id="expected_completion_date" name="expected_completion_date" value="{{ old('expected_completion_date') }}" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                 @error('expected_completion_date')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="scholarship_duration" class="block text-sm font-medium text-gray-700 mb-1">Scholarship Duration (months) <span class="text-red-500">*</span></label>
-                                <input type="number" id="scholarship_duration" name="scholarship_duration" value="{{ old('scholarship_duration') }}" min="1" max="60" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="scholarship_duration" class="block text-sm font-medium mb-1" style="color: #424242;">Scholarship Duration (months) <span style="color: #D32F2F;">*</span></label>
+                                <input type="number" id="scholarship_duration" name="scholarship_duration" value="{{ old('scholarship_duration') }}" min="1" max="60" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                 @error('scholarship_duration')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="enrollment_type" class="block text-sm font-medium text-gray-700 mb-1">Enrollment Type <span class="text-red-500">*</span></label>
-                                <select id="enrollment_type" name="enrollment_type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="enrollment_type" class="block text-sm font-medium mb-1" style="color: #424242;">Enrollment Type <span style="color: #D32F2F;">*</span></label>
+                                <select id="enrollment_type" name="enrollment_type" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                     <option value="New" {{ old('enrollment_type') == 'New' ? 'selected' : '' }}>New</option>
                                     <option value="Lateral" {{ old('enrollment_type') == 'Lateral' ? 'selected' : '' }}>Lateral</option>
                                 </select>
                                 @error('enrollment_type')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="study_time" class="block text-sm font-medium text-gray-700 mb-1">Study Time <span class="text-red-500">*</span></label>
-                                <select id="study_time" name="study_time" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" required>
+                                <label for="study_time" class="block text-sm font-medium mb-1" style="color: #424242;">Study Time <span style="color: #D32F2F;">*</span></label>
+                                <select id="study_time" name="study_time" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
                                     <option value="Full-time" {{ old('study_time') == 'Full-time' ? 'selected' : '' }}>Full-time</option>
                                     <option value="Part-time" {{ old('study_time') == 'Part-time' ? 'selected' : '' }}>Part-time</option>
                                 </select>
                                 @error('study_time')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Academic Background</h3>
+                        <h3 class="text-lg font-semibold mb-4" style="color: #424242;">Academic Background</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="bachelor_degree" class="block text-sm font-medium text-gray-700 mb-1">Bachelor's Degree</label>
-                                <input type="text" id="bachelor_degree" name="bachelor_degree" value="BS in Agricultural and Biosystems Engineering" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-100" readonly>
-                                <p class="text-xs text-gray-500 mt-1">BSABE is the standard qualification for this program</p>
+                                <label for="bachelor_degree" class="block text-sm font-medium mb-1" style="color: #424242;">Bachelor's Degree</label>
+                                <input type="text" id="bachelor_degree" name="bachelor_degree" value="BS in Agricultural and Biosystems Engineering" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly>
+                                <p class="text-xs mt-1" style="color: #757575;">BSABE is the standard qualification for this program</p>
                                 @error('bachelor_degree')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="bachelor_university" class="block text-sm font-medium text-gray-700 mb-1">Bachelor's University</label>
-                                <input type="text" id="bachelor_university" name="bachelor_university" value="Central Luzon State University" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-100" readonly>
-                                <p class="text-xs text-gray-500 mt-1">CLSU - Central Luzon State University</p>
+                                <label for="bachelor_university" class="block text-sm font-medium mb-1" style="color: #424242;">Bachelor's University</label>
+                                <input type="text" id="bachelor_university" name="bachelor_university" value="Central Luzon State University" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly>
+                                <p class="text-xs mt-1" style="color: #757575;">CLSU - Central Luzon State University</p>
                                 @error('bachelor_university')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="bachelor_graduation_year" class="block text-sm font-medium text-gray-700 mb-1">Bachelor's Graduation Year</label>
-                                <input type="number" id="bachelor_graduation_year" name="bachelor_graduation_year" value="{{ old('bachelor_graduation_year') }}" min="1950" max="{{ date('Y') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                                @error('bachelor_graduation_year')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-between mt-6">
-                        <button type="button" id="prev-step-3" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-300">
+                        <button type="button" id="prev-step-3" class="px-6 py-2 text-white rounded-lg" style="background-color: #757575;">
                             <i class="fas fa-arrow-left mr-2"></i> Previous
                         </button>
-                        <button type="button" id="next-step-3" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300">
+                        <button type="button" id="next-step-3" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
                             Next: Review & Submit <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 4: Review & Submit -->
-                <div id="step-4" class="step-content hidden">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Step 4: Review & Submit</h2>
-
-                    <div class="bg-gray-50 p-6 rounded-lg mb-6">
-                        <h3 class="font-semibold text-gray-800 mb-4">Review Scholar Information</h3>
-
+                <fieldset id="step-4" class="step-content hidden" aria-labelledby="legend-step-4" role="region">
+                    <legend id="legend-step-4" class="text-xl font-semibold mb-4" style="color: #424242;">Review & Submit</legend>
+                    <div class="p-6 rounded-lg mb-6 border" style="background-color: #F5F5F5; border-color: #E0E0E0;">
+                        <h3 class="font-semibold mb-4" style="color: #424242;">Review Scholar Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-3">
-                                <h4 class="font-medium text-gray-700 border-b pb-1">Basic Information</h4>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Name:</span>
-                                    <span id="review-name" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Email:</span>
-                                    <span id="review-email" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Phone:</span>
-                                    <span id="review-phone" class="font-medium">-</span>
-                                </div>
+                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Basic Information</h4>
+                                <div class="flex justify-between"><span style="color: #616161;">Name:</span><span id="review-name" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Email:</span><span id="review-email" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Phone:</span><span id="review-phone" class="font-medium" style="color: #424242;">-</span></div>
                             </div>
-
                             <div class="space-y-3">
-                                <h4 class="font-medium text-gray-700 border-b pb-1">Address</h4>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Street:</span>
-                                    <span id="review-address" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">City:</span>
-                                    <span id="review-city" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Province:</span>
-                                    <span id="review-province" class="font-medium">-</span>
-                                </div>
+                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Address</h4>
+                                <div class="flex justify-between"><span style="color: #616161;">Street:</span><span id="review-address" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">City:</span><span id="review-city" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Province:</span><span id="review-province" class="font-medium" style="color: #424242;">-</span></div>
                             </div>
-
                             <div class="space-y-3">
-                                <h4 class="font-medium text-gray-700 border-b pb-1">Scholarship Details</h4>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Degree Level:</span>
-                                    <span id="review-degree" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Major:</span>
-                                    <span id="review-major" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Status:</span>
-                                    <span id="review-status" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Start Date:</span>
-                                    <span id="review-start-date" class="font-medium">-</span>
-                                </div>
+                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Scholarship Details</h4>
+                                <div class="flex justify-between"><span style="color: #616161;">Degree Level:</span><span id="review-degree" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Major:</span><span id="review-major" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Status:</span><span id="review-status" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Start Date:</span><span id="review-start-date" class="font-medium" style="color: #424242;">-</span></div>
                             </div>
-
                             <div class="space-y-3">
-                                <h4 class="font-medium text-gray-700 border-b pb-1">Program Details</h4>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Duration:</span>
-                                    <span id="review-duration" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Study Time:</span>
-                                    <span id="review-study-time" class="font-medium">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Enrollment:</span>
-                                    <span id="review-enrollment" class="font-medium">-</span>
-                                </div>
+                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Program Details</h4>
+                                <div class="flex justify-between"><span style="color: #616161;">Duration:</span><span id="review-duration" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Study Time:</span><span id="review-study-time" class="font-medium" style="color: #424242;">-</span></div>
+                                <div class="flex justify-between"><span style="color: #616161;">Enrollment:</span><span id="review-enrollment" class="font-medium" style="color: #424242;">-</span></div>
                             </div>
                         </div>
                     </div>
-
                     <div class="flex justify-between">
-                        <button type="button" id="prev-step-4" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-300">
+                        <button type="button" id="prev-step-4" class="px-6 py-2 text-white rounded-lg" style="background-color: #757575;">
                             <i class="fas fa-arrow-left mr-2"></i> Previous
                         </button>
-                        <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300">
-                            <i class="fas fa-user-plus mr-2 text-white" style="color: white !important;"></i> Create Scholar Account
+                        <button type="submit" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
+                            <i class="fas fa-user-plus mr-2"></i> Create Scholar Account
                         </button>
                     </div>
-                </div>
+                </fieldset>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Scholar Account Creation Confirmation Modal -->
+<x-modal id="scholar-create-confirm-modal" :closeButton="false">
+    <x-slot name="title">Create Scholar Account?</x-slot>
+    <div>This will create a new scholar account with the provided information.</div>
+    <x-slot name="footer">
+        <x-button type="button" variant="secondary" onclick="closeModal('scholar-create-confirm-modal')">Cancel</x-button>
+        <x-button type="button" variant="success" id="confirm-create-scholar">Yes, create account!</x-button>
+    </x-slot>
+</x-modal>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -542,110 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Multi-step form functionality
     const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
     let currentStep = 0;
-
-    function updateProgressIndicator() {
-        const totalSteps = 4;
-
-        // Update step indicators and progress lines
-        for (let i = 1; i <= totalSteps; i++) {
-            const stepIndicator = document.getElementById(`step-indicator-${i}`);
-            const stepCheck = document.getElementById(`step-check-${i}`);
-            const progressStatus = document.getElementById('progress-status');
-
-            if (i <= currentStep + 1) {
-                if (i < currentStep + 1) {
-                    // Completed step - green with check mark
-                    stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-red-700');
-                    stepIndicator.classList.add('bg-green-500', 'text-white');
-                    stepCheck.classList.remove('opacity-0');
-                    stepCheck.classList.add('opacity-100');
-
-                    // Update text colors for completed steps
-                    const stepContainer = stepIndicator.closest('.flex.flex-col');
-                    const stepTitle = stepContainer.querySelector('.text-sm.font-semibold');
-                    const stepSubtitle = stepContainer.querySelector('.text-xs');
-                    stepTitle.classList.remove('text-gray-500', 'text-red-700');
-                    stepTitle.classList.add('text-green-600');
-                    stepSubtitle.classList.remove('text-gray-400');
-                    stepSubtitle.classList.add('text-green-500');
-                } else {
-                    // Current active step - red
-                    stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-green-500');
-                    stepIndicator.classList.add('bg-red-700', 'text-white');
-                    stepCheck.classList.remove('opacity-100');
-                    stepCheck.classList.add('opacity-0');
-
-                    // Update text colors for active step
-                    const stepContainer = stepIndicator.closest('.flex.flex-col');
-                    const stepTitle = stepContainer.querySelector('.text-sm.font-semibold');
-                    const stepSubtitle = stepContainer.querySelector('.text-xs');
-                    stepTitle.classList.remove('text-gray-500', 'text-green-600');
-                    stepTitle.classList.add('text-red-700');
-                    stepSubtitle.classList.remove('text-gray-400', 'text-green-500');
-                    stepSubtitle.classList.add('text-gray-500');
-                }
-            } else {
-                // Future inactive step - gray
-                stepIndicator.classList.remove('bg-green-500', 'bg-red-700', 'text-white');
-                stepIndicator.classList.add('bg-gray-300', 'text-gray-500');
-                stepCheck.classList.remove('opacity-100');
-                stepCheck.classList.add('opacity-0');
-
-                // Update text colors for inactive steps
-                const stepContainer = stepIndicator.closest('.flex.flex-col');
-                const stepTitle = stepContainer.querySelector('.text-sm.font-semibold');
-                const stepSubtitle = stepContainer.querySelector('.text-xs');
-                stepTitle.classList.remove('text-green-600', 'text-red-700');
-                stepTitle.classList.add('text-gray-500');
-                stepSubtitle.classList.remove('text-gray-500', 'text-green-500');
-                stepSubtitle.classList.add('text-gray-400');
-            }
-        }
-
-        // Update progress lines with animations
-        for (let i = 1; i <= totalSteps - 1; i++) {
-            const progressLine = document.getElementById(`progress-line-${i}`);
-            const progressDot = document.getElementById(`progress-dot-${i}`);
-
-            if (i < currentStep + 1) {
-                // Completed line - full progress with green color
-                progressLine.style.width = '100%';
-                progressLine.style.transform = 'scaleX(1)';
-                if (progressDot) {
-                    progressDot.classList.remove('border-gray-300');
-                    progressDot.classList.add('border-green-500', 'bg-green-500');
-                }
-            } else if (i === currentStep + 1) {
-                // Current line - partial progress with red color
-                progressLine.style.width = '50%';
-                progressLine.style.transform = 'scaleX(0.5)';
-                if (progressDot) {
-                    progressDot.classList.remove('border-gray-300', 'border-green-500', 'bg-green-500');
-                    progressDot.classList.add('border-red-500', 'bg-red-500');
-                }
-            } else {
-                // Inactive line - no progress
-                progressLine.style.width = '0%';
-                progressLine.style.transform = 'scaleX(0)';
-                if (progressDot) {
-                    progressDot.classList.remove('border-red-500', 'bg-red-500', 'border-green-500', 'bg-green-500');
-                    progressDot.classList.add('border-gray-300');
-                }
-            }
-        }
-
-        // Update status text
-        const statusMessages = [
-            'Step 1 of 4: Enter basic information',
-            'Step 2 of 4: Add address and contact details',
-            'Step 3 of 4: Configure scholarship details',
-            'Step 4 of 4: Review and create scholar account'
-        ];
-
-        if (progressStatus && statusMessages[currentStep]) {
-            progressStatus.textContent = statusMessages[currentStep];
-        }
-    }
 
     function showStep(stepIndex) {
         steps.forEach((stepId, index) => {
@@ -657,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         currentStep = stepIndex;
-        updateProgressIndicator();
     }
 
     function validateStep1() {
@@ -671,6 +320,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: 'error',
                 title: 'Error',
                 text: 'Please fill in all required fields in Step 1.',
+                customClass: {
+                    confirmButton: 'swal-confirm-button'
+                },
+                showConfirmButton: true,
+                timer: undefined
             });
             return false;
         }
@@ -688,6 +342,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: 'error',
                 title: 'Error',
                 text: 'Please fill in all required fields in Step 2.',
+                customClass: {
+                    confirmButton: 'swal-confirm-button'
+                },
+                showConfirmButton: true,
+                timer: undefined
             });
             return false;
         }
@@ -709,6 +368,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: 'error',
                 title: 'Error',
                 text: 'Please fill in all required fields in Step 3.',
+                customClass: {
+                    confirmButton: 'swal-confirm-button'
+                },
+                showConfirmButton: true,
+                timer: undefined
             });
             return false;
         }
@@ -777,54 +441,78 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('multi-step-scholar-form');
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        openModal('scholar-create-confirm-modal');
+    });
 
+    document.getElementById('confirm-create-scholar').addEventListener('click', function() {
+        // Create a hidden field with timestamp
+        const timestampField = document.createElement('input');
+        timestampField.type = 'hidden';
+        timestampField.name = 'submission_time';
+        timestampField.value = new Date().toISOString();
+        form.appendChild(timestampField);
+        closeModal('scholar-create-confirm-modal');
+        form.submit();
+    });
+
+    // Function to copy the default password to clipboard
+    window.copyPassword = function() {
+        const password = 'CLSU-scholar123';
+        // Create a temporary element
+        const tempElement = document.createElement('textarea');
+        tempElement.value = password;
+        document.body.appendChild(tempElement);
+        // Select and copy the text
+        tempElement.select();
+        document.execCommand('copy');
+        // Remove the temporary element
+        document.body.removeChild(tempElement);
+        // Show a tooltip or notification
         Swal.fire({
-            title: 'Create Scholar Account?',
-            text: "This will create a new scholar account with the provided information.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, create account!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Create a hidden field with timestamp
-                const timestampField = document.createElement('input');
-                timestampField.type = 'hidden';
-                timestampField.name = 'submission_time';
-                timestampField.value = new Date().toISOString();
-                form.appendChild(timestampField);
-
-                form.submit();
+            icon: 'success',
+            title: 'Copied!',
+            text: 'Password copied to clipboard: ' + password,
+            timer: undefined,
+            showConfirmButton: true,
+            customClass: {
+                popup: 'swal-popup'
             }
         });
-    });
+    }
 });
-
-// Function to copy the default password to clipboard
-function copyPassword() {
-    const password = 'CLSU-scholar123';
-
-    // Create a temporary element
-    const tempElement = document.createElement('textarea');
-    tempElement.value = password;
-    document.body.appendChild(tempElement);
-
-    // Select and copy the text
-    tempElement.select();
-    document.execCommand('copy');
-
-    // Remove the temporary element
-    document.body.removeChild(tempElement);
-
-    // Show a tooltip or notification
-    Swal.fire({
-        icon: 'success',
-        title: 'Copied!',
-        text: 'Password copied to clipboard: ' + password,
-        timer: 2000,
-        showConfirmButton: false
-    });
-}
 </script>
+
+<style>
+/* Global Typography Improvements */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #424242;
+}
+
+/* SweetAlert Custom Styling */
+.swal-confirm-button {
+    background-color: #2E7D32 !important;
+    border: none !important;
+    border-radius: 0.375rem !important;
+    font-weight: 600 !important;
+    padding: 0.6em 2em !important;
+}
+
+.swal-popup {
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 24px 0 rgba(46, 125, 50, 0.08);
+}
+
+/* Enhanced Button Styling */
+button, a {
+    transition: none !important;
+}
+
+/* Professional Shadow Effects */
+.shadow-sm {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+</style>
 @endsection

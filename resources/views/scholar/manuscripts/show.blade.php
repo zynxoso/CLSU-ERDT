@@ -19,13 +19,13 @@
                 <h2 class="text-lg font-semibold text-gray-800">Manuscript Information</h2>
                 <div class="flex space-x-2">
                     @if(in_array($manuscript->status, ['Draft', 'Revision Requested']))
-                        <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}" class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all duration-200 hover:shadow-md transform hover:scale-105 cursor-pointer">
+                        <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
                             <i class="fas fa-edit mr-1"></i> Edit
                         </a>
-                        <form action="{{ route('scholar.manuscripts.submit', $manuscript->id) }}" method="POST" class="inline">
+                        <form id="submitForm{{ $manuscript->id }}" action="{{ route('scholar.manuscripts.submit', $manuscript->id) }}" method="POST" class="inline">
                             @csrf
                             @method('PUT')
-                            <button type="submit" class="px-3 py-1 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-all duration-200 hover:shadow-md transform hover:scale-105 cursor-pointer" onclick="return confirm('Are you sure you want to submit this manuscript for review?')">
+                            <button type="button" onclick="confirmSubmit({{ $manuscript->id }})" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer" title="Submit Manuscript">
                                 <i class="fas fa-paper-plane mr-1"></i> Submit
                             </button>
                         </form>
@@ -40,14 +40,14 @@
                         @if(strlen($manuscript->abstract) > 400)
                             <div id="abstract-preview">
                                 {{ Str::limit($manuscript->abstract, 400, '...') }}
-                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium transition-colors duration-200 cursor-pointer show-more" data-target="abstract-full">
+                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium cursor-pointer show-more" data-target="abstract-full">
                                     <i class="fas fa-expand-alt mr-1 text-xs"></i>
                                     Show more
                                 </button>
                             </div>
                             <div id="abstract-full" class="hidden">
                                 {{ $manuscript->abstract }}
-                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium transition-colors duration-200 cursor-pointer show-less" data-target="abstract-preview">
+                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium cursor-pointer show-less" data-target="abstract-preview">
                                     <i class="fas fa-compress-alt mr-1 text-xs"></i>
                                     Show less
                                 </button>
@@ -107,14 +107,14 @@
                         @if(strlen($manuscript->admin_notes) > 250)
                             <div id="notes-preview">
                                 {{ Str::limit($manuscript->admin_notes, 250, '...') }}
-                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium transition-colors duration-200 cursor-pointer show-more" data-target="notes-full">
+                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium cursor-pointer show-more" data-target="notes-full">
                                     <i class="fas fa-expand-alt mr-1 text-xs"></i>
                                     Show more
                                 </button>
                             </div>
                             <div id="notes-full" class="hidden">
                                 {{ $manuscript->admin_notes }}
-                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium transition-colors duration-200 cursor-pointer show-less" data-target="notes-preview">
+                                <button class="inline-flex items-center text-red-800 hover:text-red-900 text-sm mt-2 font-medium cursor-pointer show-less" data-target="notes-preview">
                                     <i class="fas fa-compress-alt mr-1 text-xs"></i>
                                     Show less
                                 </button>
@@ -164,8 +164,8 @@
                             Review in progress
                         </div>
                     @elseif(in_array($manuscript->status, ['Draft', 'Revision Requested']))
-                        <div class="inline-flex items-center px-3 py-2 bg-gray-50 text-gray-600 rounded-lg text-sm">
-                            <i class="fas fa-edit mr-2"></i>
+                        <div class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm border border-blue-200">
+                            <i class="fas fa-edit mr-2 text-blue-600" style="color: #1e5ae7;"></i>
                             Submit for review to receive feedback
                         </div>
                     @endif
@@ -206,14 +206,46 @@
                 }
             });
         });
-
-        // Add hover effects for interactive elements
-        const interactiveElements = document.querySelectorAll('button, a, .show-more, .show-less');
-        interactiveElements.forEach(element => {
-            element.style.transition = 'all 0.2s ease-in-out';
-        });
     });
 </script>
 @endpush
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmSubmit(manuscriptId) {
+        console.log('confirmSubmit called with ID:', manuscriptId);
+
+        // Check if SweetAlert is loaded
+        if (typeof Swal === 'undefined') {
+            console.error('SweetAlert2 is not loaded');
+            // Fallback to regular confirm
+            if (confirm('Submit Manuscript? Once submitted, the manuscript will be final and cannot be edited.')) {
+                document.getElementById('submitForm' + manuscriptId).submit();
+            }
+            return;
+        }
+
+        Swal.fire({
+            title: 'Submit Manuscript?',
+            text: "Once submitted, the manuscript will be final and cannot be edited.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('submitForm' + manuscriptId);
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error('Form not found:', 'submitForm' + manuscriptId);
+                }
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+        });
+    }
+</script>
 
 @endsection

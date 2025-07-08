@@ -24,6 +24,7 @@ class Document extends Model
         'file_type',
         'file_size',
         'category',
+        'title',
         'is_verified',
         'verified_by',
         'verified_at',

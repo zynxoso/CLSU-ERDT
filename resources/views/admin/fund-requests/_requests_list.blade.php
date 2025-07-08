@@ -1,67 +1,68 @@
 @if(count($fundRequests) > 0)
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <table class="min-w-full divide-y" style="border-color: #E0E0E0;">
+            <thead style="background-color: #F5F5F5;">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request ID</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scholar</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Requested</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documents</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Request ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Scholar</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Date Requested</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Documents</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y" style="background-color: white; border-color: #E0E0E0;">
                 @foreach($fundRequests as $request)
-                    <tr class="hover:bg-red-50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">FR-{{ $request->id }}</td>
+                    <tr class="transition-colors duration-150" onmouseover="this.style.backgroundColor='#F5F5F5'" onmouseout="this.style.backgroundColor='white'">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">FR-{{ $request->id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                                    @if($request->scholarProfile->user->profile_photo)
-                                        <img src="{{ asset('storage/' . $request->scholarProfile->user->profile_photo) }}" alt="{{ $request->scholarProfile->user->name }}" class="h-8 w-8 rounded-full">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center" style="background-color: #F8BBD0;">
+                                    @if($request->scholarProfile->profile_photo)
+                                        <img src="{{ asset('images/' . $request->scholarProfile->profile_photo) }}" alt="{{ $request->scholarProfile->user->name }}" class="h-8 w-8 rounded-full">
                                     @else
-                                        <i class="fas fa-user text-red-600"></i>
+                                        <i class="fas fa-user" style="color: #2E7D32;"></i>
                                     @endif
                                 </div>
                                 <div class="ml-3">
-                                    <div class="text-sm font-medium text-gray-900">{{ $request->scholarProfile->user->name }}</div>
-                                    <div class="text-xs text-gray-500 max-w-xs truncate">{{ Str::limit($request->scholarProfile->program, 25, '.....') }}</div>
+                                    <div class="text-sm font-medium" style="color: #424242;">{{ $request->scholarProfile->user->name }}</div>
+                                    <div class="text-xs max-w-xs truncate" style="color: #757575;">{{ Str::limit($request->scholarProfile->program, 25, '.....') }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $request->created_at->format('M d, Y') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $request->created_at->format('M d, Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php $docCount = $request->documents->count(); @endphp
                             @if($docCount > 0)
-                                <button type="button" onclick="openDocumentModal({{ $request->id }})" class="flex items-center bg-green-100 hover:bg-green-200 p-2 rounded-md transition-colors border border-green-300 shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-2">
+                                <button type="button" onclick="openDocumentModal({{ $request->id }})" class="flex items-center p-2 rounded-md transition-colors shadow-sm" style="background-color: #E8F5E8; border: 1px solid #2E7D32;" onmouseover="this.style.backgroundColor='#1B5E20'; this.style.boxShadow='0 2px 8px 0 rgba(46,125,50,0.15)'" onmouseout="this.style.backgroundColor='#E8F5E8'; this.style.boxShadow='none'">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2" style="background-color: #2E7D32;">
                                         <i class="fas fa-file-alt text-white"></i>
                                     </div>
-                                    <span class="text-sm font-medium text-green-800">View Document</span>
+                                    <span class="text-sm font-medium" style="color: #2E7D32;">View Document</span>
                                 </button>
                             @else
-                                <span class="text-sm text-gray-500 p-2 bg-gray-100 rounded-md inline-block">No documents</span>
+                                <span class="text-sm p-2 rounded-md inline-block" style="color: #757575; background-color: #F5F5F5;">No documents</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex justify-center">
-                                <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full
-                                    @if($request->status == 'Approved') bg-green-600 text-white
-                                    @elseif($request->status == 'Rejected') bg-red-600 text-white
-                                    @elseif($request->status == 'Under Review') bg-blue-600 text-white
-                                    @elseif($request->status == 'Submitted') bg-yellow-500 text-white
-                                    @else bg-gray-500 text-white @endif">
+                                <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full"
+                                    @if($request->status == 'Approved') style="background-color: #2E7D32; color: white;"
+                                    @elseif($request->status == 'Rejected') style="background-color: #D32F2F; color: white;"
+                                    @elseif($request->status == 'Under Review') style="background-color: #1976D2; color: white;"
+                                    @elseif($request->status == 'Submitted') style="background-color: #FFCA28; color: #424242;"
+                                    @elseif($request->status == 'Draft') style="background-color: #757575; color: white;"
+                                    @else style="background-color: #757575; color: white;" @endif>
                                     {{ $request->status }}
                                 </span>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('admin.fund-requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-800 mr-3 font-medium hover:underline transition-colors duration-150" title="View Details">
+                            <a href="{{ route('admin.fund-requests.show', $request->id) }}" class="font-medium hover:underline transition-colors duration-150" style="color: #1976D2;" onmouseover="this.style.color='#1565C0'" onmouseout="this.style.color='#1976D2'" title="View Details">
                                 View Details
                             </a>
                             @if($request->status == 'Pending')
-                                <a href="{{ route('admin.fund-requests.edit', $request->id) }}" class="text-yellow-600 hover:text-yellow-800 mr-3 transition-colors duration-150" title="Edit Request">
+                                <a href="{{ route('admin.fund-requests.edit', $request->id) }}" class="mr-3 transition-colors duration-150" style="color: #FFCA28;" onmouseover="this.style.color='#FFB300'" onmouseout="this.style.color='#FFCA28'" title="Edit Request">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             @endif
@@ -73,10 +74,10 @@
     </div>
 @else
     <div class="text-center py-12">
-        <div class="w-16 h-16 mx-auto bg-red-50 rounded-full flex items-center justify-center mb-4">
-            <i class="fas fa-money-bill-wave text-2xl text-red-600"></i>
+        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4" style="background-color: #F8BBD0;">
+            <i class="fas fa-money-bill-wave text-2xl" style="color: #2E7D32;"></i>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No Fund Requests Found</h3>
-        <p class="text-gray-500 mb-6">There are no fund requests matching your filter criteria.</p>
+        <h3 class="text-lg font-medium mb-2" style="color: #424242;">No Fund Requests Found</h3>
+        <p class="mb-6" style="color: #757575;">There are no fund requests matching your filter criteria.</p>
     </div>
 @endif

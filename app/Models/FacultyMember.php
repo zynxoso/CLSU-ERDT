@@ -40,8 +40,8 @@ class FacultyMember extends Model
 
     public function getPhotoUrlAttribute()
     {
-        if ($this->photo_path && file_exists(storage_path('app/public/' . $this->photo_path))) {
-            return asset('storage/' . $this->photo_path);
+        if ($this->photo_path && file_exists(public_path('experts/' . $this->photo_path))) {
+            return asset('experts/' . $this->photo_path);
         }
         return null;
     }

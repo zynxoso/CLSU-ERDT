@@ -13,6 +13,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FundRequestService implements FundRequestServiceInterface
 {
@@ -134,7 +135,7 @@ class FundRequestService implements FundRequestServiceInterface
 
     /**
      * Check for potential duplicate fund requests
-     * 
+     *
      * @param int $scholarProfileId
      * @param int $requestTypeId
      * @param float $amount
@@ -143,26 +144,26 @@ class FundRequestService implements FundRequestServiceInterface
      * @return array|null
      */
     public function checkForDuplicateRequest(
-        int $scholarProfileId, 
-        int $requestTypeId, 
+        int $scholarProfileId,
+        int $requestTypeId,
         float $amount,
         int $timeWindowDays = 30,
         float $amountVariancePercent = 10
     ): ?array {
         // Calculate the date threshold
         $dateThreshold = now()->subDays($timeWindowDays);
-        
+
         // Calculate amount range for comparison (e.g., within 10%)
         $minAmount = $amount * (1 - ($amountVariancePercent / 100));
         $maxAmount = $amount * (1 + ($amountVariancePercent / 100));
-        
+
         // Find potential duplicates
         $potentialDuplicates = FundRequest::where('scholar_profile_id', $scholarProfileId)
             ->where('request_type_id', $requestTypeId)
             ->whereBetween('amount', [$minAmount, $maxAmount])
             ->where('created_at', '>=', $dateThreshold)
             ->get();
-        
+
         if ($potentialDuplicates->count() > 0) {
             return [
                 'found' => true,
@@ -170,7 +171,7 @@ class FundRequestService implements FundRequestServiceInterface
                 'count' => $potentialDuplicates->count()
             ];
         }
-        
+
         return null;
     }
 
@@ -186,14 +187,14 @@ class FundRequestService implements FundRequestServiceInterface
     {
         // Get the request type
         $requestType = RequestType::find($data['request_type_id']);
-        
+
         // Check for potential duplicates
         $duplicateCheck = $this->checkForDuplicateRequest(
             $scholarProfileId,
             $data['request_type_id'],
             $data['amount']
         );
-        
+
         // Create the fund request
         $fundRequest = new FundRequest();
         $fundRequest->scholar_profile_id = $scholarProfileId;
@@ -202,16 +203,16 @@ class FundRequestService implements FundRequestServiceInterface
         $fundRequest->purpose = $requestType->name; // Use the request type name as the purpose
         $fundRequest->admin_remarks = $data['admin_remarks'] ?? null;
         $fundRequest->status = $data['status'] ?? 'Draft';
-        
+
         // If potential duplicates were found, flag for admin review
         if ($duplicateCheck) {
-            $fundRequest->admin_remarks = ($fundRequest->admin_remarks ? $fundRequest->admin_remarks . "\n\n" : '') . 
+            $fundRequest->admin_remarks = ($fundRequest->admin_remarks ? $fundRequest->admin_remarks . "\n\n" : '') .
                 "SYSTEM: Potential duplicate request detected. Please review carefully.";
-            
+
             // Log the duplicate detection
             $this->auditService->logCreate(
-                'DuplicateDetection', 
-                null, 
+                'DuplicateDetection',
+                null,
                 [
                     'fund_request_id' => null, // Will be updated after save
                     'scholar_profile_id' => $scholarProfileId,
@@ -222,9 +223,9 @@ class FundRequestService implements FundRequestServiceInterface
                 ]
             );
         }
-        
+
         $fundRequest->save();
-        
+
         // Update the audit log with the fund request ID if duplicates were found
         if ($duplicateCheck) {
             $this->auditService->logUpdate(
@@ -233,11 +234,11 @@ class FundRequestService implements FundRequestServiceInterface
                 ['fund_request_id' => null],
                 ['fund_request_id' => $fundRequest->id]
             );
-            
+
             // Notify admins about potential duplicate
             $admins = User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
-                if ($admin->fund_request_notifications) {
+                if ($admin->hasFundRequestNotifications()) {
                     app(NotificationService::class)->notify(
                         $admin->id,
                         'Potential Duplicate Fund Request',
@@ -254,6 +255,25 @@ class FundRequestService implements FundRequestServiceInterface
         $initialStatus = $fundRequest->status;
         $statusNote = $initialStatus === 'Draft' ? 'Request saved as draft' : 'Request submitted for review';
         $fundRequest->addStatusHistory($initialStatus, $statusNote);
+
+        // If the fund request is created directly as 'Submitted', send notifications
+        if ($fundRequest->status === 'Submitted') {
+            // Notify all admins about the new fund request submission
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                try {
+                    if ($admin->hasFundRequestNotifications()) {
+                        // Always send to Laravel notifications table
+                        $admin->notify(new \App\Notifications\NewFundRequestSubmitted($fundRequest));
+                        // Debug log for troubleshooting
+                        logger('Sent NewFundRequestSubmitted notification to admin ' . $admin->id . ' for fund request ' . $fundRequest->id);
+                    }
+                } catch (\Exception $e) {
+                    // Log error but don't fail the whole process
+                    logger('Failed to send fund request notification to admin ' . $admin->id . ': ' . $e->getMessage());
+                }
+            }
+        }
 
         // Handle document upload
         if ($request->hasFile('document')) {
@@ -298,7 +318,10 @@ class FundRequestService implements FundRequestServiceInterface
 
         $fundRequest->request_type_id = $data['request_type_id'];
         $fundRequest->amount = $data['amount'];
-        $fundRequest->purpose = $data['purpose'];
+
+        // Set purpose based on request type name
+        $requestType = RequestType::find($data['request_type_id']);
+        $fundRequest->purpose = $requestType->name;
 
         // If submitting the request
         if (isset($data['status']) && $data['status'] === 'Submitted') {
@@ -327,6 +350,22 @@ class FundRequestService implements FundRequestServiceInterface
 
         // Add detailed status history entry
         $fundRequest->addStatusHistory('Submitted', 'Request submitted by scholar');
+
+        // Notify all admins about the new fund request submission
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            try {
+                if ($admin->hasFundRequestNotifications()) {
+                    // Always send to Laravel notifications table
+                    $admin->notify(new \App\Notifications\NewFundRequestSubmitted($fundRequest));
+                    // Debug log for troubleshooting
+                    logger('Sent NewFundRequestSubmitted notification to admin ' . $admin->id . ' for fund request ' . $fundRequest->id);
+                }
+            } catch (\Exception $e) {
+                // Log error but don't fail the whole process
+                logger('Failed to send fund request notification to admin ' . $admin->id . ': ' . $e->getMessage());
+            }
+        }
 
         $this->auditService->logCustomAction('submitted', 'FundRequest', $fundRequest->id);
 
@@ -498,27 +537,32 @@ class FundRequestService implements FundRequestServiceInterface
                 'masters' => 30000,
                 'doctoral' => 38000,
             ],
-            3 => [ // Learning Materials
+            3 => [ // Learning Materials and Connectivity Allowance
                 'name' => 'Learning Materials',
                 'masters' => 20000,
                 'doctoral' => 20000,
             ],
-            4 => [ // Thesis/Dissertation Grant
+            4 => [ // Transportation Allowance - FIXED: Added missing validation
+                'name' => 'Transportation Allowance',
+                'masters' => 15000,
+                'doctoral' => 15000,
+            ],
+            5 => [ // Thesis/Dissertation Outright Grant
                 'name' => 'Thesis/Dissertation Grant',
                 'masters' => 60000,
                 'doctoral' => 100000,
             ],
-            5 => [ // Research Grant
+            6 => [ // Research Support Grant - Equipment
                 'name' => 'Research Grant',
                 'masters' => 225000,
                 'doctoral' => 475000,
             ],
-            6 => [ // Research Dissemination
+            7 => [ // Research Dissemination Grant
                 'name' => 'Research Dissemination',
                 'masters' => 75000,
                 'doctoral' => 150000,
             ],
-            7 => [ // Mentor's Fee
+            8 => [ // Mentor's Fee
                 'name' => "Mentor's Fee",
                 'masters' => 36000,
                 'doctoral' => 72000,

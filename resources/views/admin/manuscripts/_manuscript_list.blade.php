@@ -1,24 +1,27 @@
 @if(count($manuscripts) > 0)
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <table class="min-w-full divide-y" style="border-color: #E0E0E0; background-color: white;">
+            <thead style="background-color: #F8F9FA;">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scholar</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Title</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Scholar</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Last Updated</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y" style="background-color: white; border-color: #E0E0E0;">
                 @foreach($manuscripts as $manuscript)
-                    <tr>
+                    <tr style="transition: background-color 0.15s ease;"
+                        onmouseover="this.style.backgroundColor='#F8F9FA'"
+                        onmouseout="this.style.backgroundColor='white'">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div class="w-full max-w-xs">
-                                    <div class="text-sm text-gray-700 truncate cursor-help"
+                                    <div class="text-sm truncate cursor-help"
                                          title="{{ $manuscript->title }}"
-                                         data-tooltip="{{ $manuscript->title }}">
+                                         data-tooltip="{{ $manuscript->title }}"
+                                         style="color: #424242; font-size: 15px;">
                                         {{ Str::limit($manuscript->title, 40, '...') }}
                                     </div>
                                 </div>
@@ -26,42 +29,44 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                    @if($manuscript->user && $manuscript->user->profile_photo)
-                                        <img src="{{ asset('storage/' . $manuscript->user->profile_photo) }}" alt="{{ $manuscript->user->name }}" class="h-8 w-8 rounded-full">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center" style="background-color: #F8BBD0;">
+                                    @if($manuscript->scholarProfile && $manuscript->scholarProfile->profile_photo)
+                                        <img src="{{ asset('images/' . $manuscript->scholarProfile->profile_photo) }}" alt="{{ $manuscript->scholarProfile->user->name }}" class="h-8 w-8 rounded-full">
                                     @else
-                                        <i class="fas fa-user text-gray-500"></i>
+                                        <i class="fas fa-user" style="color: #2E7D32;"></i>
                                     @endif
                                 </div>
                                 <div class="ml-3">
-                                    <div class="text-sm font-medium text-gray-900">{{ $manuscript->user ? $manuscript->user->name : 'Unknown' }}</div>
-                                    <div class="text-xs text-gray-500">{{ Str::limit($manuscript->scholarProfile ? $manuscript->scholarProfile->program : 'N/A', 25, '.....') }}</div>
+                                    <div class="text-sm font-medium" style="color: #212121; font-size: 15px;">{{ $manuscript->user ? $manuscript->user->name : 'Unknown' }}</div>
+                                    <div class="text-xs" style="color: #757575; font-size: 13px;">{{ Str::limit($manuscript->scholarProfile ? $manuscript->scholarProfile->program : 'N/A', 25, '.....') }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $manuscript->updated_at->format('M d, Y') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242; font-size: 14px;">{{ $manuscript->updated_at->format('M d, Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex justify-center">
                                 <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full
-                                    @if($manuscript->status == 'Published') bg-green-600 text-white
-                                    @elseif($manuscript->status == 'Accepted') bg-blue-600 text-white
-                                    @elseif($manuscript->status == 'Revision Requested') bg-orange-600 text-white
-                                    @elseif($manuscript->status == 'Under Review') bg-yellow-500 text-white
-                                    @elseif($manuscript->status == 'Submitted') bg-indigo-600 text-white
-                                    @elseif($manuscript->status == 'Rejected') bg-red-600 text-white
-                                    @else bg-gray-600 text-white @endif">
+                                    @if($manuscript->status == 'Published') text-white" style="background-color: #2E7D32;
+                                    @elseif($manuscript->status == 'Accepted') text-white" style="background-color: #2E7D32;
+                                    @elseif($manuscript->status == 'Revision Requested') text-white" style="background-color: #FF9800;
+                                    @elseif($manuscript->status == 'Under Review') text-white" style="background-color: #FFCA28;
+                                    @elseif($manuscript->status == 'Submitted') text-white" style="background-color: #1976D2;
+                                    @elseif($manuscript->status == 'Rejected') text-white" style="background-color: #D32F2F;
+                                    @else text-white" style="background-color: #757575; @endif">
                                     {{ $manuscript->status }}
                                 </span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                             <div class="flex items-center">
-                                <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-900 mr-3" title="View Details">
-                                    <i class="fas fa-eye" style="color: black;"></i>
+                                <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}"
+                                   class="manuscript-action-link transition-colors duration-200 px-3 py-1 rounded-md"
+                                   style="color: #2E7D32; background-color: #E8F5E8; font-size: 14px;"
+                                   onmouseover="this.style.backgroundColor='#C8E6C8'"
+                                   onmouseout="this.style.backgroundColor='#E8F5E8'"
+                                   title="View Details">
+                                    View
                                 </a>
-                                <!-- <a href="{{ route('admin.manuscripts.edit', $manuscript->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-3" title="Edit Manuscript">
-                                    <i class="fas fa-edit" style="color: #d97706;"></i>
-                                </a> -->
                             </div>
                         </td>
                     </tr>
@@ -71,10 +76,10 @@
     </div>
 @else
     <div class="text-center py-12">
-        <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <i class="fas fa-book text-2xl text-gray-500"></i>
+        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4" style="background-color: #F8F9FA;">
+            <i class="fas fa-book text-2xl" style="color: #9E9E9E;"></i>
         </div>
-        <h3 class="text-lg font-medium text-gray-800 mb-2">No Manuscripts Found</h3>
-        <p class="text-gray-500 mb-6">There are no manuscripts matching your filter criteria.</p>
+        <h3 class="text-lg font-medium mb-2" style="color: #212121;">No Manuscripts Found</h3>
+        <p class="mb-6" style="color: #757575;">There are no manuscripts matching your filter criteria.</p>
     </div>
 @endif

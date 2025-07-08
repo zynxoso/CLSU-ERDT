@@ -25,10 +25,7 @@ Route::get('/', function () {
     return view('index');
 })->name('home');
 
-// Scholar Login Route
-Route::get('/scholar-login', function () {
-    return view('auth.scholar-login');
-})->name('scholar-login');
+// Scholar Login Route is handled in auth.php
 
 // Admin/SuperAdmin Login Route
 Route::get('/login', function () {
@@ -96,6 +93,7 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::post('/documents/ajax-upload', [DocumentController::class, 'ajaxUpload'])->name('documents.ajax-upload')->middleware('api.rate.limit:upload');
     Route::get('/documents/json', [DocumentController::class, 'scholarFilesJson'])->name('documents.json')->middleware('api.rate.limit:ajax');
     Route::get('/documents/{id}', [DocumentController::class, 'scholarShow'])->name('documents.show');
+    Route::get('/documents/{id}/view', [DocumentController::class, 'view'])->name('documents.view');
     Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
 
     // Notification AJAX routes (with rate limiting)
@@ -111,10 +109,6 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Redis cached dashboard example
-    Route::get('/cached-dashboard', [\App\Http\Controllers\CachedDashboardController::class, 'index'])->name('cached-dashboard');
-    Route::post('/clear-cache', [\App\Http\Controllers\CachedDashboardController::class, 'clearCache'])->name('clear-cache');
-
     // Admin analytics
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
 
@@ -128,6 +122,11 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('/profile/password', [AdminController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/notifications', [AdminController::class, 'updateNotifications'])->name('profile.notifications');
 
+    // Admin settings routes
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('settings.update');
+    Route::post('/settings/scholarship/update', [AdminController::class, 'updateScholarshipSettings'])->name('settings.scholarship.update');
+
     // Admin scholar management
     Route::get('/scholars', [ScholarController::class, 'index'])->name('scholars.index');
     Route::get('/scholars/create', [ScholarController::class, 'create'])->name('scholars.create');
@@ -139,7 +138,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
 
     // Admin fund request management
     Route::get('/fund-requests', [FundRequestController::class, 'adminIndex'])->name('fund-requests.index');
-    Route::get('/fund-requests/filter', [FundRequestController::class, 'ajaxFilter'])->name('fund-requests.filter')->middleware('api.rate.limit:ajax');
+
     Route::get('/fund-requests/{id}/documents', [FundRequestController::class, 'getDocuments'])->name('fund-requests.documents')->middleware('api.rate.limit:ajax');
     Route::get('/fund-requests/{id}', [FundRequestController::class, 'show'])->name('fund-requests.show');
     Route::put('/fund-requests/{id}/approve', [FundRequestController::class, 'approve'])->name('fund-requests.approve')->middleware('api.rate.limit:sensitive');
@@ -149,13 +148,13 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Document management routes
     Route::get('/documents', [DocumentController::class, 'adminIndex'])->name('documents.index');
     Route::get('/documents/{id}', [DocumentController::class, 'adminShow'])->name('documents.show');
+    Route::get('/documents/{id}/view', [DocumentController::class, 'view'])->name('documents.view');
+    Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::put('/documents/{id}/verify', [DocumentController::class, 'verify'])->name('documents.verify')->middleware('api.rate.limit:sensitive');
     Route::put('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('documents.reject')->middleware('api.rate.limit:sensitive');
-    Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
 
     // Admin manuscript management
     Route::get('/manuscripts', [\App\Http\Controllers\Admin\ManuscriptController::class, 'index'])->name('manuscripts.index');
-    Route::get('/manuscripts/filter', [\App\Http\Controllers\Admin\ManuscriptController::class, 'filter'])->name('manuscripts.filter')->middleware('api.rate.limit:ajax');
     Route::get('/manuscripts/export', [\App\Http\Controllers\Admin\ManuscriptController::class, 'export'])->name('manuscripts.export')->middleware('api.rate.limit:export');
     Route::get('/manuscripts/batch-download/{batchId}/{file}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'batchDownloadFile'])->name('manuscripts.batch-file')->where('file', '.*')->middleware('api.rate.limit:export');
     Route::get('/manuscripts/create', [\App\Http\Controllers\Admin\ManuscriptController::class, 'create'])->name('manuscripts.create');
@@ -175,8 +174,17 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('/audit-logs/export', [AuditLogController::class, 'export'])->name('audit-logs.export')->middleware('api.rate.limit:export');
     Route::get('/audit-logs/{id}', [AuditLogController::class, 'show'])->name('audit-logs.show');
 
+    // Admin notifications
+    Route::get('/notifications', function() {
+        return view('admin.notifications.index-livewire');
+    })->name('notifications.index');
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+
     // Admin User Management Routes
     Route::resource('users', UserController::class);
+    Route::patch('users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
 
     // Application Timeline Management Routes
     Route::resource('application-timeline', \App\Http\Controllers\Admin\ApplicationTimelineController::class);
@@ -220,10 +228,19 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::post('/password/update', [SuperAdminController::class, 'changePassword'])->name('password.update');
 
     Route::get('/user-management', [SuperAdminController::class, 'userManagement'])->name('user_management');
+    Route::get('/user-management/create', [SuperAdminController::class, 'createUser'])->name('user_management.create');
+    Route::post('/user-management', [SuperAdminController::class, 'storeUser'])->name('user_management.store');
     Route::get('/user-management/{id}/edit', [SuperAdminController::class, 'editUser'])->name('user_management.edit');
     Route::put('/user-management/{id}', [SuperAdminController::class, 'updateUser'])->name('user_management.update');
+    Route::delete('/user-management/{id}', [SuperAdminController::class, 'deleteUser'])->name('user_management.delete');
+
     Route::get('/system-settings', [SuperAdminController::class, 'systemSettings'])->name('system_settings');
+    Route::post('/system-settings/general', [SuperAdminController::class, 'updateGeneralSettings'])->name('system_settings.general');
+    Route::post('/system-settings/email', [SuperAdminController::class, 'updateEmailSettings'])->name('system_settings.email');
+    Route::post('/system-settings/security', [SuperAdminController::class, 'updateSecuritySettings'])->name('system_settings.security');
     Route::get('/system-configuration', [SuperAdminController::class, 'systemConfiguration'])->name('system_configuration');
+    Route::post('/system-configuration/academic-calendar', [SuperAdminController::class, 'updateAcademicCalendar'])->name('system_configuration.academic_calendar');
+    Route::post('/system-configuration/scholarship-parameters', [SuperAdminController::class, 'updateScholarshipParameters'])->name('system_configuration.scholarship_parameters');
     Route::get('/data-management', [SuperAdminController::class, 'dataManagement'])->name('data_management');
     Route::get('/website-management', [SuperAdminController::class, 'websiteManagement'])->name('website_management');
 
@@ -236,6 +253,15 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::delete('/application-timeline/{id}', [SuperAdminController::class, 'deleteTimelineItem'])->name('application_timeline.delete');
     Route::patch('/application-timeline/{id}/toggle-status', [SuperAdminController::class, 'toggleTimelineStatus'])->name('application_timeline.toggle_status');
 
+    // History Timeline Management Routes
+    Route::get('/history-timeline', [SuperAdminController::class, 'historyTimeline'])->name('history_timeline');
+    Route::get('/history-timeline/create', [SuperAdminController::class, 'createHistoryTimelineItem'])->name('history_timeline.create');
+    Route::post('/history-timeline', [SuperAdminController::class, 'storeHistoryTimelineItem'])->name('history_timeline.store');
+    Route::get('/history-timeline/{id}/edit', [SuperAdminController::class, 'editHistoryTimelineItem'])->name('history_timeline.edit');
+    Route::put('/history-timeline/{id}', [SuperAdminController::class, 'updateHistoryTimelineItem'])->name('history_timeline.update');
+    Route::delete('/history-timeline/{id}', [SuperAdminController::class, 'deleteHistoryTimelineItem'])->name('history_timeline.delete');
+    Route::patch('/history-timeline/{id}/toggle-status', [SuperAdminController::class, 'toggleHistoryTimelineStatus'])->name('history_timeline.toggle_status');
+
     // Announcement Management Routes
     Route::post('/announcements', [SuperAdminController::class, 'storeAnnouncement'])->name('announcements.store')->middleware('api.rate.limit:sensitive');
     Route::put('/announcements/{id}', [SuperAdminController::class, 'updateAnnouncement'])->name('announcements.update')->middleware('api.rate.limit:sensitive');
@@ -247,10 +273,6 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::put('/faculty/{id}', [SuperAdminController::class, 'updateFaculty'])->name('faculty.update')->middleware('api.rate.limit:admin');
     Route::delete('/faculty/{id}', [SuperAdminController::class, 'deleteFaculty'])->name('faculty.delete')->middleware('api.rate.limit:sensitive');
     Route::patch('/faculty/{id}/toggle-status', [SuperAdminController::class, 'toggleFacultyStatus'])->name('faculty.toggle_status')->middleware('api.rate.limit:admin');
-
-    // Test repository routes - for testing the repository pattern implementation
-    Route::get('/test-user-repository', [\App\Http\Controllers\TestRepositoryController::class, 'testUserRepository'])->name('test_user_repository')->middleware('api.rate.limit:admin');
-    Route::get('/test-fund-request-repository', [\App\Http\Controllers\TestRepositoryController::class, 'testFundRequestRepository'])->name('test_fund_request_repository')->middleware('api.rate.limit:admin');
 });
 
 // Catch-all route to redirect users to appropriate dashboard
@@ -262,16 +284,5 @@ Route::get('/dashboard', function() {
     }
     return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('dashboard');
-
-// Example routes for demonstrating exception handling
-Route::prefix('example')->name('example.')->group(function () {
-    Route::get('/exceptions', [\App\Http\Controllers\ExampleExceptionController::class, 'index'])->name('exceptions');
-    Route::get('/bad-request', [\App\Http\Controllers\ExampleExceptionController::class, 'badRequest'])->name('bad-request');
-    Route::get('/validation-error', [\App\Http\Controllers\ExampleExceptionController::class, 'validationError'])->name('validation-error');
-    Route::get('/unauthorized', [\App\Http\Controllers\ExampleExceptionController::class, 'unauthorized'])->name('unauthorized');
-    Route::get('/forbidden', [\App\Http\Controllers\ExampleExceptionController::class, 'forbidden'])->name('forbidden');
-    Route::get('/not-found', [\App\Http\Controllers\ExampleExceptionController::class, 'notFound'])->name('not-found');
-    Route::get('/server-error', [\App\Http\Controllers\ExampleExceptionController::class, 'serverError'])->name('server-error');
-});
 
 

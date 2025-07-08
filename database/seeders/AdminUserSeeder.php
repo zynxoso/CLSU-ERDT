@@ -18,7 +18,6 @@ class AdminUserSeeder extends Seeder
             'email' => 'admin@clsu-erdt.edu.ph',
             'password' => Hash::make('password'),
             'role' => 'admin',
-            'email_verified_at' => now(),
             'is_active' => true
         ]);
     }

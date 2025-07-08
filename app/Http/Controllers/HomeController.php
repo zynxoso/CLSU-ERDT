@@ -10,7 +10,7 @@ use App\Models\FundRequest;
 use App\Models\Disbursement;
 use App\Models\Manuscript;
 use App\Models\AuditLog;
-use App\Models\Notification;
+use App\Models\CustomNotification;
 use App\Services\AuditService;
 use App\Models\Document;
 
@@ -144,8 +144,8 @@ class HomeController extends Controller
         $manuscripts = $profile ? $profile->manuscripts : collect([]);
         $recentManuscripts = $profile ? $profile->manuscripts()->latest()->limit(5)->get() : collect([]);
 
-        // Get notifications from the Notification model instead
-        $notifications = Notification::where('user_id', $user->id)
+        // Get notifications from the CustomNotification model instead
+        $notifications = CustomNotification::where('user_id', $user->id)
                                 ->latest()
                                 ->limit(5)
                                 ->get();

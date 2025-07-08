@@ -4,6 +4,7 @@
 
 @section('content')
 
+
     <!-- Main Content -->
     <div class="flex-grow flex flex-col md:flex-row  md:p-8 container mx-auto">
         <!-- Login Form Section -->
@@ -59,7 +60,8 @@
                 @csrf
 
                 <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                    <img src="{{ asset('images/erdt_logo.png') }}" alt="CLSU ERDT Logo" class="mx-auto mb-4 h-16">
+
                     <p class="text-gray-600">Sign in to your CLSU-ERDT account</p>
                 </div>
 

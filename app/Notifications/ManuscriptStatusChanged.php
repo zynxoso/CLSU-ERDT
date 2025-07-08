@@ -84,6 +84,7 @@ class ManuscriptStatusChanged extends Notification
             'manuscript_title' => $this->manuscript->title,
             'old_status' => $this->oldStatus,
             'new_status' => $this->newStatus,
+            'action_url' => route('scholar.manuscripts.show', $this->manuscript->id),
         ];
 
         if ($this->notes) {

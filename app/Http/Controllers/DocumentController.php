@@ -12,6 +12,7 @@ use App\Services\FileSecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -21,11 +22,11 @@ class DocumentController extends Controller
     public function __construct(AuditService $auditService, FileSecurityService $fileSecurityService)
     {
         $this->middleware('auth');
-        $this->authorizeResource(Document::class, 'document', ['except' => ['scholarIndex', 'scholarCreate', 'scholarFilesJson', 'ajaxUpload', 'scholarStore', 'adminIndex']]);
+        $this->authorizeResource(Document::class, 'document', ['except' => ['scholarIndex', 'scholarCreate', 'scholarFilesJson', 'ajaxUpload', 'scholarStore', 'adminIndex', 'adminShow', 'verify', 'reject', 'download', 'view']]);
         $this->auditService = $auditService;
         $this->fileSecurityService = $fileSecurityService;
     }
-    
+
     /**
      * Display a listing of the scholar's documents.
      *
@@ -44,7 +45,7 @@ class DocumentController extends Controller
                            ->paginate(10);
         return view('scholar.documents.index', compact('documents'));
     }
-    
+
     /**
      * Show the form for creating a new document.
      *
@@ -88,7 +89,7 @@ class DocumentController extends Controller
             ->get(['id', 'file_name', 'file_type', 'file_size', 'file_path']);
         return response()->json($documents);
     }
-    
+
     /**
      * Handle AJAX file upload for a document and return JSON info.
      *
@@ -108,10 +109,10 @@ class DocumentController extends Controller
         ]);
 
         $file = $request->file('document');
-        
+
         // Enhanced security validation
         $securityValidation = $this->fileSecurityService->validateFile($file, (string)$user->id);
-        
+
         if (!$securityValidation['valid']) {
             return response()->json([
                 'error' => 'File validation failed: ' . implode(', ', $securityValidation['errors'])
@@ -122,11 +123,11 @@ class DocumentController extends Controller
             // Create secure directory
             $documentPath = 'documents/scholar/' . $scholarProfile->id;
             $this->fileSecurityService->createSecureDirectory($documentPath);
-            
+
             // Use secure filename from validation
             $fileName = $securityValidation['secure_filename'];
             $filePath = $file->storeAs($documentPath, $fileName, 'public');
-            
+
             // Set secure file permissions
             $this->fileSecurityService->setSecureFilePermissions($filePath);
             $document = new Document();
@@ -168,37 +169,37 @@ class DocumentController extends Controller
         if (!$scholarProfile) {
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
-        
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'document' => 'required|file|max:20480', // 20MB limit
         ]);
-        
+
         $file = $request->file('document');
-        
+
         // Enhanced security validation
         $securityValidation = $this->fileSecurityService->validateFile($file, (string)$user->id);
-        
+
         if (!$securityValidation['valid']) {
             return redirect()->back()
                 ->with('error', 'File validation failed: ' . implode(', ', $securityValidation['errors']))
                 ->withInput();
         }
-        
+
         try {
             // Create secure directory
             $documentPath = 'documents/scholar/' . $scholarProfile->id;
             $this->fileSecurityService->createSecureDirectory($documentPath);
-            
+
             // Use secure filename from validation
             $fileName = $securityValidation['secure_filename'];
             $filePath = $file->storeAs($documentPath, $fileName, 'public');
-            
+
             // Set secure file permissions
             $this->fileSecurityService->setSecureFilePermissions($filePath);
-            
+
             // Create document record with enhanced security info
             $document = new Document();
             $document->scholar_profile_id = $scholarProfile->id;
@@ -213,19 +214,19 @@ class DocumentController extends Controller
             $document->security_scanned = true;
             $document->security_scan_result = 'passed';
             $document->save();
-            
+
             $this->auditService->logCreate('Document', $document->id, $document->toArray());
-            
+
             return redirect()->route('scholar.documents.show', $document->id)
                 ->with('success', 'Document uploaded successfully.');
-                
+
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Failed to upload document: ' . $e->getMessage())
                 ->withInput();
         }
     }
-    
+
     /**
      * Display the specified document.
      *
@@ -306,14 +307,25 @@ class DocumentController extends Controller
     public function adminShow($id)
     {
         $user = Auth::user();
-        
-        // Check if user is an admin
-        if ($user->role !== 'admin') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
+
+        // Ensure user is admin
+        if ($user->role !== 'admin' && $user->role !== 'super_admin') {
+            abort(403, 'Unauthorized access');
         }
-        
-        $document = Document::findOrFail($id);
-        
+
+        // For admin users, bypass any database security restrictions
+        // and fetch document directly without model scopes
+        $document = DB::table('documents')
+            ->where('id', $id)
+            ->first();
+
+        if (!$document) {
+            abort(404, 'Document not found');
+        }
+
+        // Convert to model instance for view compatibility
+        $document = Document::withoutGlobalScopes()->find($id);
+
         return view('admin.documents.show', compact('document'));
     }
 
@@ -329,7 +341,7 @@ class DocumentController extends Controller
         $documents = Document::with('scholarProfile.user')
                            ->orderBy('created_at', 'desc')
                            ->paginate(10);
-        
+
         return view('admin.documents.index', compact('documents'));
     }
 
@@ -341,10 +353,57 @@ class DocumentController extends Controller
      */
     public function download($id)
     {
-        $document = Document::findOrFail($id);
-        $this->authorize('view', $document);
+        $user = Auth::user();
+
+        // For admin users, bypass database security restrictions
+        if ($user->role === 'admin' || $user->role === 'super_admin') {
+            $document = Document::withoutGlobalScopes()->find($id);
+        } else {
+            $document = Document::findOrFail($id);
+            $this->authorize('view', $document);
+        }
+
+        if (!$document) {
+            abort(404, 'Document not found');
+        }
+
         if (Storage::disk('public')->exists($document->file_path)) {
             return Storage::disk('public')->download($document->file_path, $document->file_name);
+        }
+
+        return redirect()->back()->with('error', 'File not found');
+    }
+
+    /**
+     * View document content inline (for PDFs, images, etc.)
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function view($id)
+    {
+        $user = Auth::user();
+
+        // For admin users, bypass database security restrictions
+        if ($user->role === 'admin' || $user->role === 'super_admin') {
+            $document = Document::withoutGlobalScopes()->find($id);
+        } else {
+            $document = Document::findOrFail($id);
+            $this->authorize('view', $document);
+        }
+
+        if (!$document) {
+            abort(404, 'Document not found');
+        }
+
+        if (Storage::disk('public')->exists($document->file_path)) {
+            $filePath = Storage::disk('public')->path($document->file_path);
+            $mimeType = $document->file_type ?: 'application/octet-stream';
+
+            return response()->file($filePath, [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'inline; filename="' . $document->file_name . '"'
+            ]);
         }
 
         return redirect()->back()->with('error', 'File not found');

@@ -15,10 +15,15 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Services\AuditService;
+use App\Models\HistoryTimeline;
+use App\Models\SiteSetting;
+use App\Services\SystemConfigService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class SuperAdminController extends Controller
 {
-    protected $auditService;
+    private $auditService;
 
     /**
      * Create a new controller instance.
@@ -29,13 +34,7 @@ class SuperAdminController extends Controller
     public function __construct(AuditService $auditService)
     {
         $this->middleware('auth');
-        // Use middleware to check for super_admin role
-        $this->middleware(function ($request, $next) {
-            if (Auth::user()->role !== 'super_admin') {
-                abort(403, 'Unauthorized action. You do not have super admin privileges.');
-            }
-            return $next($request);
-        });
+        $this->middleware('role:super_admin');
         $this->auditService = $auditService;
     }
 
@@ -46,98 +45,9 @@ class SuperAdminController extends Controller
      */
     public function dashboard()
     {
-        $user = Auth::user();
-
-        // Get scholars data
-        $scholars = ScholarProfile::all();
-        $totalScholars = $scholars->count();
-        $pendingScholars = $scholars->where('status', 'Pending')->count();
-        $activeScholars = $scholars->where('status', 'Active')->count();
-        $recentScholars = $scholars->sortByDesc('created_at')->take(5);
-
-        // Get documents data
-        $documents = Document::all();
-        $pendingDocuments = $documents->where('status', 'Uploaded')->count();
-        $recentDocuments = $documents->sortByDesc('created_at')->take(5);
-
-        // Get fund requests data
-        $fundRequests = FundRequest::all();
-        $pendingFundRequests = $fundRequests->where('status', 'Pending')->count();
-        $approvedRequests = $fundRequests->where('status', 'Approved')->count();
-        $recentRequests = $fundRequests->sortByDesc('created_at')->take(3);
-        $recentFundRequests = $recentRequests; // Alias for the view
-        $pendingRequests = $pendingFundRequests + $pendingDocuments; // Total of all pending requests
-
-        // For year calculation in other parts of the code
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
-
-        // Get manuscripts data
-        $manuscripts = Manuscript::all();
-        $recentManuscripts = $manuscripts->sortByDesc('created_at')->take(5);
-
-        // Completion metrics
-        $completionRate = $scholars->count() > 0 ? round(($scholars->where('status', 'Graduated')->count() / $scholars->count()) * 100) : 0;
-        $completionsThisYear = $scholars->where('status', 'Completed')
-            ->filter(function($scholar) use ($currentYear) {
-                return \Carbon\Carbon::parse($scholar->updated_at)->year == $currentYear;
-            })->count();
-
-        // Calculate program distribution
-        $programCounts = collect();
-        $programGroups = $scholars->groupBy('program');
-        $totalScholars = $scholars->count();
-
-        if ($totalScholars > 0) {
-            foreach ($programGroups as $program => $scholarsInProgram) {
-                $count = $scholarsInProgram->count();
-                $percentage = round(($count / $totalScholars) * 100);
-                $programCounts->push((object)[
-                    'program' => $program ?: 'Not Specified',
-                    'count' => $count,
-                    'percentage' => $percentage
-                ]);
-            }
-
-            // Sort by count descending
-            $programCounts = $programCounts->sortByDesc('count')->values();
-        }
-
-        // Get all users for user management (super admin specific)
-        $allUsers = User::all();
-        $adminUsers = $allUsers->where('role', 'admin')->count();
-        $scholarUsers = $allUsers->where('role', 'scholar')->count();
-        $superAdminUsers = $allUsers->where('role', 'super_admin')->count();
-        $recentUsers = $allUsers->sortByDesc('created_at')->take(5);
-
-
-        return view('super_admin.dashboard', compact(
-            'user',
-            'scholars',
-            'totalScholars',
-            'pendingScholars',
-            'activeScholars',
-            'recentScholars',
-            'fundRequests',
-            'pendingFundRequests',
-            'pendingRequests',
-            'approvedRequests',
-            'recentRequests',
-            'recentFundRequests',
-            'documents',
-            'pendingDocuments',
-            'recentDocuments',
-            'manuscripts',
-            'recentManuscripts',
-            'completionRate',
-            'completionsThisYear',
-            'programCounts',
-            'allUsers',
-            'adminUsers',
-            'scholarUsers',
-            'superAdminUsers',
-            'recentUsers'
-        ));
+        // Since we're using Livewire, we just need to return the view with the component
+        // All data loading is now handled by the Livewire component
+        return view('super_admin.dashboard-livewire');
     }
 
     /**
@@ -208,17 +118,37 @@ class SuperAdminController extends Controller
             return back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 
+        // Check if password change was mandatory before updating
+        $wasMandatory = $user->must_change_password;
+
+        // Get dynamic password expiry days from settings
+        $passwordExpiryDays = \App\Models\SiteSetting::get('password_expiry_days', 90);
+
         $user->update([
             'password' => Hash::make($request->password),
+            'is_default_password' => false,
+            'must_change_password' => false,
         ]);
 
-        // Set password expiration (90 days from now)
+        // Set password expiration using dynamic settings
         $user->setPasswordExpiration();
+
+        // Clear session warning flag
+        session()->forget('password_expiry_warning_shown');
+        session()->forget('show_password_modal');
 
         $this->auditService->log('password_changed', 'User', $user->id);
 
-        return redirect()->route('super_admin.dashboard')
-            ->with('success', 'Password changed successfully.');
+        // Determine redirect location based on context
+        $redirectRoute = 'super_admin.dashboard';
+
+        // If user came from profile edit page, redirect back there (unless it was mandatory)
+        if (!$wasMandatory && request()->headers->get('referer') && str_contains(request()->headers->get('referer'), 'profile/edit')) {
+            $redirectRoute = 'super_admin.profile.edit';
+        }
+
+        return redirect()->route($redirectRoute)
+            ->with('success', "Password changed successfully. Your password will expire in {$passwordExpiryDays} days.");
     }
 
     /**
@@ -229,15 +159,7 @@ class SuperAdminController extends Controller
      */
     public function userManagement(Request $request)
     {
-        $query = User::query();
-
-        // Apply role filter if provided
-        if ($request->has('role') && $request->role !== '') {
-            $query->where('role', $request->role);
-        }
-
-        $users = $query->get();
-        return view('super_admin.user_management', compact('users'));
+        return view('super_admin.user_management');
     }
 
     /**
@@ -251,13 +173,284 @@ class SuperAdminController extends Controller
     }
 
     /**
+     * Update general settings
+     */
+    public function updateGeneralSettings(Request $request)
+    {
+        try {
+            $request->validate([
+                'site_name' => 'required|string|max:255',
+                'site_description' => 'required|string|max:1000',
+                'contact_email' => 'nullable|email|max:255',
+                'contact_phone' => 'nullable|string|max:20',
+            ]);
+
+            $settings = [
+                'site_name' => ['value' => $request->site_name, 'type' => 'string'],
+                'site_description' => ['value' => $request->site_description, 'type' => 'string'],
+            ];
+
+            if ($request->filled('contact_email')) {
+                $settings['contact_email'] = ['value' => $request->contact_email, 'type' => 'string'];
+            }
+
+            if ($request->filled('contact_phone')) {
+                $settings['contact_phone'] = ['value' => $request->contact_phone, 'type' => 'string'];
+            }
+
+            foreach ($settings as $key => $config) {
+                SiteSetting::set($key, $config['value'], $config['type'], 'general');
+            }
+
+            $this->auditService->log('general_settings_updated', 'System Settings', null,
+                'Updated general settings');
+
+            return redirect()->route('super_admin.system_settings')
+                ->with('success', 'General settings updated successfully!');
+
+        } catch (ValidationException $e) {
+            return redirect()->route('super_admin.system_settings')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->route('super_admin.system_settings')
+                ->with('error', 'An error occurred while saving the settings');
+        }
+    }
+
+    /**
+     * Update email settings
+     */
+    public function updateEmailSettings(Request $request)
+    {
+        try {
+            $request->validate([
+                'mail_driver' => 'required|string|in:smtp,sendmail,mailgun',
+                'mail_host' => 'required|string|max:255',
+                'mail_port' => 'required|integer|min:1|max:65535',
+                'mail_username' => 'nullable|string|max:255',
+                'mail_password' => 'nullable|string|max:255',
+                'mail_encryption' => 'nullable|string|in:tls,ssl',
+                'mail_from_address' => 'required|email|max:255',
+                'mail_from_name' => 'required|string|max:255',
+            ]);
+
+            $settings = [
+                'mail_driver' => ['value' => $request->mail_driver, 'type' => 'string'],
+                'mail_host' => ['value' => $request->mail_host, 'type' => 'string'],
+                'mail_port' => ['value' => $request->mail_port, 'type' => 'integer'],
+                'mail_encryption' => ['value' => $request->mail_encryption, 'type' => 'string'],
+                'mail_from_address' => ['value' => $request->mail_from_address, 'type' => 'string'],
+                'mail_from_name' => ['value' => $request->mail_from_name, 'type' => 'string'],
+            ];
+
+            if ($request->filled('mail_username')) {
+                $settings['mail_username'] = ['value' => $request->mail_username, 'type' => 'string'];
+            }
+
+            if ($request->filled('mail_password')) {
+                $settings['mail_password'] = ['value' => $request->mail_password, 'type' => 'string'];
+            }
+
+            foreach ($settings as $key => $config) {
+                SiteSetting::set($key, $config['value'], $config['type'], 'email');
+            }
+
+            $this->auditService->log('email_settings_updated', 'System Settings', null,
+                'Updated email settings');
+
+            return redirect()->route('super_admin.system_settings')
+                ->with('success', 'Email settings updated successfully!');
+
+        } catch (ValidationException $e) {
+            return redirect()->route('super_admin.system_settings')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->route('super_admin.system_settings')
+                ->with('error', 'An error occurred while saving the email settings');
+        }
+    }
+
+    /**
+     * Update security settings
+     */
+    public function updateSecuritySettings(Request $request)
+    {
+        try {
+            $request->validate([
+                'session_lifetime' => 'required|integer|min:5|max:1440',
+                'password_expiry_days' => 'required|integer|min:1|max:365',
+                'max_login_attempts' => 'required|integer|min:1|max:20',
+                'lockout_duration' => 'required|integer|min:1|max:1440',
+                'two_factor_auth' => 'nullable|boolean',
+                'force_https' => 'nullable|boolean',
+            ]);
+
+            $settings = [
+                'session_lifetime' => ['value' => $request->session_lifetime, 'type' => 'integer'],
+                'password_expiry_days' => ['value' => $request->password_expiry_days, 'type' => 'integer'],
+                'max_login_attempts' => ['value' => $request->max_login_attempts, 'type' => 'integer'],
+                'lockout_duration' => ['value' => $request->lockout_duration, 'type' => 'integer'],
+                'two_factor_auth' => ['value' => $request->has('two_factor_auth'), 'type' => 'boolean'],
+                'force_https' => ['value' => $request->has('force_https'), 'type' => 'boolean'],
+            ];
+
+            foreach ($settings as $key => $config) {
+                SiteSetting::set($key, $config['value'], $config['type'], 'security');
+            }
+
+            $this->auditService->log('security_settings_updated', 'System Settings', null,
+                'Updated security settings');
+
+            return redirect()->route('super_admin.system_settings')
+                ->with('success', 'Security settings updated successfully!');
+
+        } catch (ValidationException $e) {
+            return redirect()->route('super_admin.system_settings')
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->route('super_admin.system_settings')
+                ->with('error', 'An error occurred while saving the security settings');
+        }
+    }
+
+    /**
      * Show the system configuration page.
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function systemConfiguration()
     {
-        return view('super_admin.system_configuration');
+        $academicSettings = SiteSetting::getByGroup('academic');
+        $scholarshipSettings = SiteSetting::getByGroup('scholarship');
+        $generalSettings = SiteSetting::getByGroup('general');
+
+        return view('super_admin.system_configuration', compact(
+            'academicSettings',
+            'scholarshipSettings',
+            'generalSettings'
+        ));
+    }
+
+    /**
+     * Update academic calendar configuration
+     */
+    public function updateAcademicCalendar(Request $request)
+    {
+        try {
+            $request->validate([
+                'academic_year' => 'required|string|max:20',
+                'first_semester_start' => 'required|date',
+                'first_semester_end' => 'required|date|after:first_semester_start',
+                'second_semester_start' => 'required|date|after:first_semester_end',
+                'second_semester_end' => 'required|date|after:second_semester_start',
+                'summer_term_start' => 'nullable|date',
+                'summer_term_end' => 'nullable|date|after:summer_term_start',
+                'application_deadline_1st' => 'required|date',
+                'application_deadline_2nd' => 'required|date',
+            ]);
+
+            $settings = [
+                'academic_year' => ['value' => $request->academic_year, 'type' => 'string'],
+                'first_semester_start' => ['value' => $request->first_semester_start, 'type' => 'date'],
+                'first_semester_end' => ['value' => $request->first_semester_end, 'type' => 'date'],
+                'second_semester_start' => ['value' => $request->second_semester_start, 'type' => 'date'],
+                'second_semester_end' => ['value' => $request->second_semester_end, 'type' => 'date'],
+                'application_deadline_1st' => ['value' => $request->application_deadline_1st, 'type' => 'date'],
+                'application_deadline_2nd' => ['value' => $request->application_deadline_2nd, 'type' => 'date'],
+            ];
+
+            // Add summer term if provided
+            if ($request->filled('summer_term_start')) {
+                $settings['summer_term_start'] = ['value' => $request->summer_term_start, 'type' => 'date'];
+            }
+            if ($request->filled('summer_term_end')) {
+                $settings['summer_term_end'] = ['value' => $request->summer_term_end, 'type' => 'date'];
+            }
+
+            foreach ($settings as $key => $config) {
+                SiteSetting::set($key, $config['value'], $config['type'], 'academic');
+            }
+
+            $this->auditService->log('academic_calendar_updated', 'System Configuration', null,
+                'Updated academic calendar configuration');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Academic calendar configuration saved successfully!'
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the configuration'
+            ], 500);
+        }
+    }
+
+    /**
+     * Update scholarship parameters
+     */
+    public function updateScholarshipParameters(Request $request)
+    {
+        try {
+            $request->validate([
+                'max_monthly_allowance' => 'required|integer|min:0',
+                'max_tuition_support' => 'required|integer|min:0',
+                'max_research_allowance' => 'required|integer|min:0',
+                'max_book_allowance' => 'required|integer|min:0',
+                'max_scholarship_duration' => 'required|integer|min:1|max:120',
+                'required_documents' => 'nullable|string',
+                'require_entrance_exam' => 'nullable|boolean',
+                'require_interview' => 'nullable|boolean',
+            ]);
+
+            $settings = [
+                'max_monthly_allowance' => ['value' => $request->max_monthly_allowance, 'type' => 'integer'],
+                'max_tuition_support' => ['value' => $request->max_tuition_support, 'type' => 'integer'],
+                'max_research_allowance' => ['value' => $request->max_research_allowance, 'type' => 'integer'],
+                'max_book_allowance' => ['value' => $request->max_book_allowance, 'type' => 'integer'],
+                'max_scholarship_duration' => ['value' => $request->max_scholarship_duration, 'type' => 'integer'],
+                'require_entrance_exam' => ['value' => $request->has('require_entrance_exam'), 'type' => 'boolean'],
+                'require_interview' => ['value' => $request->has('require_interview'), 'type' => 'boolean'],
+            ];
+
+            if ($request->filled('required_documents')) {
+                $settings['required_documents'] = ['value' => $request->required_documents, 'type' => 'array'];
+            }
+
+            foreach ($settings as $key => $config) {
+                SiteSetting::set($key, $config['value'], $config['type'], 'scholarship');
+            }
+
+            $this->auditService->log('scholarship_parameters_updated', 'System Configuration', null,
+                'Updated scholarship parameters');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Scholarship parameters saved successfully!'
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the parameters'
+            ], 500);
+        }
     }
 
     /**
@@ -289,8 +482,7 @@ class SuperAdminController extends Controller
      */
     public function applicationTimeline()
     {
-        $timelines = \App\Models\ApplicationTimeline::ordered()->get();
-        return view('super_admin.application_timeline', compact('timelines'));
+        return view('super_admin.application_timeline');
     }
 
     /**
@@ -467,6 +659,91 @@ class SuperAdminController extends Controller
     }
 
     /**
+     * Show the form for creating a new user.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function createUser()
+    {
+        return view('super_admin.create_user');
+    }
+
+    /**
+     * Store a newly created user.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'role' => 'required|string|in:admin,scholar,super_admin',
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+            'password' => Hash::make($request->password),
+            'is_active' => $request->has('is_active'),
+            'is_default_password' => true,
+            'must_change_password' => true,
+        ]);
+
+        // Log the user creation action
+        $this->auditService->log(
+            'create',
+            'user',
+            $user->id,
+            'User created: ' . $user->name,
+            $request->except('password', 'password_confirmation')
+        );
+
+        return redirect()->route('super_admin.user_management')
+            ->with('success', 'User created successfully');
+    }
+
+    /**
+     * Delete the specified user.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Prevent deletion of the current user
+        if (Auth::user()->id === $user->id) {
+            return redirect()->route('super_admin.user_management')
+                ->with('error', 'You cannot delete your own account');
+        }
+
+        // Prevent deletion of super admin users by non-super admin users
+        if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
+            return redirect()->route('super_admin.user_management')
+                ->with('error', 'You cannot delete super admin accounts');
+        }
+
+        // Log the user deletion action before deletion
+        $this->auditService->log(
+            'delete',
+            'user',
+            $user->id,
+            'User deleted: ' . $user->name,
+            $user->toArray()
+        );
+
+        $user->delete();
+
+        return redirect()->route('super_admin.user_management')
+            ->with('success', 'User deleted successfully');
+    }
+
+    /**
      * Store a newly created faculty member.
      *
      * @param \Illuminate\Http\Request $request
@@ -476,23 +753,33 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'department' => 'required|string|max:255',
+            'degree' => 'required|string|max:255',
             'specialization' => 'required|string|max:255',
-            'education_background' => 'required|string',
-            'degree_level' => 'required|string|max:10',
-            'university_origin' => 'nullable|string|max:255',
-            'expertise_tags' => 'nullable|array',
+            'institution' => 'required|string|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        $facultyData = $request->except(['photo']);
+        // Map the simplified form fields to the database fields
+        $facultyData = [
+            'name' => $request->name,
+            'position' => $request->degree, // Map degree to position field
+            'department' => $request->institution, // Map institution to department field
+            'specialization' => $request->specialization,
+            'education_background' => $request->degree . ' - ' . $request->specialization, // Combine for education background
+            'research_description' => '', // Empty for now
+            'degree_level' => $request->degree,
+            'university_origin' => $request->institution,
+            'sort_order' => $request->sort_order ?? 0,
+            'is_active' => true
+        ];
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('experts', 'public');
-            $facultyData['photo_path'] = $path;
+            $file = $request->file('photo');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('experts'), $fileName);
+            $facultyData['photo_path'] = $fileName;
         }
 
         $faculty = FacultyMember::create($facultyData);
@@ -522,28 +809,40 @@ class SuperAdminController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'department' => 'required|string|max:255',
+            'degree' => 'required|string|max:255',
             'specialization' => 'required|string|max:255',
-            'education_background' => 'required|string',
-            'degree_level' => 'required|string|max:10',
-            'university_origin' => 'nullable|string|max:255',
-            'expertise_tags' => 'nullable|array',
+            'institution' => 'required|string|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        $facultyData = $request->except(['photo']);
+        // Map the simplified form fields to the database fields
+        $facultyData = [
+            'name' => $request->name,
+            'position' => $request->degree, // Map degree to position field
+            'department' => $request->institution, // Map institution to department field
+            'specialization' => $request->specialization,
+            'education_background' => $request->degree . ' - ' . $request->specialization, // Combine for education background
+            'research_description' => $faculty->research_description ?? '', // Keep existing or empty
+            'degree_level' => $request->degree,
+            'university_origin' => $request->institution,
+            'sort_order' => $request->sort_order ?? 0
+        ];
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
             if ($faculty->photo_path) {
-                Storage::disk('public')->delete($faculty->photo_path);
+                $oldPhotoPath = public_path('experts/' . $faculty->photo_path);
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
             }
 
-            $path = $request->file('photo')->store('experts', 'public');
-            $facultyData['photo_path'] = $path;
+            $file = $request->file('photo');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('experts'), $fileName);
+            $facultyData['photo_path'] = $fileName;
         }
 
         $faculty->update($facultyData);
@@ -572,7 +871,10 @@ class SuperAdminController extends Controller
 
         // Delete photo if exists
         if ($faculty->photo_path) {
-            Storage::disk('public')->delete($faculty->photo_path);
+            $photoPath = public_path('experts/' . $faculty->photo_path);
+            if (file_exists($photoPath)) {
+                unlink($photoPath);
+            }
         }
 
         // Log the action before deletion
@@ -735,5 +1037,190 @@ class SuperAdminController extends Controller
             'message' => 'Announcement status updated successfully.',
             'announcement' => $announcement
         ]);
+    }
+
+    // History Timeline Management Methods
+
+    /**
+     * Show the history timeline management page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function historyTimeline()
+    {
+        return view('super_admin.history_timeline');
+    }
+
+    /**
+     * Show the form for creating a new history timeline item.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function createHistoryTimelineItem()
+    {
+        return view('super_admin.history_timeline_create');
+    }
+
+    /**
+     * Store a newly created history timeline item.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeHistoryTimelineItem(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'event_date' => 'required|date',
+            'year_label' => 'nullable|string|max:20',
+            'category' => 'required|in:milestone,achievement,partnership',
+            'icon' => 'nullable|string|max:100',
+            'color' => 'required|string|max:50',
+            'sort_order' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('history/timeline', 'public');
+            $data['image_path'] = $imagePath;
+        }
+
+        \App\Models\HistoryTimelineItem::create($data);
+
+        $this->auditService->log('history_timeline_created', 'History Timeline', null,
+            'Created new history timeline item: ' . $request->title);
+
+        return redirect()->route('super_admin.history_timeline')
+            ->with('success', 'History timeline item created successfully.');
+    }
+
+    /**
+     * Show the form for editing a history timeline item.
+     *
+     * @param int $id
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editHistoryTimelineItem($id)
+    {
+        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
+        return view('super_admin.history_timeline_edit', compact('timelineItem'));
+    }
+
+    /**
+     * Update the specified history timeline item.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateHistoryTimelineItem(Request $request, $id)
+    {
+        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'event_date' => 'required|date',
+            'year_label' => 'nullable|string|max:20',
+            'category' => 'required|in:milestone,achievement,partnership',
+            'icon' => 'nullable|string|max:100',
+            'color' => 'required|string|max:50',
+            'sort_order' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($timelineItem->image_path) {
+                Storage::disk('public')->delete($timelineItem->image_path);
+            }
+
+            $imagePath = $request->file('image')->store('history/timeline', 'public');
+            $data['image_path'] = $imagePath;
+        }
+
+        $timelineItem->update($data);
+
+        $this->auditService->log('history_timeline_updated', 'History Timeline', $id,
+            'Updated history timeline item: ' . $timelineItem->title);
+
+        return redirect()->route('super_admin.history_timeline')
+            ->with('success', 'History timeline item updated successfully.');
+    }
+
+    /**
+     * Delete the specified history timeline item.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteHistoryTimelineItem($id)
+    {
+        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
+        $title = $timelineItem->title;
+
+        // Delete associated image
+        if ($timelineItem->image_path) {
+            Storage::disk('public')->delete($timelineItem->image_path);
+        }
+
+        $timelineItem->delete();
+
+        $this->auditService->log('history_timeline_deleted', 'History Timeline', $id,
+            'Deleted history timeline item: ' . $title);
+
+        return redirect()->route('super_admin.history_timeline')
+            ->with('success', 'History timeline item deleted successfully.');
+    }
+
+    /**
+     * Toggle the active status of a history timeline item.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function toggleHistoryTimelineStatus($id)
+    {
+        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
+        $timelineItem->update([
+            'is_active' => !$timelineItem->is_active
+        ]);
+
+        $status = $timelineItem->is_active ? 'activated' : 'deactivated';
+
+        $this->auditService->log('history_timeline_status_changed', 'History Timeline', $id,
+            'Status changed for history timeline item: ' . $timelineItem->title . ' - ' . $status);
+
+        return redirect()->route('super_admin.history_timeline')
+            ->with('success', "History timeline item {$status} successfully.");
+    }
+
+    /**
+     * Create a new admin user.
+     */
+    public function createAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin',
+            'is_active' => true,
+            'is_default_password' => true,
+            'must_change_password' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Admin user created successfully.');
     }
 }

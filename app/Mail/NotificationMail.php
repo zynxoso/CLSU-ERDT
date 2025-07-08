@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\Notification;
+use App\Models\CustomNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -17,17 +17,17 @@ class NotificationMail extends Mailable
     /**
      * The notification instance.
      *
-     * @var \App\Models\Notification
+     * @var \App\Models\CustomNotification
      */
     public $notification;
 
     /**
      * Create a new message instance.
      *
-     * @param  \App\Models\Notification  $notification
+     * @param  \App\Models\CustomNotification  $notification
      * @return void
      */
-    public function __construct(Notification $notification)
+    public function __construct(CustomNotification $notification)
     {
         $this->notification = $notification;
     }

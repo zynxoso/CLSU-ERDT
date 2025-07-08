@@ -39,7 +39,6 @@ class UpdateFundRequestRequest extends FormRequest
         return [
             'request_type_id' => 'required|exists:request_types,id',
             'amount' => 'required|numeric|min:0',
-            'purpose' => 'required|string|max:1000',
             'status' => 'sometimes|in:Draft,Submitted'
         ];
     }
@@ -56,9 +55,7 @@ class UpdateFundRequestRequest extends FormRequest
             'request_type_id.exists' => 'The selected request type is invalid.',
             'amount.required' => 'Please enter the requested amount.',
             'amount.numeric' => 'The amount must be a number.',
-            'amount.min' => 'The amount must be greater than zero.',
-            'purpose.required' => 'Please enter the purpose of the request.',
-            'purpose.max' => 'The purpose may not be greater than 1000 characters.'
+            'amount.min' => 'The amount must be greater than zero.'
         ];
     }
 

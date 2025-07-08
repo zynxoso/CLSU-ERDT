@@ -18,7 +18,6 @@ class SuperAdminUserSeeder extends Seeder
             'email' => 'superadmin@clsu-erdt.edu.ph',
             'password' => Hash::make('password'),
             'role' => 'super_admin',
-            'email_verified_at' => now(),
             'is_active' => true
         ]);
     }

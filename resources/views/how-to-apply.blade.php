@@ -1,64 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Enhanced Navigation with Glassmorphism -->
-<nav style="background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(34, 197, 94, 0.2);">
-    <div class="container mx-auto px-4 py-4">
-        <div class="flex justify-between items-center">
-            <a href="{{ route('home') }}" class="flex items-center group">
-                <div class="relative">
-                    <img src="{{ asset('storage/logo/erdt_logo.png') }}" alt="CLSU-ERDT Logo" class="h-12 w-12 rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
-                    <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: linear-gradient(to right, rgba(34, 197, 94, 0.2), rgba(127, 29, 29, 0.2));"></div>
-                </div>
-                <div class="ml-4">
-                    <span class="font-bold text-xl tracking-tight text-gray-800">CLSU-ERDT</span>
-                    <div class="text-xs font-medium text-blue-800">Engineering Excellence</div>
-                </div>
-            </a>
-
-            <div class="hidden md:flex space-x-8">
-                <a href="{{ route('home') }}" class="text-gray-600 hover:text-blue-800 font-medium relative group py-2 transition-colors duration-200">
-                    Home
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-                <a href="{{ route('how-to-apply') }}" class="text-blue-800 font-semibold relative py-2">
-                    How to Apply
-                    <span class="absolute bottom-0 left-0 w-full h-0.5" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-                <a href="{{ route('about') }}" class="text-gray-600 hover:text-blue-800 font-medium relative group py-2 transition-colors duration-200">
-                    About
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-                <a href="{{ route('history') }}" class="text-gray-600 hover:text-blue-800 font-medium relative group py-2 transition-colors duration-200">
-                    History
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style="background: linear-gradient(to right, #22c55e, #7f1d1d);"></span>
-                </a>
-            </div>
-
-            <button id="mobile-menu-button" class="md:hidden text-gray-500 hover:text-blue-800 focus:outline-none p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4" style="border-top: 1px solid rgba(34, 197, 94, 0.2);">
-            <a href="{{ route('home') }}" class="block py-3 text-gray-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg px-3 transition-colors duration-200">Home</a>
-            <a href="{{ route('how-to-apply') }}" class="block py-3 text-blue-800 font-semibold bg-blue-50 rounded-lg px-3">How to Apply</a>
-            <a href="{{ route('about') }}" class="block py-3 text-gray-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg px-3 transition-colors duration-200">About</a>
-            <a href="{{ route('history') }}" class="block py-3 text-gray-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg px-3 transition-colors duration-200">History</a>
-        </div>
-    </div>
-
-    <!-- Reading Progress Bar -->
-    <div class="h-1" style="background-color: rgba(34, 139, 34, 0.2);">
-        <div id="reading-progress" class="h-full transition-all duration-300" style="width: 0%; background: linear-gradient(to right, #228B22, #8B0000);"></div>
-    </div>
-</nav>
+<!-- Include the navigation component -->
+<x-navigation />
 
 <!-- Hero Section -->
-<div class="bg-gray-50 py-24 p-12">
+<div class="bg-gray-50 py-12 p-12">
     <div class="container mx-auto px-4">
         <div class="text-center max-w-4xl mx-auto">
             <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-6 bg-green-100 text-green-700">
@@ -178,9 +125,9 @@
             </div>
 
             <!-- Academic Requirements -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-blue-500">
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
                 <div class="flex items-start mb-4">
-                    <div class="flex-shrink-0 bg-blue-100 text-blue-700 p-3 rounded-lg mr-4">
+                    <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
@@ -189,25 +136,25 @@
                         <h3 class="text-xl font-bold text-gray-800">Academic Requirements</h3>
                         <ul class="text-base text-gray-600 mt-3 space-y-2">
                             <li class="flex items-start">
-                                <svg class="h-4 w-4 text-blue-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="h-4 w-4 text-green-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 Minimum GPA of 2.5 (undergraduate)
                             </li>
                             <li class="flex items-start">
-                                <svg class="h-4 w-4 text-blue-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="h-4 w-4 text-green-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 Pass qualifying examination
                             </li>
                             <li class="flex items-start">
-                                <svg class="h-4 w-4 text-blue-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="h-4 w-4 text-green-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 Research proposal submission
                             </li>
                             <li class="flex items-start">
-                                <svg class="h-4 w-4 text-blue-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="h-4 w-4 text-green-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 Interview evaluation
@@ -224,14 +171,14 @@
 <div class="py-16 bg-white" id="application-process">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-blue-100 text-blue-700">
+            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-green-100 text-green-700">
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 Step-by-Step Guide
             </div>
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Application Process</h2>
-            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-blue-500 to-blue-700"></div>
+            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-green-500 to-green-700"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">Follow these steps to complete your ERDT scholarship application successfully.</p>
         </div>
 
@@ -255,7 +202,7 @@
 
                 <!-- Step 2 -->
                 <div class="flex items-start">
-                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6">2</div>
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6">2</div>
                     <div class="flex-1 bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300">
                         <h3 class="text-xl font-bold text-gray-800 mb-3">Submit Online Application</h3>
                         <p class="text-gray-600 mb-3">Complete the online application form through our portal:</p>
@@ -270,7 +217,7 @@
 
                 <!-- Step 3 -->
                 <div class="flex items-start">
-                    <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6">3</div>
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6">3</div>
                     <div class="flex-1 bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300">
                         <h3 class="text-xl font-bold text-gray-800 mb-3">Take Qualifying Examination</h3>
                         <p class="text-gray-600 mb-3">Pass the comprehensive qualifying examination:</p>
@@ -285,7 +232,7 @@
 
                 <!-- Step 4 -->
                 <div class="flex items-start">
-                    <div class="flex-shrink-0 w-12 h-12 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6">4</div>
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-6">4</div>
                     <div class="flex-1 bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300">
                         <h3 class="text-xl font-bold text-gray-800 mb-3">Attend Interview</h3>
                         <p class="text-gray-600 mb-3">Participate in the final interview process:</p>
@@ -302,18 +249,242 @@
     </div>
 </div>
 
+<!-- Downloadable Forms Section -->
+<div class="py-16 bg-gray-50" id="downloadable-forms">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto text-center mb-12">
+            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-green-100 text-green-700">
+                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Required Forms
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Downloadable Forms</h2>
+            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-green-500 to-green-700"></div>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">Download and complete the required forms for your ERDT scholarship application.</p>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Application Form -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">ERDT Application Form</h3>
+                            <p class="text-sm text-gray-600 mb-4">Main application form for ERDT scholarship program</p>
+                            <a href="{{ asset('forms/ERDT_Application_Form.pdf') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deed of Undertaking -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Deed of Undertaking</h3>
+                            <p class="text-sm text-gray-600 mb-4">Commitment form for scholarship obligations and responsibilities</p>
+                            <a href="{{ asset('forms/Deed-of-Undertaking-form.pdf') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Special Project Form -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Special Project Form</h3>
+                            <p class="text-sm text-gray-600 mb-4">Form for special project applications and research proposals</p>
+                            <a href="{{ asset('forms/ERDT-SP-form-2024.pdf') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thesis Dissertation Grant -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Thesis Dissertation Grant</h3>
+                            <p class="text-sm text-gray-600 mb-4">Application form for thesis and dissertation grants</p>
+                            <a href="{{ asset('forms/ERDT-TDG-form.pdf') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research Grant Form -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Research Grant Form</h3>
+                            <p class="text-sm text-gray-600 mb-4">Application form for research grants with sample library</p>
+                            <a href="{{ asset('forms/ERDT-RG-Form-with-sample-LIB.pdf') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research Development Grant -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Research Development Grant</h3>
+                            <p class="text-sm text-gray-600 mb-4">Form for research development grant applications</p>
+                            <a href="{{ asset('forms/ERDT-RDG-form.pdf') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liquidation Report -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Liquidation Report</h3>
+                            <p class="text-sm text-gray-600 mb-4">Liquidation report form for outright thesis grant</p>
+                            <a href="{{ asset('forms/ERDT-LIQUIDATION-REPORT-FOR-OUTRIGHT-THESIS-GRANT.docx') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download DOCX
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monitoring Form -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Monitoring Form</h3>
+                            <p class="text-sm text-gray-600 mb-4">Scholar progress monitoring and evaluation form</p>
+                            <a href="{{ asset('forms/ERDT-Monitoring-FORM.docx') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download DOCX
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SFA Form -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 bg-green-100 text-green-700 p-3 rounded-lg mr-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">SFA Form for Scholar</h3>
+                            <p class="text-sm text-gray-600 mb-4">Scholar Financial Assistance form and documentation</p>
+                            <a href="{{ asset('forms/Form_SFA-for-scholar.xlsx') }}" download class="inline-flex items-center bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download XLSX
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download All Button -->
+            <div class="text-center mt-12">
+                <div class="bg-white rounded-lg shadow-md p-6 inline-block">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Need All Forms?</h3>
+                    <p class="text-gray-600 mb-6">Download all forms at once for your convenience.</p>
+                    <button onclick="downloadAllForms()" class="inline-flex items-center bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                        <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 7h10a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" />
+                        </svg>
+                        Download All Forms
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Timeline Section -->
 <div class="py-16 bg-gray-50" id="timeline">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-purple-100 text-purple-700">
+            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-green-100 text-green-700">
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 Academic Calendar
             </div>
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Application Timeline</h2>
-            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-purple-500 to-purple-700"></div>
+            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-green-500 to-green-700"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">Important dates and deadlines for the ERDT scholarship application process.</p>
         </div>
 
@@ -322,7 +493,7 @@
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
-                            <thead style="background: linear-gradient(to right, #22c55e, #3b82f6);" class="text-white">
+                            <thead style="background: linear-gradient(to right, #22c55e, #16a34a);" class="text-white">
                                 <tr>
                                     <th class="py-4 px-6 text-left font-semibold">Activity</th>
                                     <th class="py-4 px-6 text-left font-semibold">First Semester</th>
@@ -331,7 +502,7 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @foreach($timelines as $index => $timeline)
-                                    <tr class="{{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-50 transition-colors duration-200">
+                                    <tr class="{{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-green-50 transition-colors duration-200">
                                         <td class="py-4 px-6 text-gray-800 font-medium">{{ $timeline->activity }}</td>
                                         <td class="py-4 px-6 text-gray-600">{{ $timeline->first_semester }}</td>
                                         <td class="py-4 px-6 text-gray-600">{{ $timeline->second_semester }}</td>
@@ -346,7 +517,7 @@
                     <div class="flex justify-center mb-6">
                         <div class="bg-gray-100 p-4 rounded-full">
                             <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                         </div>
                     </div>
@@ -362,14 +533,14 @@
 <div class="py-16 bg-white" id="important-notes">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-red-100 text-red-700">
+            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-4 bg-green-100 text-green-700">
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
                 Important Information
             </div>
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Important Notes</h2>
-            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-red-500 to-red-700"></div>
+            <div class="w-20 h-1 mx-auto mb-6 rounded bg-gradient-to-r from-green-500 to-green-700"></div>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">Please read these important notes carefully before submitting your application.</p>
         </div>
 
@@ -377,16 +548,16 @@
             @if($importantNotes->count() > 0)
                 <div class="space-y-6">
                     @foreach($importantNotes as $note)
-                        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500 hover:shadow-lg transition-all duration-300">
+                        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-all duration-300">
                             <div class="flex items-start">
-                                <div class="flex-shrink-0 bg-red-100 text-red-700 p-2 rounded-lg mr-4">
+                                <div class="flex-shrink-0 bg-green-100 text-green-700 p-2 rounded-lg mr-4">
                                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                     </svg>
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $note->title }}</h3>
-                                    <p class="text-gray-600 leading-relaxed">{{ $note->content }}</p>
+                                    <div class="text-gray-600 leading-relaxed">{!! $note->content !!}</div>
                                 </div>
                             </div>
                         </div>
@@ -488,6 +659,45 @@
     document.querySelectorAll('.transform').forEach(el => {
         observer.observe(el);
     });
+
+    // Download all forms function
+    function downloadAllForms() {
+        const forms = [
+            '{{ asset("forms/ERDT_Application_Form.pdf") }}',
+            '{{ asset("forms/Deed-of-Undertaking-form.pdf") }}',
+            '{{ asset("forms/ERDT-SP-form-2024.pdf") }}',
+            '{{ asset("forms/ERDT-TDG-form.pdf") }}',
+            '{{ asset("forms/ERDT-RG-Form-with-sample-LIB.pdf") }}',
+            '{{ asset("forms/ERDT-RDG-form.pdf") }}',
+            '{{ asset("forms/ERDT-LIQUIDATION-REPORT-FOR-OUTRIGHT-THESIS-GRANT.docx") }}',
+            '{{ asset("forms/ERDT-Monitoring-FORM.docx") }}',
+            '{{ asset("forms/Form_SFA-for-scholar.xlsx") }}'
+        ];
+
+        // Show downloading message
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Downloading...';
+        button.disabled = true;
+
+        // Download each form with a small delay
+        forms.forEach((formUrl, index) => {
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = formUrl;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, index * 500); // 500ms delay between downloads
+        });
+
+        // Reset button after all downloads
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, forms.length * 500 + 1000);
+    }
 </script>
 
 <style>
@@ -505,4 +715,5 @@
         animation: fadeInUp 0.6s ease forwards;
     }
 </style>
+<x-footer />
 @endsection

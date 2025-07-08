@@ -3,86 +3,68 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<!-- Password Change Modal -->
-@if((auth()->user()->is_default_password || auth()->user()->must_change_password) && !session('password_warning_dismissed'))
-<div x-data="{
-    showModal: true,
-    dismissModal() {
-        this.showModal = false;
-        @if(!auth()->user()->must_change_password)
-        localStorage.setItem('password_warning_dismissed', 'true');
-        @endif
-    }
-}"
-x-show="showModal"
-x-transition:enter="transition ease-out duration-300"
-x-transition:enter-start="opacity-0"
-x-transition:enter-end="opacity-100"
-x-transition:leave="transition ease-in duration-200"
-x-transition:leave-start="opacity-100"
-x-transition:leave-end="opacity-0"
-class="fixed inset-0 z-50 overflow-y-auto"
-aria-labelledby="modal-title"
-role="dialog"
-aria-modal="true">
-
-    <!-- Background overlay -->
+<!-- Password Change Notice Modal -->
+@if(session('show_password_modal'))
+<div x-data="{ showModal: true }"
+     x-show="showModal"
+     class="fixed inset-0 z-50 overflow-y-auto"
+     aria-labelledby="modal-title"
+     role="dialog"
+     aria-modal="true">
+    <!-- Background overlay with CLSU theme -->
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-        <!-- Center modal -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
+        <!-- Enhanced modal design with CLSU green theme -->
         <div x-show="showModal"
-             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter="ease-out duration-300"
              x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
              x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave="ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
              x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-
+             class="inline-block align-bottom bg-white rounded-xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 border border-gray-100">
             <div class="sm:flex sm:items-start">
-                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                <!-- Updated icon with CLSU green -->
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-50 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-
+                <!-- Enhanced text content with CLSU styling -->
                 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                        @if(auth()->user()->must_change_password)
-                            Password Change Required
-                        @else
-                            Security Notice
-                        @endif
+                    <h3 class="text-lg leading-6 font-semibold text-gray-900" id="modal-title">
+                        Welcome to CLSU-ERDT! 🎓
                     </h3>
-
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-700">
-                            @if(auth()->user()->must_change_password)
-                                Your password has expired and must be changed immediately for security reasons.
-                            @else
-                                You are currently using a default password. For your account security, please change your password as soon as possible.
-                            @endif
+                    <div class="mt-3">
+                        <p class="text-sm text-gray-600">
+                            For enhanced security of your account, we recommend changing your default password to a strong, unique password.
                         </p>
+                        <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-100">
+                            <p class="text-sm text-green-700">
+                                <span class="font-medium">Pro tip:</span> Use a combination of letters, numbers, and symbols to create a strong password that you'll remember.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <!-- Improved button design with CLSU green -->
+            <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse gap-3">
                 <a href="{{ route('scholar.password.change') }}"
-                   class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                   class="w-full inline-flex justify-center items-center rounded-lg border border-transparent px-4 py-2.5 bg-green-600 text-base font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:w-auto sm:text-sm transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
                     Change Password
                 </a>
-
-                @if(!auth()->user()->must_change_password)
                 <button type="button"
-                        @click="dismissModal()"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
-                    Later
+                        @click="showModal = false"
+                        class="mt-3 w-full inline-flex justify-center items-center rounded-lg border border-gray-200 px-4 py-2.5 bg-white text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    I'll do it later
                 </button>
-                @endif
             </div>
         </div>
     </div>
@@ -90,73 +72,113 @@ aria-modal="true">
 @endif
 
 <!-- Top Navigation Bar -->
-<div class="bg-white shadow-sm mb-6 -mt-8 -mx-8 px-8 py-4">
+<div class="bg-white  mb-6 -mt-8 -mx-8 px-4 py-4">
     <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold text-gray-800 ml-1">Dashboard</h1>
         <div class="flex items-center space-x-4">
-            <!-- Notification Dropdown -->
+            <!-- Unified Notification Dropdown -->
             <div class="relative" x-data="{ open: false, notificationCount: {{ count($notifications->where('is_read', false)) }} }">
-                <button @click="open = !open" class="relative p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button @click="open = !open" class="relative p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    <span x-show="notificationCount > 0" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full shadow-sm" x-text="notificationCount"></span>
+                    <span x-show="notificationCount > 0" class="notification-count-badge absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 text-xs font-bold leading-none text-white bg-red-600 rounded-full shadow-sm px-1" x-text="notificationCount"></span>
                 </button>
+                <!-- Mobile-First Responsive Dropdown -->
                 <div x-show="open"
                      @click.away="open = false"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-150"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95"
-                     class="absolute right-0 mt-2 w-[350px] bg-white rounded-lg shadow-xl overflow-hidden z-50 border border-gray-200"
+                     class="notification-dropdown absolute right-0 mt-2 w-screen max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl
+                            sm:w-96 md:w-[400px] lg:w-[450px] xl:w-[500px]
+                            bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50
+                            -mr-4 sm:mr-0"
                      style="display: none;">
-                    <div class="py-3 px-4 bg-blue-50 border-b border-gray-200 flex justify-between items-center">
-                        <div class="flex items-center">
-                            <span class="text-lg font-bold text-gray-800">Notifications</span>
+                    <!-- Header - Responsive -->
+                    <div class="py-3 px-4 sm:px-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <span class="text-base sm:text-lg font-bold text-gray-800">All Notifications</span>
                         </div>
-                        <a href="{{ route('scholar.notifications') }}" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
-                            <span>View All</span>
+                        <a href="{{ route('scholar.notifications') }}" class="text-xs sm:text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium">
+                            <span class="hidden sm:inline">View All</span>
+                            <span class="sm:hidden">All</span>
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
                         </a>
                     </div>
-                    <div class="max-h-[500px] overflow-y-auto">
+                    <!-- Notification List - Responsive Scrolling -->
+                    <div class="notification-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto">
                         @if(count($notifications) > 0)
-                            @foreach($notifications->take(5) as $notification)
-                                <div class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150" x-data="{ expanded: false }">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 mr-3">
-                                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-blue-50 transition-colors duration-150">
+                            @foreach($notifications->take(8) as $notification)
+                                <div class="notification-item px-3 sm:px-4 py-3 border-b border-gray-100 {{ !$notification->is_read ? 'bg-blue-50 border-l-4 border-l-blue-500' : '' }}" x-data="{ expanded: false }">
+                                    <div class="flex items-start space-x-2 sm:space-x-3">
+                                        <!-- Icon - Responsive Size -->
+                                        <div class="flex-shrink-0">
+                                            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center
+                                                @if($notification->type == 'profile_update') bg-blue-100
+                                                @elseif($notification->type == 'fund_request') bg-green-100
+                                                @elseif($notification->type == 'document') bg-purple-100
+                                                @elseif($notification->type == 'manuscript') bg-indigo-100
+                                                @else bg-gray-100 @endif">
                                                 @if($notification->type == 'profile_update')
-                                                    <i class="fas fa-user-edit text-blue-600"></i>
+                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                    </svg>
                                                 @elseif($notification->type == 'fund_request')
-                                                    <i class="fas fa-money-bill-wave text-green-600"></i>
+                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                                    </svg>
                                                 @elseif($notification->type == 'document')
-                                                    <i class="fas fa-file-alt text-purple-600"></i>
+                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
                                                 @elseif($notification->type == 'manuscript')
-                                                    <i class="fas fa-book text-indigo-600"></i>
+                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                    </svg>
                                                 @else
-                                                    <i class="fas fa-bell text-orange-600"></i>
+                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                                    </svg>
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="flex-1">
-                                            <p class="text-lg font-bold text-gray-800">{{ $notification->title }}</p>
-                                            <div>
-                                                <p class="text-sm text-gray-600 mt-1" x-show="!expanded">{{ Str::limit($notification->message, 80) }}
-                                                    @if(strlen($notification->message) > 80)
-                                                        <button @click="expanded = true" class="text-xs text-blue-600 hover:text-blue-800 hover:underline ml-1 focus:outline-none">Read more</button>
-                                                    @endif
-                                                </p>
-                                                <p class="text-sm text-gray-600 mt-1" x-show="expanded" x-cloak>{{ $notification->message }}
-                                                    <button @click="expanded = false" class="text-xs text-blue-600 hover:text-blue-800 hover:underline ml-1 focus:outline-none">Show less</button>
-                                                </p>
+                                        <!-- Content - Responsive Layout -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
+                                                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-1 sm:space-y-0">
+                                                    <h4 class="notification-title text-sm font-medium text-gray-900 truncate">{{ $notification->title }}</h4>
+                                                    <!-- Category Badge - Responsive -->
+                                                    <span class="notification-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium w-fit
+                                                        @if($notification->type == 'profile_update') bg-blue-100 text-blue-700
+                                                        @elseif($notification->type == 'fund_request') bg-green-100 text-green-700
+                                                        @elseif($notification->type == 'document') bg-purple-100 text-purple-700
+                                                        @elseif($notification->type == 'manuscript') bg-indigo-100 text-indigo-700
+                                                        @else bg-gray-100 text-gray-700 @endif">
+                                                        @if($notification->type == 'profile_update') Profile
+                                                        @elseif($notification->type == 'fund_request') Fund
+                                                        @elseif($notification->type == 'document') Document
+                                                        @elseif($notification->type == 'manuscript') Manuscript
+                                                        @else General @endif
+                                                    </span>
+                                                </div>
+                                                @if(!$notification->is_read)
+                                                    <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1 sm:mt-0"></div>
+                                                @endif
                                             </div>
-                                            <div class="flex justify-between items-center mt-2">
-                                                <span class="text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                            <!-- Message - Responsive Text -->
+                                            <p class="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
+                                                {{ Str::limit($notification->message, 100) }}
+                                            </p>
+                                            <!-- Footer - Responsive Layout -->
+                                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2 gap-1 sm:gap-2">
+                                                <span class="text-xs text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
                                                 @if($notification->link)
-                                                    <a href="{{ $notification->link }}" class="px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors duration-150">
-                                                        Details
+                                                    <a href="{{ $notification->link }}" class="notification-link text-xs text-blue-600 hover:text-blue-800 font-medium w-fit">
+                                                        <span class="hidden sm:inline">View Details →</span>
+                                                        <span class="sm:hidden">View →</span>
                                                     </a>
                                                 @endif
                                             </div>
@@ -165,21 +187,29 @@ aria-modal="true">
                                 </div>
                             @endforeach
                         @else
-                            <div class="p-4 text-center text-gray-500">
-                                <p>No notifications to display.</p>
+                            <!-- Empty State - Responsive -->
+                            <div class="px-4 py-6 sm:py-8 text-center">
+                                <div class="notification-empty-icon w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-sm font-medium text-gray-800 mb-1">No notifications</h3>
+                                <p class="notification-empty-text text-xs text-gray-500 px-2">You'll be notified about updates to your profile, fund requests, documents, and manuscripts.</p>
                             </div>
                         @endif
                     </div>
+                    <!-- Footer - Responsive -->
                     @if(count($notifications->where('is_read', false)) > 0)
-                        <div class="py-2 px-4 bg-gray-50 border-t border-gray-200 text-center">
-                            <a href="{{ route('scholar.notifications.mark-all-as-read') }}" class="text-sm text-blue-600 hover:text-blue-800">
-                                Mark all as read
+                        <div class="py-2 px-3 sm:px-4 bg-gray-50 border-t border-gray-200 text-center">
+                            <a href="{{ route('scholar.notifications.mark-all-as-read') }}" class="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                <span class="hidden sm:inline">Mark all as read</span>
+                                <span class="sm:hidden">Mark all read</span>
                             </a>
                         </div>
                     @endif
                 </div>
             </div>
-
             <!-- User Profile Dropdown -->
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
@@ -193,12 +223,6 @@ aria-modal="true">
                 </button>
                 <div x-show="open"
                      @click.away="open = false"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-150"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95"
                      class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50"
                      style="display: none;">
                     <a href="{{ route('scholar.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -232,31 +256,30 @@ aria-modal="true">
             <h2 class="text-base font-semibold text-gray-800">Quick Actions</h2>
         </div>
         <div class="grid grid-cols-2 gap-3">
-            <a href="{{ route('scholar.fund-requests.create') }}" class="bg-blue-600 hover:bg-blue-700 p-3 rounded-lg text-center border border-blue-700 transition-all hover:shadow">
+            <a href="{{ route('scholar.fund-requests.create') }}" class="bg-[#4CAF50] p-3 rounded-lg text-center border border-[#388E3C]">
                 <i class="fas fa-money-bill-wave text-white text-xl mb-1"></i>
                 <p class="text-white font-medium text-sm">Request Funds</p>
             </a>
-            <a href="{{ route('scholar.profile.edit') }}" class="bg-yellow-500 hover:bg-yellow-600 p-3 rounded-lg text-center border border-yellow-600 transition-all hover:shadow">
+            <a href="{{ route('scholar.profile.edit') }}" class="bg-[#FFCA28] p-3 rounded-lg text-center border border-[#FFB300]">
                 <i class="fas fa-user-edit text-white text-xl mb-1"></i>
                 <p class="text-white font-medium text-sm">Update Profile</p>
             </a>
         </div>
     </div>
-
     <!-- Fund Summary -->
     <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
         <div class="flex items-center mb-3">
-            <i class="fas fa-chart-pie text-green-600 mr-2"></i>
+            <i class="fas fa-chart-pie text-[#4CAF50] mr-2"></i>
             <h2 class="text-base font-semibold text-gray-800">Fund Summary</h2>
         </div>
         <div class="flex justify-between">
             <div class="text-center bg-gray-50 p-3 rounded-lg border border-gray-100 flex-1 mr-2">
                 <p class="text-sm text-gray-600 mb-1">Approved Requests</p>
-                <p class="text-lg font-bold text-gray-800">{{ $approvedRequests }}</p>
+                <p class="text-lg font-bold text-[#4CAF50]">{{ $approvedRequests }}</p>
             </div>
             <div class="text-center bg-gray-50 p-3 rounded-lg border border-gray-100 flex-1 ml-2">
                 <p class="text-sm text-gray-600 mb-1">Pending Requests</p>
-                <p class="text-lg font-bold text-gray-800">{{ $pendingRequestsCount }}</p>
+                <p class="text-lg font-bold text-[#FFCA28]">{{ $pendingRequestsCount }}</p>
             </div>
         </div>
     </div>
@@ -270,20 +293,20 @@ aria-modal="true">
         </div>
         <div class="p-4">
             @if(count($recentFundRequests) > 0)
-                <div class="space-y-2">
+                <div class="space-y-3">
                     @foreach($recentFundRequests->take(3) as $request)
-                        <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm" data-fund-request-id="{{ $request->id }}">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm" data-fund-request-id="{{ $request->id }}">
                             <div class="flex justify-between items-center mb-2">
                                 <div>
-                                    <p class="text-sm text-gray-700">{{ $request->purpose }}</p>
+                                    <p class="text-sm text-gray-700 font-medium">{{ $request->purpose }}</p>
                                     <p class="text-xs text-gray-500">{{ $request->created_at->format('M d, Y') }}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-sm font-medium text-gray-800">₱******</p>
-                                    <span class="status-badge px-2 py-0.5 text-xs rounded-full
-                                        @if($request->status == 'Approved') bg-green-100 text-green-800
-                                        @elseif($request->status == 'Rejected') bg-red-100 text-red-800
-                                        @else bg-yellow-100 text-yellow-800 @endif">
+                                    <span class="status-badge px-2.5 py-1 text-xs rounded-full font-medium
+                                        @if($request->status == 'Approved') bg-[#4CAF50]/10 text-[#4CAF50] border border-[#4CAF50]/20
+                                        @elseif($request->status == 'Rejected') bg-red-100 text-red-800 border border-red-200
+                                        @else bg-[#FFCA28]/10 text-[#FFCA28] border border-[#FFCA28]/20 @endif">
                                         {{ $request->status }}
                                     </span>
                                 </div>
@@ -291,12 +314,23 @@ aria-modal="true">
                         </div>
                     @endforeach
                 </div>
-                <div class="mt-3 text-center">
-                    <a href="{{ route('scholar.fund-requests.index') }}" class="text-blue-600 hover:text-blue-800 text-xs">View All Requests</a>
+                <div class="mt-4 text-center">
+                    <a href="{{ route('scholar.fund-requests.index') }}" class="text-[#4A90E2] text-sm font-medium inline-flex items-center">
+                        View All Requests
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </div>
             @else
-                <div class="text-center py-4">
+                <div class="text-center py-6">
+                    <div class="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-file-invoice-dollar text-gray-400 text-lg"></i>
+                    </div>
                     <p class="text-gray-500 text-sm">No fund requests yet.</p>
+                    <a href="{{ route('scholar.fund-requests.create') }}" class="mt-2 inline-block text-[#4A90E2] text-sm font-medium">
+                        Create your first request
+                    </a>
                 </div>
             @endif
         </div>
@@ -305,202 +339,88 @@ aria-modal="true">
 <!-- Real-time Status Updates Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to fetch status updates from server
-    function fetchStatusUpdates() {
-        // Use silent fetch to avoid triggering the universal loading spinner
-        window.universalLoading.silentFetch('/api/scholar/status-updates')
-        .then(response => response.json())
-        .then(data => {
-            // Update each fund request card with new status information
-            data.forEach(request => {
-                const card = document.querySelector(`[data-request-id="${request.id}"]`);
-                    if (card) {
-                        // Update status badge
-                        const statusBadge = card.querySelector('.status-badge');
-                        if (statusBadge) {
-                        statusBadge.className = 'px-2 py-1 text-xs font-medium rounded-full status-badge';
-
-                        if (request.status === 'Approved') {
-                                statusBadge.classList.add('bg-green-100', 'text-green-800');
-                        } else if (request.status === 'Rejected') {
-                                statusBadge.classList.add('bg-red-100', 'text-red-800');
-                        } else if (request.status === 'Under Review') {
-                            statusBadge.classList.add('bg-yellow-100', 'text-yellow-800');
-                            } else {
-                            statusBadge.classList.add('bg-gray-100', 'text-gray-800');
-                            }
-
-                        statusBadge.textContent = request.status;
+    // Get CSRF token from meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    async function fetchStatusUpdates() {
+        try {
+            const response = await fetch('/api/scholar/status-updates', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                credentials: 'same-origin' // Include cookies for authentication
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.success && data.data.updates) {
+                const timelineContainer = document.querySelector('.status-timeline');
+                if (!timelineContainer) return;
+                // Clear existing timeline
+                timelineContainer.innerHTML = '';
+                // Add new timeline entries
+                data.data.updates.forEach(history => {
+                    const timeAgo = timeSince(new Date(history.updated_at));
+                    // Determine icon class based on status
+                    let iconClass = 'fa-info-circle text-blue-500';
+                    if (history.status.toLowerCase().includes('approved')) {
+                        iconClass = 'fa-check-circle text-green-500';
+                    } else if (history.status.toLowerCase().includes('rejected')) {
+                        iconClass = 'fa-times-circle text-red-500';
+                    } else if (history.status.toLowerCase().includes('pending')) {
+                        iconClass = 'fa-clock text-yellow-500';
                     }
-
-                    // Update timeline if history exists
-                    const timelineContainer = card.querySelector('.timeline-container');
-                    if (timelineContainer && request.history && request.history.length > 0) {
-                                // Clear existing timeline
-                                timelineContainer.innerHTML = '';
-
-                        // Add new timeline entries
-                        request.history.forEach(history => {
-                                    const entryDiv = document.createElement('div');
-                            entryDiv.className = 'flex items-center relative mb-3 last:mb-0';
-
-                                    // Determine icon and styling based on status
-                                    let iconClass, bgColorClass, textColorClass, borderColorClass;
-
-                                    if (history.status === 'Approved') {
-                                        iconClass = 'fa-check-circle';
-                                        bgColorClass = 'bg-green-600';
-                                        textColorClass = 'text-white';
-                                        borderColorClass = 'border-green-700';
-                                    } else if (history.status === 'Rejected') {
-                                        iconClass = 'fa-times-circle';
-                                        bgColorClass = 'bg-red-600';
-                                        textColorClass = 'text-white';
-                                        borderColorClass = 'border-red-700';
-                                    } else if (history.status === 'Submitted') {
-                                        iconClass = 'fa-paper-plane';
-                                        bgColorClass = 'bg-blue-600';
-                                        textColorClass = 'text-white';
-                                        borderColorClass = 'border-blue-700';
-                                    } else if (history.status === 'Under Review') {
-                                        iconClass = 'fa-search';
-                                        bgColorClass = 'bg-purple-600';
-                                        textColorClass = 'text-white';
-                                        borderColorClass = 'border-purple-700';
-                                    } else if (history.status === 'Draft') {
-                                        iconClass = 'fa-pencil-alt';
-                                        bgColorClass = 'bg-yellow-600';
-                                        textColorClass = 'text-white';
-                                        borderColorClass = 'border-yellow-700';
-                                    } else {
-                                        iconClass = 'fa-clock';
-                                        bgColorClass = 'bg-yellow-600';
-                                        textColorClass = 'text-white';
-                                        borderColorClass = 'border-yellow-700';
-                                    }
-
-                                    // Format timestamp
-                                    const timestamp = new Date(history.timestamp);
-                                    const timeAgo = timeSince(timestamp);
-
-                                    entryDiv.innerHTML = `
-                                        <div class="absolute -left-6 w-6 h-6 rounded-full flex items-center justify-center ${bgColorClass} ${textColorClass} border ${borderColorClass} transform transition-all duration-300 hover:scale-110 shadow-sm">
-                                            <i class="fas ${iconClass} text-xs"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs font-medium">
-                                                ${history.status}
-                                                <span class="text-gray-400 font-normal">${timeAgo}</span>
-                                            </p>
-                                            ${history.notes ? `<p class="text-xs text-gray-500">${truncateText(history.notes, 50)}</p>` : ''}
-                                        </div>
-                                    `;
-
-                                    timelineContainer.appendChild(entryDiv);
-                                });
-
-                                // Add animations to make the timeline interactive
-                                // 1. Highlight the container
-                                timelineContainer.classList.add('status-update-highlight', 'animating');
-
-                                // 2. Animate the timeline track
-                                const timelineTrack = card.querySelector('.timeline-track');
-                                if (timelineTrack) {
-                                    timelineTrack.classList.add('animating');
-                                }
-
-                                // 3. Add pulse animation to the most recent status icon
-                                const firstStatusIcon = timelineContainer.querySelector('.flex.items-center:first-child div[class*="rounded-full"]');
-                                if (firstStatusIcon) {
-                                    firstStatusIcon.classList.add('status-icon-animating');
-                                }
-
-                                // 4. Animate the shipping truck along the timeline
-                                const shippingTruck = card.querySelector('.shipping-truck');
-                                if (shippingTruck) {
-                                    // Reset any previous animations
-                                    shippingTruck.classList.remove('animating', 'bounce');
-                                    void shippingTruck.offsetWidth; // Force reflow to restart animation
-
-                                    // Start the truck animation
-                                    shippingTruck.classList.add('animating');
-
-                                    // Add bounce effect at each status point
-                                    const statusPoints = timelineContainer.querySelectorAll('.flex.items-center');
-                                    if (statusPoints.length > 0) {
-                                        let delay = 500; // Start delay
-                                        statusPoints.forEach((point, index) => {
-                                            // Calculate position based on index (0 = top, length-1 = bottom)
-                                            const position = index / (statusPoints.length - 1);
-
-                                            // Schedule bounce effect at this position
-                                            setTimeout(() => {
-                                                // Temporarily pause the truck at this point
-                                                shippingTruck.style.animationPlayState = 'paused';
-                                                shippingTruck.classList.add('bounce');
-
-                                                // Resume after bounce
-                                                setTimeout(() => {
-                                                    shippingTruck.classList.remove('bounce');
-                                                    shippingTruck.style.animationPlayState = 'running';
-                                                }, 500);
-                                            }, delay + position * 1000); // Distribute over animation time
-                                        });
-                                    }
-                                }
-
-                                // Remove animations after they complete
-                                setTimeout(() => {
-                                    timelineContainer.classList.remove('status-update-highlight', 'animating');
-                                    if (timelineTrack) timelineTrack.classList.remove('animating');
-                                    if (firstStatusIcon) firstStatusIcon.classList.remove('status-icon-animating');
-                                    // Truck animation will end itself with opacity: 0
-                                }, 2500);
-                        }
-                    }
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'flex items-center space-x-3 mb-4';
+                    entryDiv.innerHTML = `
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas ${iconClass} text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium">
+                                ${history.status}
+                                <span class="text-gray-400 font-normal">${timeAgo}</span>
+                            </p>
+                            ${history.notes ? `<p class="text-xs text-gray-500">${truncateText(history.notes, 50)}</p>` : ''}
+                        </div>
+                    `;
+                    timelineContainer.appendChild(entryDiv);
                 });
-        })
-        .catch(error => console.error('Error fetching status updates:', error));
+            }
+        } catch (error) {
+            console.error('Error fetching status updates:', error);
+        }
     }
-
     // Helper function to format time since a date
     function timeSince(date) {
         const seconds = Math.floor((new Date() - date) / 1000);
-
         let interval = seconds / 31536000;
         if (interval > 1) return Math.floor(interval) + " years ago";
-
         interval = seconds / 2592000;
         if (interval > 1) return Math.floor(interval) + " months ago";
-
         interval = seconds / 86400;
         if (interval > 1) return Math.floor(interval) + " days ago";
-
         interval = seconds / 3600;
         if (interval > 1) return Math.floor(interval) + " hours ago";
-
         interval = seconds / 60;
         if (interval > 1) return Math.floor(interval) + " minutes ago";
-
         return Math.floor(seconds) + " seconds ago";
     }
-
     // Helper function to truncate text
     function truncateText(text, maxLength) {
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
-
     // Check for updates every 30 seconds, but only when page is visible
     setInterval(() => {
-        // Only fetch updates if the page is visible to the user
         if (!document.hidden) {
             fetchStatusUpdates();
         }
     }, 30000);
-
     // Initial fetch after page load
     setTimeout(fetchStatusUpdates, 3000);
-
     // Also fetch updates when the page becomes visible again
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
@@ -510,58 +430,43 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Removed all animation and transition CSS -->
 <style>
-/* Timeline animations */
-@keyframes timeline-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
-    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+/* Only keep responsive and layout styles, remove all keyframes and animation classes */
+.notification-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
-
-@keyframes timeline-track-progress {
-    from { background: linear-gradient(to bottom, #3b82f6 0%, #3b82f6 0%, #e5e7eb 0%, #e5e7eb 100%); }
-    to { background: linear-gradient(to bottom, #3b82f6 0%, #3b82f6 100%, #e5e7eb 100%, #e5e7eb 100%); }
+@media (max-width: 640px) {
+    .notification-title {
+        max-width: calc(100% - 4rem);
+    }
+    .notification-count-badge {
+        top: -0.25rem !important;
+        right: -0.25rem !important;
+        min-width: 1.25rem !important;
+        height: 1.25rem !important;
+        font-size: 0.625rem !important;
+    }
+    .notification-empty-icon {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+    .notification-empty-text {
+        font-size: 0.75rem !important;
+        padding: 0 1rem !important;
+    }
 }
-
-@keyframes truck-move-down {
-    0% { opacity: 0; transform: translateY(0) translateX(-50%) rotate(90deg); }
-    10% { opacity: 1; transform: translateY(0) translateX(-50%) rotate(90deg); }
-    90% { opacity: 1; transform: translateY(100%) translateX(-50%) rotate(90deg); }
-    100% { opacity: 0; transform: translateY(100%) translateX(-50%) rotate(90deg); }
+.notification-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
-
-@keyframes truck-bounce {
-    0%, 100% { transform: translateY(0) translateX(-50%) rotate(90deg); }
-    50% { transform: translateY(0) translateX(-50%) rotate(90deg) scale(1.2); }
-}
-
-.timeline-track.animating {
-    animation: timeline-track-progress 1.5s ease-in-out forwards;
-}
-
-.status-icon-animating {
-    animation: timeline-pulse 1.5s infinite;
-}
-
-.shipping-truck {
-    transition: all 0.3s ease-in-out;
-}
-
-.shipping-truck.animating {
-    animation: truck-move-down 2s ease-in-out forwards;
-}
-
-.shipping-truck.bounce {
-    animation: truck-bounce 0.5s ease-in-out;
-}
-
-.status-update-highlight {
-    transition: all 0.3s ease-in-out;
-}
-
-.status-update-highlight.animating {
-    background-color: rgba(219, 234, 254, 0.7);
-    border-color: rgba(59, 130, 246, 0.3);
+.notification-item:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+    background-color: #f8fafc;
 }
 </style>
 @endsection

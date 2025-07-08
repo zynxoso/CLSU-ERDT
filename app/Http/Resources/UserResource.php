@@ -9,34 +9,28 @@ class UserResource extends BaseResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
-        $data = [
+        return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
             'is_active' => $this->is_active,
-            'email_verified_at' => $this->email_verified_at,
             'last_login_at' => $this->last_login_at,
             'last_login_ip' => $this->last_login_ip,
+            'password_expires_at' => $this->password_expires_at,
+            'password_changed_at' => $this->password_changed_at,
+            'must_change_password' => $this->must_change_password,
+            'is_default_password' => $this->is_default_password,
+            'email_notifications' => $this->email_notifications,
+            'fund_request_notifications' => $this->fund_request_notifications,
+            'document_notifications' => $this->document_notifications,
+            'manuscript_notifications' => $this->manuscript_notifications,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'unread_notifications_count' => $this->unread_notifications_count,
         ];
-
-        // Include relationships if they are loaded
-        if ($this->relationLoaded('scholarProfile')) {
-            $data['scholar_profile'] = new ScholarProfileResource($this->scholarProfile);
-        }
-
-        if ($this->relationLoaded('customNotifications')) {
-            $data['notifications'] = NotificationResource::collection($this->customNotifications);
-        }
-
-        return $data;
     }
 }

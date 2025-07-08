@@ -27,7 +27,10 @@ class ScholarProfileUpdateRequest extends FormRequest
 
         return [
             // Personal information
-            'birthdate' => ['required', 'date', 'before:today'],
+            'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
+            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
+            'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
+            'birth_date' => ['required', 'date', 'before:today'],
             'gender' => ['required', 'string', 'in:Male,Female,Other'],
 
             // Academic information
@@ -63,6 +66,10 @@ class ScholarProfileUpdateRequest extends FormRequest
             'degree_level' => ['required', 'string', 'in:Master\'s,PhD'],
             'gpa' => ['nullable', 'numeric', 'min:1', 'max:5'],
 
+            // Bachelor degree information
+            'bachelor_degree' => ['nullable', 'string', 'max:255'],
+            'bachelor_university' => ['nullable', 'string', 'max:255'],
+
             // Research information
             'research_title' => ['nullable', 'string', 'max:255'],
             'research_area' => ['nullable', 'string', 'max:255'],
@@ -71,6 +78,7 @@ class ScholarProfileUpdateRequest extends FormRequest
 
             // Profile photo
             'profile_photo' => ['nullable', 'image', 'max:2048'], // 2MB max
+            'remove_photo' => ['nullable', 'string', 'in:0,1'],
         ];
     }
 
@@ -82,6 +90,9 @@ class ScholarProfileUpdateRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'first_name' => 'first name',
+            'middle_name' => 'middle name',
+            'last_name' => 'last name',
             'phone' => 'phone number',
             'gpa' => 'GPA',
             'degree_level' => 'degree level',
@@ -96,6 +107,9 @@ class ScholarProfileUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'first_name.regex' => 'The first name may only contain letters, spaces, hyphens, and apostrophes.',
+            'middle_name.regex' => 'The middle name may only contain letters, spaces, hyphens, and apostrophes.',
+            'last_name.regex' => 'The last name may only contain letters, spaces, hyphens, and apostrophes.',
             'phone.regex' => 'The phone number format is invalid.',
             'start_date.after' => 'The start date cannot be more than 10 years in the past.',
             'start_date.before' => 'The start date cannot be more than 1 year in the future.',

@@ -1,116 +1,475 @@
 @extends('layouts.app')
 
+@section('title', 'Edit Manuscript')
+
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="mb-6 flex justify-between items-center">
-        <div class="flex items-center">
-            <!-- <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}" class="text-blue-600 hover:text-blue-700">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Manuscript Details
-            </a> -->
+<div style="background-color: #FAFAFA; min-height: 100vh; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between">
+        <div>
+                <h1 class="text-2xl font-bold" style="color: #212121; font-size: 24px;">Edit Manuscript</h1>
+                <p class="mt-1" style="color: #424242; font-size: 15px;">Update manuscript information and details</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-3">
+                <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}"
+                   class="inline-flex items-center px-4 py-2 rounded-lg transition-colors"
+                   style="background-color: #424242; color: white; font-size: 15px;"
+                   onmouseover="this.style.backgroundColor='#212121'"
+                   onmouseout="this.style.backgroundColor='#424242'">
+                <i class="fas fa-eye mr-2"></i>
+                View Manuscript
+            </a>
         </div>
     </div>
-
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h1 class="text-2xl font-bold mb-6">Edit Manuscript</h1>
-
-        <form action="{{ route('admin.manuscripts.update', $manuscript->id) }}" method="POST" enctype="multipart/form-data">
+    <!-- Form Content -->
+        <div class="rounded-lg shadow-sm border p-6" style="background-color: white; border-color: #E0E0E0;">
+        <form action="{{ route('admin.manuscripts.update', $manuscript->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <div class="mb-4">
-                        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                        <input type="text" name="title" id="title"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                               value="{{ old('title', $manuscript->title) }}" required>
+            <!-- Manuscript Information Section -->
+            <div>
+                    <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
+                        <i class="fas fa-file-text mr-2" style="color: #2E7D32;"></i>
+                    Manuscript Information
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Title -->
+                    <div class="md:col-span-2">
+                            <label for="title" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                                Manuscript Title <span style="color: #D32F2F;">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            value="{{ old('title', $manuscript->title) }}"
+                                class="w-full border rounded-lg px-4 py-2 transition-all"
+                                style="border-color: #E0E0E0; font-size: 15px;"
+                            placeholder="Enter manuscript title"
+                            required
+                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                        >
                         @error('title')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label for="manuscript_type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                        <select name="manuscript_type" id="manuscript_type"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                required>
-                            <option value="Outline" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Outline' ? 'selected' : '' }}>Outline</option>
-                            <option value="Final" {{ old('manuscript_type', $manuscript->manuscript_type) === 'Final' ? 'selected' : '' }}>Final</option>
+                    <!-- Abstract -->
+                    <div class="md:col-span-2">
+                            <label for="abstract" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                                Abstract <span style="color: #D32F2F;">*</span>
+                        </label>
+                        <textarea
+                            id="abstract"
+                            name="abstract"
+                            rows="5"
+                                class="w-full border rounded-lg px-4 py-2 transition-all resize-vertical"
+                                style="border-color: #E0E0E0; font-size: 15px;"
+                            placeholder="Enter manuscript abstract"
+                            required
+                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                        >{{ old('abstract', $manuscript->abstract) }}</textarea>
+                        @error('abstract')
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <!-- Manuscript Type -->
+                    <div>
+                            <label for="manuscript_type" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                                Manuscript Type <span style="color: #D32F2F;">*</span>
+                        </label>
+                        <select
+                            id="manuscript_type"
+                            name="manuscript_type"
+                                class="w-full border rounded-lg px-4 py-2 transition-all"
+                                style="border-color: #E0E0E0; font-size: 15px;"
+                            required
+                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                        >
+                            <option value="">Select Type</option>
+                            <option value="Outline" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Outline' ? 'selected' : '' }}>Outline</option>
+                            <option value="Final" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Final' ? 'selected' : '' }}>Final</option>
                         </select>
                         @error('manuscript_type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label for="co_authors" class="block text-sm font-medium text-gray-700 mb-1">Co-authors</label>
-                        <input type="text" name="co_authors" id="co_authors"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                               value="{{ old('co_authors', $manuscript->co_authors) }}">
-                        @error('co_authors')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    
-                </div>
-
-                <div>
-                    <div class="mb-4">
-                        {{-- Keywords input removed as per request --}}
-                    </div>
-                </div>
-
-                <div>
-                    <div class="mb-4">
-                        <label for="abstract" class="block text-sm font-medium text-gray-700 mb-1">Abstract</label>
-                        <textarea name="abstract" id="abstract" rows="8"
-                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                  required>{{ old('abstract', $manuscript->abstract) }}</textarea>
-                        @error('abstract')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-1">Admin Notes</label>
-                        <textarea name="admin_notes" id="admin_notes" rows="4"
-                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('admin_notes', $manuscript->admin_notes) }}</textarea>
-                        @error('admin_notes')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status" id="status"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                required>
-                            <option value="Draft" {{ old('status', $manuscript->status) === 'Draft' ? 'selected' : '' }}>Draft</option>
-                            <option value="Submitted" {{ old('status', $manuscript->status) === 'Submitted' ? 'selected' : '' }}>Submitted</option>
-                            <option value="Under Review" {{ old('status', $manuscript->status) === 'Under Review' ? 'selected' : '' }}>Under Review</option>
-                            <option value="Revision Requested" {{ old('status', $manuscript->status) === 'Revision Requested' ? 'selected' : '' }}>Revision Requested</option>
-                            <option value="Accepted" {{ old('status', $manuscript->status) === 'Accepted' ? 'selected' : '' }}>Accepted</option>
-                            <option value="Rejected" {{ old('status', $manuscript->status) === 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                            <option value="Published" {{ old('status', $manuscript->status) === 'Published' ? 'selected' : '' }}>Published</option>
+                    <!-- Status -->
+                    <div>
+                            <label for="status" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                                Status <span style="color: #D32F2F;">*</span>
+                        </label>
+                        <select
+                            id="status"
+                            name="status"
+                                class="w-full border rounded-lg px-4 py-2 transition-all"
+                                style="border-color: #E0E0E0; font-size: 15px;"
+                            required
+                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                        >
+                            <option value="draft" {{ old('status', $manuscript->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="submitted" {{ old('status', $manuscript->status) == 'submitted' ? 'selected' : '' }}>Submitted</option>
+                            <option value="under_review" {{ old('status', $manuscript->status) == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                            <option value="revision_required" {{ old('status', $manuscript->status) == 'revision_required' ? 'selected' : '' }}>Revision Required</option>
+                            <option value="accepted" {{ old('status', $manuscript->status) == 'accepted' ? 'selected' : '' }}>Accepted</option>
+                            <option value="rejected" {{ old('status', $manuscript->status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="published" {{ old('status', $manuscript->status) == 'published' ? 'selected' : '' }}>Published</option>
                         </select>
                         @error('status')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <!-- Co-Authors -->
+                    <div class="md:col-span-2">
+                            <label for="co_authors" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                            Co-Authors
+                        </label>
+                        <input
+                            type="text"
+                            id="co_authors"
+                            name="co_authors"
+                            value="{{ old('co_authors', $manuscript->co_authors) }}"
+                                class="w-full border rounded-lg px-4 py-2 transition-all"
+                                style="border-color: #E0E0E0; font-size: 15px;"
+                            placeholder="Separate names with commas (e.g., John Doe, Jane Smith)"
+                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                        >
+                        @error('co_authors')
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
                         @enderror
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end space-x-4">
-                <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}"
-                   class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200">
-                    Cancel
-                </a>
-                <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                    Update Manuscript
-                </button>
+            <!-- Author Information Section -->
+                <div class="border-t pt-6" style="border-color: #E0E0E0;">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
+                        <i class="fas fa-user-graduate mr-2" style="color: #2E7D32;"></i>
+                    Author Information
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                            <label class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                            Scholar
+                        </label>
+                            <div class="w-full border rounded-lg px-4 py-2" style="border-color: #E0E0E0; background-color: #F8F9FA;">
+                            <div class="flex items-center">
+                                    <i class="fas fa-user-circle mr-2" style="color: #757575;"></i>
+                                    <span style="color: #424242;">{{ $manuscript->scholarProfile->user->name ?? 'N/A' }}</span>
+                                @if($manuscript->scholarProfile && $manuscript->scholarProfile->user)
+                                        <span class="ml-2 text-sm" style="color: #757575;">({{ $manuscript->scholarProfile->user->email }})</span>
+                                @endif
+                            </div>
+                        </div>
+                            <p class="text-sm mt-1" style="color: #757575; font-size: 14px;">
+                                <i class="fas fa-info-circle mr-1" style="color: #2E7D32;"></i>
+                            Scholar cannot be changed after creation
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current File Section -->
+            @if($manuscript->file_path)
+                <div class="border-t pt-6" style="border-color: #E0E0E0;">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
+                        <i class="fas fa-file-pdf mr-2" style="color: #D32F2F;"></i>
+                    Current File
+                </h2>
+
+                    <div class="rounded-lg p-4 mb-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                                <i class="fas fa-file-pdf mr-3 text-lg" style="color: #D32F2F;"></i>
+                            <div>
+                                    <p class="text-sm font-medium" style="color: #212121;">Current manuscript file</p>
+                                    <p class="text-xs" style="color: #757575;">{{ basename($manuscript->file_path) }}</p>
+                                </div>
+                        </div>
+                        <a href="{{ route('admin.manuscripts.download', $manuscript->id) }}"
+                               class="inline-flex items-center px-3 py-1 rounded-md transition-colors text-sm"
+                               style="background-color: #E3F2FD; color: #1976D2;"
+                               onmouseover="this.style.backgroundColor='#BBDEFB'"
+                               onmouseout="this.style.backgroundColor='#E3F2FD'">
+                            <i class="fas fa-download mr-1"></i>
+                            Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- File Upload Section -->
+                <div class="border-t pt-6" style="border-color: #E0E0E0;">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
+                        <i class="fas fa-upload mr-2" style="color: #F8BBD0;"></i>
+                    {{ $manuscript->file_path ? 'Replace File' : 'Upload File' }}
+                </h2>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                            <label for="file" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                            {{ $manuscript->file_path ? 'Upload New Manuscript File (PDF)' : 'Upload Manuscript File (PDF)' }}
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="file"
+                                id="file"
+                                name="file"
+                                accept=".pdf"
+                                    class="w-full border rounded-lg px-4 py-2 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold"
+                                    style="border-color: #E0E0E0; font-size: 15px; file:background-color: #E8F5E8; file:color: #2E7D32;"
+                                    onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                    onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                            >
+                        </div>
+                            <p class="text-sm mt-1" style="color: #757575; font-size: 14px;">
+                                <i class="fas fa-info-circle mr-1" style="color: #2E7D32;"></i>
+                            {{ $manuscript->file_path ? 'Upload a new PDF file to replace the current one (optional). Maximum file size: 10MB' : 'Upload a PDF file (optional). Maximum file size: 10MB' }}
+                        </p>
+                        @error('file')
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+                <div class="border-t pt-6" style="border-color: #E0E0E0;">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
+                        <i class="fas fa-sticky-note mr-2" style="color: #FFCA28;"></i>
+                    Additional Information
+                </h2>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                            <label for="admin_notes" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                            Admin Notes
+                        </label>
+                        <textarea
+                            id="admin_notes"
+                            name="admin_notes"
+                            rows="4"
+                                class="w-full border rounded-lg px-4 py-2 transition-all resize-vertical"
+                                style="border-color: #E0E0E0; font-size: 15px;"
+                            placeholder="Add any additional notes or comments about this manuscript"
+                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
+                        >{{ old('admin_notes', $manuscript->admin_notes) }}</textarea>
+                        @error('admin_notes')
+                                <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadata Section -->
+                <div class="border-t pt-6" style="border-color: #E0E0E0;">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
+                        <i class="fas fa-info-circle mr-2" style="color: #757575;"></i>
+                    Manuscript Metadata
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="rounded-lg p-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
+                        <div class="flex items-center">
+                                <i class="fas fa-calendar-plus mr-2" style="color: #1976D2;"></i>
+                            <div>
+                                    <p class="text-xs" style="color: #757575;">Created</p>
+                                    <p class="text-sm font-medium" style="color: #212121;">{{ $manuscript->created_at->format('M d, Y') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-lg p-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
+                        <div class="flex items-center">
+                                <i class="fas fa-calendar-edit mr-2" style="color: #2E7D32;"></i>
+                            <div>
+                                    <p class="text-xs" style="color: #757575;">Last Updated</p>
+                                    <p class="text-sm font-medium" style="color: #212121;">{{ $manuscript->updated_at->format('M d, Y') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-lg p-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
+                        <div class="flex items-center">
+                                <i class="fas fa-hashtag mr-2" style="color: #F8BBD0;"></i>
+                            <div>
+                                    <p class="text-xs" style="color: #757575;">Manuscript ID</p>
+                                    <p class="text-sm font-medium" style="color: #212121;">#{{ $manuscript->id }}</p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+                <div class="border-t pt-6" style="border-color: #E0E0E0;">
+                <div class="flex flex-col sm:flex-row justify-end gap-3">
+                    <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}"
+                           class="inline-flex items-center justify-center px-6 py-2 rounded-lg transition-colors manuscript-action-link"
+                           style="background-color: #757575; color: white; font-size: 15px;"
+                           onmouseover="this.style.backgroundColor='#616161'"
+                           onmouseout="this.style.backgroundColor='#757575'">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit"
+                                class="inline-flex items-center justify-center px-6 py-2 rounded-lg transition-colors focus:outline-none"
+                                style="background-color: #2E7D32; color: white; font-size: 15px;"
+                                onmouseover="this.style.backgroundColor='#1B5E20'"
+                                onmouseout="this.style.backgroundColor='#2E7D32'"
+                                onfocus="this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onblur="this.style.boxShadow='none'">
+                        <i class="fas fa-save mr-2"></i>
+                        Update Manuscript
+                    </button>
+                </div>
             </div>
         </form>
+        </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced form validation
+    const form = document.querySelector('form');
+    const requiredFields = form.querySelectorAll('[required]');
+
+    // Real-time validation feedback
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            validateField(this);
+        });
+
+        field.addEventListener('input', function() {
+            if (this.classList.contains('border-red-500')) {
+                validateField(this);
+            }
+        });
+    });
+
+    function validateField(field) {
+        const isValid = field.value.trim() !== '';
+
+        if (isValid) {
+            field.style.borderColor = '#2E7D32';
+        } else {
+            field.style.borderColor = '#D32F2F';
+        }
+    }
+
+    // File upload validation
+    const fileInput = document.getElementById('file');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Check file size (10MB limit)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    alert('File size must be less than 10MB');
+                    this.value = '';
+                    return;
+                }
+
+                // Check file type
+                if (file.type !== 'application/pdf') {
+                    alert('Please select a PDF file');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    }
+
+    // Form submission handling
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+
+        // Validate all required fields
+        requiredFields.forEach(field => {
+            if (field.value.trim() === '') {
+                validateField(field);
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault();
+
+            // Scroll to first invalid field
+            const firstInvalid = form.querySelector('[style*="border-color: #D32F2F"]');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50';
+            errorDiv.style.backgroundColor = '#D32F2F';
+            errorDiv.style.color = 'white';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please fill in all required fields';
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+    });
+
+    // Prevent universal loader for manuscript action links
+    document.addEventListener('click', function(event) {
+        if (event.target.closest('.manuscript-action-link')) {
+            if (window.universalLoading) {
+                window.universalLoading.skipNext();
+            }
+        }
+    });
+
+    // Prevent universal loader for form submissions on manuscript pages
+    document.addEventListener('submit', function(event) {
+        if (event.target.closest('form')) {
+            if (window.universalLoading) {
+                window.universalLoading.skipNext();
+            }
+        }
+    });
+});
+</script>
 @endsection

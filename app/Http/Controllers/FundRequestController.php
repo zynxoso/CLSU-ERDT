@@ -76,66 +76,11 @@ class FundRequestController extends Controller
             return redirect()->route('home')->with('error', 'Unauthorized access');
         }
 
-        $fundRequests = $this->fundRequestService->getAdminFundRequests($request);
-
-        return view('admin.fund-requests.index', compact('fundRequests'));
+        // Return the view with Livewire component
+        return view('admin.fund-requests.index');
     }
 
-    /**
-     * Filter fund requests with AJAX.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function ajaxFilter(Request $request)
-    {
-        // Check if user is admin
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
 
-        $query = FundRequest::query();
-
-        // Filter by status if provided
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by purpose if provided
-        if ($request->has('purpose') && $request->purpose) {
-            // $query->where('purpose', 'like', '%' . $request->purpose . '%');
-            $quesry->whereRaw('purpose LIKE ?', ['%'. $request->input('purpose') . '%']);
-        }
-
-        // Filter by scholar if provided
-        if ($request->has('scholar') && $request->scholar) {
-            $query->whereHas('scholarProfile.user', function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->scholar . '%');
-            });
-        }
-
-        // Filter by date if provided
-        if ($request->has('date') && $request->date) {
-            $date = $request->date;
-            $query->whereYear('created_at', substr($date, 0, 4))
-                ->whereMonth('created_at', substr($date, 5, 2));
-        }
-
-        $fundRequests = $query->with(['scholarProfile.user'])
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(10);
-
-        // Render the requests HTML
-        $html = view('admin.fund-requests._requests_list', compact('fundRequests'))->render();
-
-        // Render pagination links
-        $pagination = $fundRequests->links()->toHtml();
-
-        return response()->json([
-            'html' => $html,
-            'pagination' => $pagination
-        ]);
-    }
 
     /**
      * Get documents for a fund request (AJAX)
@@ -178,22 +123,8 @@ class FundRequestController extends Controller
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
 
-        $fundRequests = $this->fundRequestService->getScholarFundRequests($request, $scholarProfile->id);
-
-        // Get statistics for summary cards
-        $statistics = $this->fundRequestService->getScholarFundRequestStatistics($scholarProfile->id);
-        $totalRequested = $statistics['totalRequested'];
-        $totalApproved = $statistics['totalApproved'];
-        $totalPending = $statistics['totalPending'];
-        $totalRejected = $statistics['totalRejected'];
-
-        return view('scholar.fund-requests.index', compact(
-            'fundRequests',
-            'totalRequested',
-            'totalApproved',
-            'totalPending',
-            'totalRejected'
-        ));
+        // Return the view with Livewire component
+        return view('scholar.fund-requests.index');
     }
 
     /**

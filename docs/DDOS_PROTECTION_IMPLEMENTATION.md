@@ -36,7 +36,6 @@ The CLSU-ERDT system has been enhanced with **enterprise-grade, multi-layered DD
 ## 📁 Files Modified/Created
 
 ### New Files Created:
-- `app/Http/Middleware/PerformanceMonitoringMiddleware.php` - DDoS detection & monitoring
 - `config/ddos.php` - DDoS protection configuration
 - `docs/DDOS_PROTECTION_IMPLEMENTATION.md` - This implementation guide
 
@@ -102,21 +101,25 @@ POST /upload (with >10MB payload)
 ```
 
 ### Layer 2: Performance Monitoring
-**Location:** `app/Http/Middleware/PerformanceMonitoringMiddleware.php`
+**Location:** Previously included performance monitoring commands (now removed)
 
 **Features:**
-- **DDoS detection:** >50 requests/minute triggers alerts
-- **Bot detection:** Identifies crawler/scraper patterns  
-- **Dynamic rate limiting:** Reduces limits for suspicious IPs
-- **Performance tracking:** Monitors response times and memory
-- **Endpoint flooding protection:** Prevents same-endpoint abuse
+- **System monitoring:** Basic system monitoring via Laravel logs
+- **Performance tracking:** Request response time tracking via middleware
+- **Resource monitoring:** Database and cache status via health endpoints
+- **Alert thresholds:** Configurable via environment variables
+- **Basic monitoring:** Standard Laravel logging and monitoring
 
-**Detection triggers:**
-```php
-// These patterns trigger DDoS protection:
-$requests > 50 // per minute from single IP
-$endpointRequests > 20 // to same endpoint in 5 minutes
-preg_match('/bot|crawler|scraper/i', $userAgent)
+**Monitoring capabilities:**
+```bash
+# Basic system monitoring via Laravel logs
+tail -f storage/logs/laravel.log
+
+# Monitor application health
+curl http://localhost/api/health
+
+# Check system status
+php artisan about
 ```
 
 ### Layer 3: Rate Limiting

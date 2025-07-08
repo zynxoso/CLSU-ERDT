@@ -1,53 +1,10 @@
 /* Admin Analytics Styles */
-.admin-dashboard {
-    @apply bg-gray-50 min-h-screen;
+.analytics-dashboard__kpi-card {
+    @apply bg-white rounded-lg shadow-sm p-4 transition-all duration-300 ease-in-out;
 }
 
-.admin-header {
-    @apply bg-white shadow-sm;
-}
-
-.admin-content {
-    @apply p-6;
-}
-
-/* Stats Grid */
-.stats-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6;
-}
-
-/* Activity Feed */
-.activity-feed {
-    @apply space-y-4;
-}
-
-.activity-item {
-    @apply bg-white rounded-lg shadow-sm p-4;
-}
-
-.activity-item-header {
-    @apply flex items-center justify-between mb-2;
-}
-
-.activity-item-title {
-    @apply text-sm font-medium text-gray-900;
-}
-
-.activity-item-time {
-    @apply text-xs text-gray-500;
-}
-
-.activity-item-content {
-    @apply text-sm text-gray-600;
-}
-
-/* Charts Container */
-.charts-container {
-    @apply grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6;
-}
-
-.chart-card {
-    @apply bg-white rounded-lg shadow-sm p-4;
+.analytics-dashboard__chart-card {
+    @apply bg-white rounded-lg shadow-sm p-4 transition-all duration-300 ease-in-out;
 }
 
 /* Tables */
@@ -80,26 +37,9 @@
     @apply bg-red-100 text-red-800;
 }
 
-/* Filters */
-.filter-section {
-    @apply bg-white rounded-lg shadow-sm p-4 mb-6;
-}
-
-.filter-grid {
-    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
-}
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .stats-grid {
-        @apply grid-cols-1;
-    }
-
-    .charts-container {
-        @apply grid-cols-1;
-    }
-
-    .filter-grid {
-        @apply grid-cols-1;
+    .analytics-dashboard__chart-card {
+        @apply mb-4;
     }
 }

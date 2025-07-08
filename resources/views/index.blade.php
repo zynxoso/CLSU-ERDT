@@ -6,7 +6,7 @@
     <title>CLSU-ERDT Scholarship Management System</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('storage/logo/erdt_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/erdt_logo.png') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -15,7 +15,7 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-image: {{ asset('storage/bg/bgloginscholar.png') }}
+            background-image: {{ asset('images/bgloginscholar.png') }}
         }
         h1, h2, h3, .logo-text {
             font-family: 'Montserrat', sans-serif;
@@ -33,7 +33,7 @@
         }
     </style>
 </head>
-<body style="background-image: url('{{ asset('storage/bg/bgloginscholar.png') }}'); background-repeat: no-repeat; background-size: cover;">
+<body style="background-image: url('{{ asset('images/bgloginscholar.png') }}'); background-repeat: no-repeat; background-size: cover; background-position: center;">
     @livewire('home-page')
 
     <form id="scholar-logout-form" action="{{ route('scholar-logout') }}" method="POST" style="display: none;">

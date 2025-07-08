@@ -13,11 +13,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialize timeframe dropdown
+    // Initialize timeframe functionality
     const timeframeBtn = document.getElementById('timeframe-btn');
     const timeframeDropdown = document.getElementById('timeframe-dropdown');
 
     if (timeframeBtn && timeframeDropdown) {
-        initializeTimeframeDropdown(timeframeBtn, timeframeDropdown);
+        timeframeBtn.addEventListener('click', () => {
+            timeframeDropdown.classList.toggle('hidden');
+        });
+
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!timeframeBtn.contains(e.target) && !timeframeDropdown.contains(e.target)) {
+                timeframeDropdown.classList.add('hidden');
+            }
+        });
     }
 });

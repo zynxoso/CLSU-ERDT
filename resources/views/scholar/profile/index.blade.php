@@ -3,114 +3,93 @@
 @section('title', 'My Profile')
 
 @section('content')
-<div class=" min-h-screen">
+<div class="min-h-screen">
     <div class="container mx-auto">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">My Profile</h1>
+            <a href="{{ route('scholar.profile.edit') }}" class="px-4 py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center space-x-2">
+                <i class="fas fa-edit text-[#E3F2FD]"></i>
+                <span>Edit Profile</span>
+            </a>
+        </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Profile Summary -->
-            <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+            <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                 <div class="p-6 text-center border-b border-gray-200">
-                    <div x-data="{ photoName: null, photoPreview: null }" class="w-24 h-24 rounded-full bg-gray-100 mx-auto mb-4 overflow-hidden relative group">
-                        <input type="file" class="hidden" x-ref="photo" @change="
-                            photoName = $refs.photo.files[0].name;
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                photoPreview = e.target.result;
-                            };
-                            reader.readAsDataURL($refs.photo.files[0]);
-                        ">
-
-                        <label for="photo-upload-trigger" class="cursor-pointer">
-                            <div @click="$refs.photo.click()" class="w-full h-full">
-                                <template x-if="photoPreview">
-                                    <img :src="photoPreview" alt="Profile Preview" class="w-full h-full object-cover">
-                                </template>
-                                <template x-if="!photoPreview">
-                                    @if($user->profile_photo)
-                                        <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <i class="fas fa-user text-3xl text-gray-500"></i>
-                                        </div>
-                                    @endif
-                                </template>
+                    <div class="w-28 h-28 rounded-full bg-gray-100 mx-auto mb-4 overflow-hidden">
+                        @if($scholar->profile_photo)
+                            <img src="{{ asset('images/' . $scholar->profile_photo) }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-user text-4xl text-gray-500"></i>
                             </div>
-                            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" @click="$refs.photo.click()">
-                                <i class="fas fa-camera text-white text-2xl"></i>
-                            </div>
-                        </label>
+                        @endif
                     </div>
-                    <h2 class="text-xl font-semibold text-gray-800">{{ $user->name }}</h2>
-                    <p class="text-gray-600">{{ $scholar->program }} Scholar</p>
-                    <p class="text-gray-500 text-sm mt-1">{{ $scholar->university }}</p>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-1">{{ $user->name }}</h2>
+                    <p class="text-lg text-gray-600">{{ $scholar->program }} Scholar</p>
+                    <p class="text-gray-500 text-base mt-1">{{ $scholar->university }}</p>
 
                     <div class="mt-4 flex justify-center">
-                        <span class="px-3 py-1 text-xs rounded-full
-                            @if($scholar->status == 'Active') bg-green-100 text-green-800
-                            @elseif($scholar->status == 'Inactive') bg-red-100 text-red-800
-                            @elseif($scholar->status == 'Completed') bg-blue-100 text-blue-800
-                            @else bg-yellow-100 text-yellow-800 @endif">
+                        <span class="px-4 py-1.5 text-sm rounded-full font-medium
+                            @if($scholar->status == 'Active') bg-[#4CAF50]/20 text-[#2E7D32] border border-[#4CAF50]/30
+                            @elseif($scholar->status == 'Inactive') bg-red-200 text-red-900 border border-red-300
+                            @elseif($scholar->status == 'Completed') bg-[#4A90E2]/20 text-[#1565C0] border border-[#4A90E2]/30
+                            @else bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30 @endif">
                             {{ $scholar->status }}
                         </span>
                     </div>
                 </div>
 
                 <div class="p-6">
-                    <div class="mb-4">
-                        <h3 class="text-sm font-medium text-gray-700 mb-2">Contact Information</h3>
-                        <div class="space-y-2">
+                    <div class="mb-6">
+                        <h3 class="text-base font-medium text-gray-700 mb-3">Contact Information</h3>
+                        <div class="space-y-3">
                             <div class="flex items-center">
-                                <i class="fas fa-envelope text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">{{ $user->email }}</span>
+                                <i class="fas fa-envelope text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">{{ $user->email }}</span>
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-phone text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">{{ $scholar->contact_number ?? $scholar->phone ?? 'Not provided' }}</span>
+                                <i class="fas fa-phone text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->contact_number ?? $scholar->phone ?? 'Not provided' }}</span>
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-map-marker-alt text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">{{ $scholar->address ?? 'Not provided' }}</span>
+                                <i class="fas fa-map-marker-alt text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->address ?? 'Not provided' }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h3 class="text-sm font-medium text-gray-700 mb-2">Personal Information</h3>
-                        <div class="space-y-2">
+                    <div class="mb-6">
+                        <h3 class="text-base font-medium text-gray-700 mb-3">Personal Information</h3>
+                        <div class="space-y-3">
                             <div class="flex items-center">
-                                <i class="fas fa-birthday-cake text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">{{ $scholar->birth_date ? $scholar->birth_date->format('M d, Y') : 'Not provided' }}</span>
+                                <i class="fas fa-birthday-cake text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->birth_date ? $scholar->birth_date->format('M d, Y') : 'Not provided' }}</span>
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-venus-mars text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">{{ $scholar->gender ?? 'Not provided' }}</span>
+                                <i class="fas fa-venus-mars text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->gender ?? 'Not provided' }}</span>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <h3 class="text-sm font-medium text-gray-700 mb-2">Scholarship Details</h3>
-                        <div class="space-y-2">
+                        <h3 class="text-base font-medium text-gray-700 mb-3">Scholarship Details</h3>
+                        <div class="space-y-3">
                             <div class="flex items-center">
-                                <i class="fas fa-graduation-cap text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">{{ $scholar->degree_level ?? 'Not provided' }}</span>
+                                <i class="fas fa-graduation-cap text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->degree_level ?? 'Not provided' }}</span>
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-calendar text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">Started: {{ $scholar->start_date ? $scholar->start_date->format('M d, Y') : 'Not provided' }}</span>
+                                <i class="fas fa-calendar text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">Started: {{ $scholar->start_date ? $scholar->start_date->format('M d, Y') : 'Not provided' }}</span>
                             </div>
                             <div class="flex items-center">
-                                <i class="fas fa-calendar-check text-gray-500 w-5"></i>
-                                <span class="text-gray-700 ml-2">Expected completion: {{ $scholar->expected_completion_date ? $scholar->expected_completion_date->format('M d, Y') : 'Not provided' }}</span>
+                                <i class="fas fa-calendar-check text-[#4A90E2] w-6"></i>
+                                <span class="text-gray-700 ml-3 text-base">Expected completion: {{ $scholar->expected_completion_date ? $scholar->expected_completion_date->format('M d, Y') : 'Not provided' }}</span>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <a href="{{ route('scholar.profile.edit') }}" class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            <i class="fas fa-edit mr-2"></i> Edit Profile
-                        </a>
                     </div>
                 </div>
             </div>
@@ -118,84 +97,75 @@
             <!-- Profile Details -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Academic Information -->
-                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-800">Academic Information</h3>
                     </div>
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">University</h4>
-                                <p class="text-gray-800">{{ $scholar->university }}</p>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">University</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->university }}</p>
                             </div>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Department</h4>
-                                <p class="text-gray-800">{{ $scholar->department ?? 'Not provided' }}</p>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Department</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->department ?? 'Not provided' }}</p>
                             </div>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Program</h4>
-                                <p class="text-gray-800">{{ $scholar->program }}</p>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Program</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->program }}</p>
                             </div>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Degree Level</h4>
-                                <p class="text-gray-800">{{ $scholar->degree_level ?? 'Not provided' }}</p>
-                            </div>
-
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Major/Specialization</h4>
-                                <p class="text-gray-800">{{ $scholar->major ?? 'Not provided' }}</p>
-                            </div>
-
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Bachelor's Degree</h4>
-                                <p class="text-gray-800">{{ $scholar->bachelor_degree ?? 'Not provided' }}</p>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Degree Level</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->degree_level ?? 'Not provided' }}</p>
                             </div>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Bachelor's University</h4>
-                                <p class="text-gray-800">{{ $scholar->bachelor_university ?? 'Not provided' }}</p>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Major/Specialization</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->major ?? 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Bachelor's Degree</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->bachelor_degree ?? 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Bachelor's University</h4>
+                                <p class="text-gray-800 text-base">{{ $scholar->bachelor_university ?? 'Not provided' }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Research Information -->
-                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-800">Research Information</h3>
                     </div>
                     <div class="p-6">
-                        <div class="mb-4">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Research Title</h4>
-                            <p class="text-gray-800">{{ $scholar->research_title ?? 'Not provided' }}</p>
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Research Title</h4>
+                            <p class="text-gray-800 text-base">{{ $scholar->research_title ?? 'Not provided' }}</p>
                         </div>
-                        <div class="mb-4">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Research Abstract</h4>
-                            <p class="text-gray-700">{{ $scholar->research_abstract ?? 'Not provided' }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Research Notes</h4>
-                            <p class="text-gray-800">{{ $scholar->notes ?? 'Not provided' }}</p>
-                        </div>
+
                         @if($scholar->enrollment_type || $scholar->study_time || $scholar->scholarship_duration)
                         <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Program Details</h4>
-                            <div class="space-y-2">
+                            <h4 class="text-sm font-medium text-[#4A90E2] mb-3">Program Details</h4>
+                            <div class="space-y-3">
                                 @if($scholar->enrollment_type)
                                 <div class="flex items-center">
-                                    <i class="fas fa-user-graduate text-gray-500 w-5"></i>
-                                    <span class="text-gray-700 ml-2">Enrollment: {{ $scholar->enrollment_type }}</span>
+                                    <i class="fas fa-user-graduate text-[#4A90E2] w-6"></i>
+                                    <span class="text-gray-700 ml-3 text-base">Enrollment: {{ $scholar->enrollment_type }}</span>
                                 </div>
                                 @endif
                                 @if($scholar->study_time)
                                 <div class="flex items-center">
-                                    <i class="fas fa-clock text-gray-500 w-5"></i>
-                                    <span class="text-gray-700 ml-2">Study Time: {{ $scholar->study_time }}</span>
+                                    <i class="fas fa-clock text-[#4A90E2] w-6"></i>
+                                    <span class="text-gray-700 ml-3 text-base">Study Time: {{ $scholar->study_time }}</span>
                                 </div>
                                 @endif
                                 @if($scholar->scholarship_duration)
                                 <div class="flex items-center">
-                                    <i class="fas fa-calendar-alt text-gray-500 w-5"></i>
-                                    <span class="text-gray-700 ml-2">Duration: {{ $scholar->scholarship_duration }} months</span>
+                                    <i class="fas fa-calendar-alt text-[#4A90E2] w-6"></i>
+                                    <span class="text-gray-700 ml-3 text-base">Duration: {{ $scholar->scholarship_duration }} months</span>
                                 </div>
                                 @endif
                             </div>
@@ -207,4 +177,15 @@
         </div>
     </div>
 </div>
+
+@if(session('status'))
+<div x-data="{ show: true }"
+     x-show="show"
+     x-init="setTimeout(() => show = false, 3000)"
+     class="fixed bottom-4 right-4 bg-[#4CAF50] text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ session('status') }}</span>
+</div>
+@endif
+
 @endsection

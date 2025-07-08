@@ -8,6 +8,7 @@ use App\Services\NotificationService;
 use App\Services\FundRequestService;
 use App\Services\Interfaces\FundRequestServiceInterface;
 use App\Repositories\FundRequestRepository;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Site settings have been removed, no need to check or apply email settings
     }
 }

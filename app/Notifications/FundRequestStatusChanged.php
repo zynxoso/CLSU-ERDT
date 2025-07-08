@@ -34,7 +34,7 @@ class FundRequestStatusChanged extends Notification
         $this->notes = $notes;
 
         // Store notification in custom notifications table
-        $this->storeCustomNotification();
+        // $this->storeCustomNotification();
     }
 
     /**
@@ -42,6 +42,7 @@ class FundRequestStatusChanged extends Notification
      *
      * @return void
      */
+    /*
     protected function storeCustomNotification()
     {
         $user = $this->fundRequest->user;
@@ -65,6 +66,7 @@ class FundRequestStatusChanged extends Notification
             'is_read' => false,
         ]);
     }
+    */
 
     /**
      * Get the notification's delivery channels.
@@ -74,7 +76,8 @@ class FundRequestStatusChanged extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        // Use both database and mail channels
+        return ['database', 'mail'];
     }
 
     /**
@@ -96,7 +99,7 @@ class FundRequestStatusChanged extends Notification
             $message->line('Admin notes:')
                     ->line($this->notes);
         }
-        
+
         // Add data privacy reminder for approved requests
         if ($this->newStatus === 'Approved') {
             $message->line('')
@@ -125,6 +128,7 @@ class FundRequestStatusChanged extends Notification
             'old_status' => $this->oldStatus,
             'new_status' => $this->newStatus,
             'amount' => $this->fundRequest->amount,
+            'action_url' => route('scholar.fund-requests.show', $this->fundRequest->id),
         ];
 
         if ($this->notes) {

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('scholar_profiles', function (Blueprint $table) {
             // Only add columns that don't exist yet
             if (!Schema::hasColumn('scholar_profiles', 'government_id')) {
-                $table->text('government_id')->nullable()->after('major');
+                $table->text('government_id')->nullable()->after('program');
             }
             if (!Schema::hasColumn('scholar_profiles', 'government_id_type')) {
                 $table->string('government_id_type')->nullable()->after('government_id');
@@ -40,7 +40,7 @@ return new class extends Migration
 
             // Add missing columns that should exist based on the model
             if (!Schema::hasColumn('scholar_profiles', 'profile_photo')) {
-                $table->string('profile_photo')->nullable()->after('major');
+                $table->string('profile_photo')->nullable()->after('program');
             }
             if (!Schema::hasColumn('scholar_profiles', 'is_verified')) {
                 $table->boolean('is_verified')->default(false)->after('profile_photo');

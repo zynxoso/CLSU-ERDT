@@ -27,21 +27,71 @@ class StoreFundRequestRequest extends FormRequest
                 'required',
                 'exists:request_types,id',
                 function ($attribute, $value, $fail) {
+                    // Check if request type is active
+                    $requestType = \App\Models\RequestType::find($value);
+                    if ($requestType && !$requestType->is_active) {
+                        $fail('The selected request type is currently not available.');
+                    }
+
+                    // Check for existing pending requests of the same type
                     $existingRequest = \App\Models\FundRequest::where([
                         'scholar_profile_id' => Auth::user()->scholarProfile->id,
                         'request_type_id' => $value,
-                        'status' => ['Submitted', 'Under Review', 'Approved']
-                    ])->exists();
+                    ])->whereIn('status', ['Submitted', 'Under Review', 'Approved'])->exists();
 
                     if ($existingRequest) {
                         $fail('You already have a pending or approved request of this type.');
                     }
                 }
             ],
-            'amount' => 'required|numeric|min:0',
-            'admin_remarks' => 'nullable|string',
+            'amount' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                'max:999999999',
+                'regex:/^\d+(\.\d{1,2})?$/', // Allow up to 2 decimal places
+                function ($attribute, $value, $fail) {
+                    // Additional amount validation will be handled by the service layer
+                    if ($value <= 0) {
+                        $fail('The amount must be greater than zero.');
+                    }
+
+                    // Check for reasonable amount (not too small)
+                    if ($value < 1) {
+                        $fail('The minimum amount is ₱1.00.');
+                    }
+                }
+            ],
+            'admin_remarks' => 'nullable|string|max:1000',
             'status' => 'sometimes|in:Draft,Submitted',
-            'document' => 'nullable|file|mimes:pdf|max:10240'
+            'document' => [
+                'nullable',
+                'file',
+                'mimes:pdf',
+                'max:10240', // 10MB
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        // Additional file validation
+                        $extension = strtolower($value->getClientOriginalExtension());
+                        $mimeType = $value->getMimeType();
+
+                        // Strict PDF validation
+                        if ($extension !== 'pdf' || $mimeType !== 'application/pdf') {
+                            $fail('Only PDF files are allowed.');
+                        }
+
+                        // Check file size more strictly
+                        if ($value->getSize() > 10485760) { // 10MB in bytes
+                            $fail('The document size must not exceed 10MB.');
+                        }
+
+                        // Check for minimum file size (avoid empty files)
+                        if ($value->getSize() < 1024) { // 1KB minimum
+                            $fail('The document file appears to be too small or corrupted.');
+                        }
+                    }
+                }
+            ]
         ];
     }
 

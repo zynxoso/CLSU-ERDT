@@ -58,25 +58,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Performance Monitoring
-    |--------------------------------------------------------------------------
-    |
-    | Thresholds for performance monitoring and alerting.
-    |
-    */
-    'performance' => [
-        // Slow request threshold (seconds)
-        'slow_request_threshold' => env('DDOS_SLOW_REQUEST_THRESHOLD', 2.0),
-
-        // High memory usage threshold (bytes)
-        'high_memory_threshold' => env('DDOS_HIGH_MEMORY_THRESHOLD', 52428800), // 50MB
-
-        // Enable performance headers in responses
-        'enable_performance_headers' => env('DDOS_ENABLE_PERFORMANCE_HEADERS', true),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Bot Detection
     |--------------------------------------------------------------------------
     |

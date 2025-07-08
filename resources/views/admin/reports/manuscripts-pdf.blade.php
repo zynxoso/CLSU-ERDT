@@ -10,7 +10,7 @@
             font-family: 'DejaVu Sans', sans-serif;
             font-size: 12px;
             line-height: 1.4;
-            color: #333;
+            color: #424242;
             margin: 0;
             padding: 20px;
         }
@@ -24,22 +24,22 @@
         }
 
         th {
-            background-color: #2563eb;
+            background-color: #2E7D32;
             color: white;
             font-weight: bold;
             text-align: left;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #E0E0E0;
         }
 
         td {
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #E0E0E0;
             vertical-align: top;
         }
 
         tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #FAFAFA;
         }
 
         /* Status badges */
@@ -53,40 +53,41 @@
         }
 
         .status-draft {
-            background-color: #dbeafe;
-            color: #1e40af;
+            background-color: #E3F2FD;
+            color: #1976D2;
         }
 
         .status-review {
-            background-color: #fef3c7;
-            color: #92400e;
+            background-color: #FFF3C4;
+            color: #F57F17;
         }
 
         .status-approved {
-            background-color: #dcfce7;
-            color: #166534;
+            background-color: #E8F5E8;
+            color: #1B5E20;
         }
 
         .status-published {
-            background-color: #dcfce7;
-            color: #166534;
+            background-color: #E8F5E8;
+            color: #1B5E20;
         }
 
         .status-rejected {
-            background-color: #fee2e2;
-            color: #b91c1c;
+            background-color: #FFEBEE;
+            color: #B71C1C;
         }
 
         /* Reference number */
         .reference {
             font-size: 9px;
-            color: #666;
+            color: #757575;
             margin-top: 2px;
         }
 
         /* Extra small text */
         .text-xs {
             font-size: 9px;
+            color: #757575;
         }
 
         /* Copyright text */
@@ -94,7 +95,7 @@
             margin-top: 15px;
             text-align: center;
             font-size: 9px;
-            color: #666;
+            color: #757575;
         }
     </style>
 </head>
@@ -143,7 +144,7 @@
             </tbody>
         </table>
     @else
-        <div style="text-align: center; padding: 20px; color: #666; background-color: #f9f9f9; border-radius: 8px;">
+        <div style="text-align: center; padding: 20px; color: #757575; background-color: #FAFAFA; border-radius: 8px; border: 1px solid #E0E0E0;">
             No manuscripts found matching your criteria.
         </div>
     @endif

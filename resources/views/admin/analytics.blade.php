@@ -5,20 +5,25 @@
 @section('content')
 <div class="analytics-dashboard">
     <div class="analytics-dashboard__header">
-        <h1 class="analytics-dashboard__header-title">Admin Analytics Dashboard</h1>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900">Admin Analytics Dashboard</h1>
+                <p class="text-sm text-gray-600 mt-1">Comprehensive overview of system performance</p>
+            </div>
 
-        <div class="relative" x-data="{ open: false }">
-            <button id="timeframe-btn" class="flex items-center px-4 py-2 bg-gray-800 rounded-lg text-gray-300 hover:bg-gray-700" @click="open = !open">
-                <span>Last 30 Days</span>
-                <i class="fas fa-chevron-down ml-2"></i>
-            </button>
+            <div class="relative" x-data="{ open: false }">
+                <button id="timeframe-btn" class="flex items-center px-4 py-2 bg-gray-800 rounded-lg text-gray-300 hover:bg-gray-700 w-full sm:w-auto justify-center" @click="open = !open">
+                    <span>Last 30 Days</span>
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
 
-            <div id="timeframe-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-10 hidden" x-show="open" @click.away="open = false">
-                <div class="py-1">
-                    <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="7">Last 7 Days</a>
-                    <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="30">Last 30 Days</a>
-                    <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="90">Last 90 Days</a>
-                    <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="365">Last Year</a>
+                <div id="timeframe-dropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-10 hidden" x-show="open" @click.away="open = false">
+                    <div class="py-1">
+                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="7">Last 7 Days</a>
+                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="30">Last 30 Days</a>
+                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="90">Last 90 Days</a>
+                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-gray-700" data-value="365">Last Year</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -26,57 +31,57 @@
 
     <div class="container py-6">
         <!-- KPI Cards -->
-        <div class="analytics-dashboard__kpi-grid">
-            <div class="analytics-dashboard__kpi-card">
-                <div class="analytics-dashboard__kpi-card-header">
-                    <span class="analytics-dashboard__kpi-card-title">Total Scholars</span>
-                    <i class="fas fa-user-graduate text-blue-500"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-600">Total Scholars</span>
+                    <i class="fas fa-user-graduate text-blue-500 text-xl"></i>
                 </div>
-                <div class="analytics-dashboard__kpi-card-value">{{ $totalScholars ?? 0 }}</div>
-                <div class="flex items-center mt-2">
-                    <span class="analytics-dashboard__kpi-card-trend--up text-sm">
+                <div class="text-3xl font-bold text-gray-900 mb-2">{{ $totalScholars ?? 0 }}</div>
+                <div class="flex items-center">
+                    <span class="inline-flex items-center text-sm text-green-600">
                         <i class="fas fa-arrow-up mr-1"></i> {{ $scholarsGrowth ?? '0%' }}
                     </span>
                     <span class="text-gray-400 text-sm ml-2">vs previous period</span>
                 </div>
             </div>
 
-            <div class="analytics-dashboard__kpi-card">
-                <div class="analytics-dashboard__kpi-card-header">
-                    <span class="analytics-dashboard__kpi-card-title">Total Disbursed</span>
-                    <i class="fas fa-money-bill-wave text-green-500"></i>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-600">Total Disbursed</span>
+                    <i class="fas fa-money-bill-wave text-green-500 text-xl"></i>
                 </div>
-                <div class="analytics-dashboard__kpi-card-value">₱{{ number_format($totalDisbursed ?? 0) }}</div>
-                <div class="flex items-center mt-2">
-                    <span class="analytics-dashboard__kpi-card-trend--up text-sm">
+                <div class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">₱{{ number_format($totalDisbursed ?? 0) }}</div>
+                <div class="flex items-center">
+                    <span class="inline-flex items-center text-sm text-green-600">
                         <i class="fas fa-arrow-up mr-1"></i> {{ $disbursedGrowth ?? '0%' }}
                     </span>
                     <span class="text-gray-400 text-sm ml-2">vs previous period</span>
                 </div>
             </div>
 
-            <div class="analytics-dashboard__kpi-card">
-                <div class="analytics-dashboard__kpi-card-header">
-                    <span class="analytics-dashboard__kpi-card-title">Pending Requests</span>
-                    <i class="fas fa-clock text-yellow-500"></i>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-600">Pending Requests</span>
+                    <i class="fas fa-clock text-yellow-500 text-xl"></i>
                 </div>
-                <div class="analytics-dashboard__kpi-card-value">{{ $pendingRequests ?? 0 }}</div>
-                <div class="flex items-center mt-2">
-                    <span class="analytics-dashboard__kpi-card-trend--down text-sm">
+                <div class="text-3xl font-bold text-gray-900 mb-2">{{ $pendingRequests ?? 0 }}</div>
+                <div class="flex items-center">
+                    <span class="inline-flex items-center text-sm text-red-600">
                         <i class="fas fa-arrow-down mr-1"></i> {{ $pendingGrowth ?? '0%' }}
                     </span>
                     <span class="text-gray-400 text-sm ml-2">vs previous period</span>
                 </div>
             </div>
 
-            <div class="analytics-dashboard__kpi-card">
-                <div class="analytics-dashboard__kpi-card-header">
-                    <span class="analytics-dashboard__kpi-card-title">Completion Rate</span>
-                    <i class="fas fa-graduation-cap text-purple-500"></i>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-600">Completion Rate</span>
+                    <i class="fas fa-graduation-cap text-purple-500 text-xl"></i>
                 </div>
-                <div class="analytics-dashboard__kpi-card-value">{{ $completionRate ?? 0 }}%</div>
-                <div class="flex items-center mt-2">
-                    <span class="analytics-dashboard__kpi-card-trend--up text-sm">
+                <div class="text-3xl font-bold text-gray-900 mb-2">{{ $completionRate ?? 0 }}%</div>
+                <div class="flex items-center">
+                    <span class="inline-flex items-center text-sm text-green-600">
                         <i class="fas fa-arrow-up mr-1"></i> {{ $completionGrowth ?? '0%' }}
                     </span>
                     <span class="text-gray-400 text-sm ml-2">vs previous period</span>
@@ -85,40 +90,48 @@
         </div>
 
         <!-- Charts -->
-        <div class="analytics-dashboard__charts-grid">
-            <div class="analytics-dashboard__chart-card">
-                <div class="analytics-dashboard__chart-card-header">
-                    <h2 class="text-lg font-semibold text-gray-300">Fund Disbursement by Category</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Fund Disbursement by Category</h2>
                 </div>
-                <div class="analytics-dashboard__chart-card-body">
-                    <canvas id="disbursementChart"></canvas>
-                </div>
-            </div>
-
-            <div class="analytics-dashboard__chart-card">
-                <div class="analytics-dashboard__chart-card-header">
-                    <h2 class="text-lg font-semibold text-gray-300">Scholar Distribution</h2>
-                </div>
-                <div class="analytics-dashboard__chart-card-body">
-                    <canvas id="scholarChart"></canvas>
+                <div class="p-6">
+                    <div class="relative h-64 sm:h-80">
+                        <canvas id="disbursementChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="analytics-dashboard__chart-card">
-                <div class="analytics-dashboard__chart-card-header">
-                    <h2 class="text-lg font-semibold text-gray-300">Monthly Fund Requests</h2>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Scholar Distribution</h2>
                 </div>
-                <div class="analytics-dashboard__chart-card-body">
-                    <canvas id="requestsChart"></canvas>
+                <div class="p-6">
+                    <div class="relative h-64 sm:h-80">
+                        <canvas id="scholarChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="analytics-dashboard__chart-card">
-                <div class="analytics-dashboard__chart-card-header">
-                    <h2 class="text-lg font-semibold text-gray-300">Completion Timeline</h2>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Monthly Fund Requests</h2>
                 </div>
-                <div class="analytics-dashboard__chart-card-body">
-                    <canvas id="completionChart"></canvas>
+                <div class="p-6">
+                    <div class="relative h-64 sm:h-80">
+                        <canvas id="requestsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Completion Timeline</h2>
+                </div>
+                <div class="p-6">
+                    <div class="relative h-64 sm:h-80">
+                        <canvas id="completionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -198,6 +211,40 @@
             ]
         };
 
+        // Chart configuration with responsive options
+        const responsiveOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: window.innerWidth < 640 ? 'bottom' : 'right',
+                    labels: {
+                        boxWidth: 12,
+                        padding: window.innerWidth < 640 ? 10 : 20,
+                        font: {
+                            size: window.innerWidth < 640 ? 10 : 12
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        font: {
+                            size: window.innerWidth < 640 ? 10 : 12
+                        }
+                    }
+                },
+                y: {
+                    ticks: {
+                        font: {
+                            size: window.innerWidth < 640 ? 10 : 12
+                        }
+                    }
+                }
+            }
+        };
+
         // Initialize charts
         initDisbursementChart(disbursementData);
         initScholarChart(scholarData);
@@ -216,11 +263,15 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...responsiveOptions,
                     plugins: {
-                        legend: {
-                            position: 'bottom'
+                        ...responsiveOptions.plugins,
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ₱' + context.parsed.toLocaleString();
+                                }
+                            }
                         }
                     }
                 }
@@ -238,15 +289,7 @@
                         borderWidth: 1
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
+                options: responsiveOptions
             });
         }
 
@@ -254,15 +297,7 @@
             new Chart(document.getElementById('requestsChart'), {
                 type: 'line',
                 data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
+                options: responsiveOptions
             });
         }
 
@@ -270,17 +305,16 @@
             new Chart(document.getElementById('completionChart'), {
                 type: 'line',
                 data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
+                options: responsiveOptions
             });
         }
+
+        // Handle window resize for chart responsiveness
+        window.addEventListener('resize', function() {
+            Chart.helpers.each(Chart.instances, function(instance) {
+                instance.resize();
+            });
+        });
     });
 </script>
 @endsection

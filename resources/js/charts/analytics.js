@@ -1,15 +1,17 @@
 import Chart from 'chart.js/auto';
-import { format } from 'date-fns';
 
 // Chart.js Global Configuration
 Chart.defaults.font.family = 'Inter, sans-serif';
 Chart.defaults.color = '#94A3B8'; // slate-400
-Chart.defaults.scale.grid.color = '#334155'; // slate-700
+Chart.defaults.scale.grid.color = '#E2E8F0';
 Chart.defaults.plugins.tooltip.backgroundColor = '#1E293B'; // slate-800
 
 // Funding Distribution Chart
-const initFundingChart = (data) => {
-    return new Chart(document.getElementById('fundingChart'), {
+export const initFundingChart = (data) => {
+    const ctx = document.getElementById('fundingChart');
+    if (!ctx) return null;
+
+    return new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data.labels,
@@ -38,5 +40,28 @@ const initFundingChart = (data) => {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        use
-</rewritten_file>
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    padding: 12,
+                    boxPadding: 8
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => `₱${value.toLocaleString()}`
+                    }
+                }
+            }
+        }
+    });
+};
