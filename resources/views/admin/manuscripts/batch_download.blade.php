@@ -17,12 +17,12 @@
             </a>
         </div>
 
-        <div class="border rounded-lg p-4 mb-6" style="background-color: #E8F5E8; border-color: #2E7D32;">
+        <div class="border rounded-lg p-4 mb-6" style="background-color: rgba(76, 175, 80, 0.1); border-color: #4CAF50;">
             <div class="flex items-start">
-                <i class="fas fa-info-circle mt-1 mr-3" style="color: #2E7D32;"></i>
+                <i class="fas fa-info-circle mt-1 mr-3" style="color: #4CAF50;"></i>
                 <div>
-                    <h3 class="font-semibold" style="color: #1B5E20; font-size: 16px;">Alternative Download Method</h3>
-                    <p class="mt-1" style="color: #2E7D32; font-size: 14px;">
+                    <h3 class="font-semibold" style="color: #4CAF50; font-size: 16px;">Alternative Download Method</h3>
+                    <p class="mt-1" style="color: #4CAF50; font-size: 14px;">
                         Since ZIP functionality is not available on this server, we've prepared your files for individual download.
                         You can download all files at once using the button below, or download them individually.
                     </p>
@@ -39,16 +39,16 @@
                 </div>
                 <button onclick="downloadAll()"
                         class="px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
-                        style="background-color: #2E7D32; color: white; font-size: 15px;"
-                        onmouseover="this.style.backgroundColor='#1B5E20'"
-                        onmouseout="this.style.backgroundColor='#2E7D32'">
+                        style="background-color: #4CAF50; color: white; font-size: 15px;"
+                        onmouseover="this.style.backgroundColor='#43A047'"
+                        onmouseout="this.style.backgroundColor='#4CAF50'">
                     <i class="fas fa-download mr-2"></i> Download All
                 </button>
             </div>
             <div id="progress" class="mt-3" style="color: #424242; font-size: 14px;"></div>
             <div id="progressBar" class="hidden mt-2">
                 <div class="w-full rounded-full h-2" style="background-color: #E0E0E0;">
-                    <div id="progressFill" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #2E7D32;"></div>
+                    <div id="progressFill" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #4CAF50;"></div>
                 </div>
             </div>
         </div>
@@ -58,16 +58,16 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="font-semibold" style="color: #212121; font-size: 16px;">
-                        <i class="fas fa-file-excel mr-2" style="color: #2E7D32;"></i>
+                        <i class="fas fa-file-excel mr-2" style="color: #4CAF50;"></i>
                         Metadata File
                     </h3>
                     <p class="text-sm" style="color: #424242; font-size: 14px;">Complete manuscript information in Excel format</p>
                 </div>
                 <a href="{{ url('/admin/manuscripts/batch-download/' . $batchId . '/manuscripts_metadata.xlsx') }}"
                    class="px-4 py-2 rounded-lg batch-download-link transition-colors duration-200"
-                   style="background-color: #1976D2; color: white; font-size: 15px;"
-                   onmouseover="this.style.backgroundColor='#1565C0'"
-                   onmouseout="this.style.backgroundColor='#1976D2'">
+                   style="background-color: #4A90E2; color: white; font-size: 15px;"
+                   onmouseover="this.style.backgroundColor='#4A90E2'"
+                   onmouseout="this.style.backgroundColor='#4A90E2'"
                     <i class="fas fa-download mr-2"></i> Download
                 </a>
             </div>
@@ -146,7 +146,7 @@ function displayFiles() {
             const fileName = file.split('/').pop();
             const fileType = fileName.includes('manuscript_info') ? 'info' : 'document';
             const iconClass = fileType === 'info' ? 'fas fa-info-circle' : 'fas fa-file-pdf';
-            const iconColor = fileType === 'info' ? '#1976D2' : '#D32F2F';
+            const iconColor = fileType === 'info' ? '#4A90E2' : '#D32F2F';
 
             html += `
                 <a href="${baseUrl}/${file}"

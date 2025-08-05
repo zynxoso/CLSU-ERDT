@@ -75,10 +75,9 @@
     </div>
     @endif
 
-    <div x-data="{ shown: false }" x-init="setTimeout(() => shown = true, 100)" class="space-y-6">
+    <div class="space-y-6">
         <!-- Welcome Section -->
-        <div class="mb-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 shadow-sm hover:shadow-md"
-             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'">
+        <div class="mb-6 bg-white rounded-lg p-6 shadow-sm hover:shadow-md">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">Welcome, Super Admin {{ $user->name }}!</h1>
@@ -103,8 +102,7 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="mb-6"
-             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
+        <div class="mb-6">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-lg font-semibold text-gray-800">System Overview</h2>
             </div>

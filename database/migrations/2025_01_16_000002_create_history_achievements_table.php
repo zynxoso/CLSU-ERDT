@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->string('icon')->nullable(); // SVG path or icon class
+            $table->text('icon')->nullable(); // SVG path or icon class
             $table->string('statistic')->nullable(); // e.g., "200+", "50+", "15+"
             $table->string('statistic_label')->nullable(); // e.g., "graduates", "papers"
             $table->string('color')->default('blue'); // Color theme

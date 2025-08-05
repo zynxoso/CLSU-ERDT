@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('department');
             $table->string('specialization');
             $table->text('education_background');
-            $table->text('research_description');
+            $table->text('research_description')->nullable();
             $table->string('photo_path')->nullable();
             $table->json('expertise_tags')->nullable();
             $table->string('degree_level')->default('Ph.D');

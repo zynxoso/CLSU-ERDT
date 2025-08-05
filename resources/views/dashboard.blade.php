@@ -16,8 +16,8 @@
                                 <h5 class="card-title">Profile Status</h5>
                                 <p class="card-text">
                                     <strong>Status:</strong> {{ auth()->user()->scholarProfile->status ?? 'Not Set' }}<br>
-                                    <strong>Program:</strong> {{ auth()->user()->scholarProfile->program ?? 'Not Set' }}<br>
-                                    <strong>University:</strong> {{ auth()->user()->scholarProfile->university ?? 'Not Set' }}
+                                    <strong>Department:</strong> {{ auth()->user()->scholarProfile->department ?? 'Not Set' }}<br>
+                                    <strong>University:</strong> {{ auth()->user()->scholarProfile->intended_university ?? 'Not Set' }}
                                 </p>
                                 <a href="{{ route('scholars.show', auth()->user()->scholarProfile->id ?? 0) }}"
                                    class="btn btn-primary">View Profile</a>
@@ -34,7 +34,7 @@
                                     <strong>Approved:</strong> <span class="badge bg-success text-white" style="background-color: #10b981;"><i class="fas fa-check mr-1" style="color: white;"></i> {{ $approvedRequests ?? 0 }}</span><br>
                                     <strong>Rejected:</strong> <span class="badge bg-danger text-white" style="background-color: #ef4444;"><i class="fas fa-times mr-1" style="color: white;"></i> {{ $rejectedRequests ?? 0 }}</span>
                                 </p>
-                                <a href="{{ route('fund-requests.index') }}"
+                                <a href="{{ route('scholar.fund-requests.index') }}"
                                    class="btn btn-primary">View Requests</a>
                             </div>
                         </div>
@@ -245,6 +245,6 @@
     </div>
 </div>
 
-<script>window.location = "/login";</script>
+<script>window.location = "{{ route('login') }}";</script>
 @endauth
 @endsection

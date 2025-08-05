@@ -7,24 +7,24 @@ use Illuminate\Console\Command;
 class WarmCacheCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Pangalan at signature ng console command.
      *
      * @var string
      */
     protected $signature = 'app:warm-cache-command';
 
     /**
-     * The console command description.
+     * Description ng console command.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Command para sa pag-warm ng cache';
 
     /**
-     * Execute the console command.
+     * I-execute ang console command.
      */
     public function handle()
     {
-        //
+        
     }
 }

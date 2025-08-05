@@ -33,6 +33,13 @@ class Document extends Model
         'security_scanned',
         'security_scanned_at',
         'security_scan_result',
+        'document_category',
+        'validation_status',
+        'validation_notes',
+        'validated_by',
+        'validated_at',
+        'mime_type',
+        'rejection_reason',
     ];
 
     /**
@@ -45,6 +52,7 @@ class Document extends Model
         'verified_at' => 'datetime',
         'security_scanned' => 'boolean',
         'security_scanned_at' => 'datetime',
+        'validated_at' => 'datetime',
     ];
 
     /**
@@ -77,6 +85,14 @@ class Document extends Model
     public function verifiedBy()
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
+     * Get the user who validated the document.
+     */
+    public function validatedBy()
+    {
+        return $this->belongsTo(User::class, 'validated_by');
     }
 
     /**

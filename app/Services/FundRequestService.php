@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Document;
 use App\Models\FundRequest;
+use App\Models\Manuscript;
 use App\Models\RequestType;
 use App\Models\User;
 use App\Notifications\FundRequestStatusChanged;
@@ -120,10 +121,10 @@ class FundRequestService implements FundRequestServiceInterface
         $totalApproved = $totalApproved->where('status', 'Approved')->sum('amount');
 
         $totalPending = clone $query;
-        $totalPending = $totalPending->where('status', 'Pending')->sum('amount');
+        $totalPending = $totalPending->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->sum('amount');
 
         $totalRejected = clone $query;
-        $totalRejected = $totalRejected->where('status', 'Rejected')->sum('amount');
+        $totalRejected = $totalRejected->where('status', FundRequest::STATUS_REJECTED)->sum('amount');
 
         return [
             'totalRequested' => $totalRequested,
@@ -134,7 +135,38 @@ class FundRequestService implements FundRequestServiceInterface
     }
 
     /**
-     * Check for potential duplicate fund requests
+     * Check for active duplicate fund requests (strict validation)
+     *
+     * @param int $scholarProfileId
+     * @param int $requestTypeId
+     * @return array|null
+     */
+    public function checkForActiveDuplicateRequest(int $scholarProfileId, int $requestTypeId): ?array
+    {
+        // Find any active requests of the same type
+        $activeRequest = FundRequest::where('scholar_profile_id', $scholarProfileId)
+            ->where('request_type_id', $requestTypeId)
+            ->whereIn('status', [
+                FundRequest::STATUS_SUBMITTED,
+                FundRequest::STATUS_UNDER_REVIEW,
+                FundRequest::STATUS_APPROVED
+            ])
+            ->first();
+
+        if ($activeRequest) {
+            return [
+                'found' => true,
+                'request' => $activeRequest,
+                'status' => $activeRequest->status,
+                'message' => "You already have a {$activeRequest->status} request of this type. Please wait for it to be completed before submitting a new request."
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Check for potential duplicate fund requests (similarity detection)
      *
      * @param int $scholarProfileId
      * @param int $requestTypeId
@@ -182,13 +214,27 @@ class FundRequestService implements FundRequestServiceInterface
      * @param int $scholarProfileId
      * @param Request $request
      * @return FundRequest
+     * @throws \Exception
      */
     public function createFundRequest(array $data, int $scholarProfileId, Request $request): FundRequest
     {
         // Get the request type
         $requestType = RequestType::find($data['request_type_id']);
+        if (!$requestType) {
+            throw new \Exception('Invalid request type selected.');
+        }
 
-        // Check for potential duplicates
+        // Strict duplicate check - prevent any active requests of same type
+        $activeDuplicateCheck = $this->checkForActiveDuplicateRequest(
+            $scholarProfileId,
+            $data['request_type_id']
+        );
+
+        if ($activeDuplicateCheck) {
+            throw new \Exception($activeDuplicateCheck['message']);
+        }
+
+        // Check for potential similar duplicates (for admin notification)
         $duplicateCheck = $this->checkForDuplicateRequest(
             $scholarProfileId,
             $data['request_type_id'],
@@ -202,7 +248,7 @@ class FundRequestService implements FundRequestServiceInterface
         $fundRequest->amount = $data['amount'];
         $fundRequest->purpose = $requestType->name; // Use the request type name as the purpose
         $fundRequest->admin_remarks = $data['admin_remarks'] ?? null;
-        $fundRequest->status = $data['status'] ?? 'Draft';
+        $fundRequest->status = $data['status'] ?? FundRequest::STATUS_DRAFT;
 
         // If potential duplicates were found, flag for admin review
         if ($duplicateCheck) {
@@ -245,7 +291,7 @@ class FundRequestService implements FundRequestServiceInterface
                         'A potential duplicate fund request has been detected for ' . $requestType->name . ' in the amount of ' . $data['amount'] . '. Please review.',
                         'fund_request',
                         route('admin.fund-requests.show', $fundRequest->id),
-                        true
+                        false
                     );
                 }
             }
@@ -253,11 +299,11 @@ class FundRequestService implements FundRequestServiceInterface
 
         // Add initial status history entry
         $initialStatus = $fundRequest->status;
-        $statusNote = $initialStatus === 'Draft' ? 'Request saved as draft' : 'Request submitted for review';
+        $statusNote = $initialStatus === FundRequest::STATUS_DRAFT ? 'Request saved as draft' : 'Request submitted for review';
         $fundRequest->addStatusHistory($initialStatus, $statusNote);
 
         // If the fund request is created directly as 'Submitted', send notifications
-        if ($fundRequest->status === 'Submitted') {
+        if ($fundRequest->status === FundRequest::STATUS_SUBMITTED) {
             // Notify all admins about the new fund request submission
             $admins = User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
@@ -324,8 +370,8 @@ class FundRequestService implements FundRequestServiceInterface
         $fundRequest->purpose = $requestType->name;
 
         // If submitting the request
-        if (isset($data['status']) && $data['status'] === 'Submitted') {
-            $fundRequest->status = 'Submitted';
+        if (isset($data['status']) && $data['status'] === FundRequest::STATUS_SUBMITTED) {
+            $fundRequest->status = FundRequest::STATUS_SUBMITTED;
         }
 
         $fundRequest->save();
@@ -345,11 +391,11 @@ class FundRequestService implements FundRequestServiceInterface
     {
         $oldValues = $fundRequest->toArray();
 
-        $fundRequest->status = 'Submitted';
+        $fundRequest->status = FundRequest::STATUS_SUBMITTED;
         $fundRequest->save();
 
         // Add detailed status history entry
-        $fundRequest->addStatusHistory('Submitted', 'Request submitted by scholar');
+        $fundRequest->addStatusHistory(FundRequest::STATUS_SUBMITTED, 'Request submitted by scholar');
 
         // Notify all admins about the new fund request submission
         $admins = User::where('role', 'admin')->get();
@@ -384,21 +430,24 @@ class FundRequestService implements FundRequestServiceInterface
         $oldValues = $fundRequest->toArray();
         $oldStatus = $fundRequest->status;
 
-        $fundRequest->status = 'Approved';
+        $fundRequest->status = FundRequest::STATUS_APPROVED;
         $fundRequest->reviewed_by = $reviewerId;
         $fundRequest->reviewed_at = now();
         $fundRequest->save();
 
         // Add detailed status history entry
-        $fundRequest->addStatusHistory('Approved', 'Request approved by administrator');
+        $fundRequest->addStatusHistory(FundRequest::STATUS_APPROVED, 'Request approved by administrator');
+
+        // Create manuscript if required for specific request types
+        $this->createManuscriptIfRequired($fundRequest);
 
         // Send notification to scholar
-        $scholar = $fundRequest->user;
+        $scholar = $fundRequest->scholarProfile->user;
         if ($scholar) {
             $scholar->notify(new FundRequestStatusChanged(
                 $fundRequest,
                 $oldStatus,
-                'Approved',
+                FundRequest::STATUS_APPROVED,
                 null
             ));
         }
@@ -421,22 +470,22 @@ class FundRequestService implements FundRequestServiceInterface
         $oldValues = $fundRequest->toArray();
         $oldStatus = $fundRequest->status;
 
-        $fundRequest->status = 'Rejected';
-        $fundRequest->admin_notes = $notes;
+        $fundRequest->status = FundRequest::STATUS_REJECTED;
+        $fundRequest->rejection_reason = $notes;
         $fundRequest->reviewed_by = $reviewerId;
         $fundRequest->reviewed_at = now();
         $fundRequest->save();
 
         // Add detailed status history entry
-        $fundRequest->addStatusHistory('Rejected', 'Request rejected by administrator: ' . $notes);
+        $fundRequest->addStatusHistory(FundRequest::STATUS_REJECTED, 'Request rejected by administrator: ' . $notes);
 
         // Send notification to scholar
-        $scholar = $fundRequest->user;
+        $scholar = $fundRequest->scholarProfile->user;
         if ($scholar) {
             $scholar->notify(new FundRequestStatusChanged(
                 $fundRequest,
                 $oldStatus,
-                'Rejected',
+                FundRequest::STATUS_REJECTED,
                 $notes
             ));
         }
@@ -457,19 +506,19 @@ class FundRequestService implements FundRequestServiceInterface
         $oldValues = $fundRequest->toArray();
         $oldStatus = $fundRequest->status;
 
-        $fundRequest->status = 'Under Review';
+        $fundRequest->status = FundRequest::STATUS_UNDER_REVIEW;
         $fundRequest->save();
 
         // Add detailed status history entry
-        $fundRequest->addStatusHistory('Under Review', 'Request is now under review by administrator');
+        $fundRequest->addStatusHistory(FundRequest::STATUS_UNDER_REVIEW, 'Request is now under review by administrator');
 
         // Send notification to scholar
-        $scholar = $fundRequest->user;
+        $scholar = $fundRequest->scholarProfile->user;
         if ($scholar) {
             $scholar->notify(new FundRequestStatusChanged(
                 $fundRequest,
                 $oldStatus,
-                'Under Review',
+                FundRequest::STATUS_UNDER_REVIEW,
                 'Your request is now being reviewed by an administrator.'
             ));
         }
@@ -512,12 +561,17 @@ class FundRequestService implements FundRequestServiceInterface
      *
      * @param int $requestTypeId
      * @param float $amount
-     * @param string $program
+     * @param string|null $intendedDegree
      * @return array|null Returns error array if validation fails, null if passes
      */
-    public function validateFundRequestAmount(int $requestTypeId, float $amount, string $program): ?array
+    public function validateFundRequestAmount(int $requestTypeId, float $amount, ?string $intendedDegree): ?array
     {
-        $isDoctoralProgram = stripos($program, 'doctoral') !== false || stripos($program, 'phd') !== false;
+        if (empty($intendedDegree)) {
+            return ['intended_degree' => 'Your intended degree is not set. Please update your profile.'];
+        }
+
+        $isDoctoralProgram = stripos($intendedDegree, 'phd') !== false || stripos($intendedDegree, 'doctorate') !== false || stripos($intendedDegree, 'doctoral') !== false;
+        $isMastersProgram = stripos($intendedDegree, 'master') !== false;
 
         // Get the request type name
         $requestType = RequestType::find($requestTypeId);
@@ -585,5 +639,64 @@ class FundRequestService implements FundRequestServiceInterface
         }
 
         return null;
+    }
+
+    /**
+     * Create manuscript if required for specific request types
+     *
+     * @param FundRequest $fundRequest
+     * @return void
+     */
+    private function createManuscriptIfRequired(FundRequest $fundRequest): void
+    {
+        // Check if the request type requires manuscript creation
+        // Type 5: Thesis/Dissertation Outright Grant
+        // Type 7: Research Dissemination Grant
+        if (!in_array($fundRequest->request_type_id, [5, 7])) {
+            return;
+        }
+
+        $scholarProfileId = $fundRequest->scholar_profile_id;
+        $manuscriptType = $fundRequest->request_type_id === 5 ? 'Outline' : 'Final';
+
+        // Check if manuscript already exists for this scholar and type
+        $existingManuscript = Manuscript::where('scholar_profile_id', $scholarProfileId)
+            ->where('manuscript_type', $manuscriptType)
+            ->first();
+
+        if ($existingManuscript) {
+            // Manuscript already exists, no need to create another
+            return;
+        }
+
+        // Generate reference number
+        $year = date('Y');
+        $lastManuscript = Manuscript::whereYear('created_at', $year)
+            ->orderBy('id', 'desc')
+            ->first();
+        
+        $sequence = $lastManuscript ? (int)substr($lastManuscript->reference_number, -4) + 1 : 1;
+        $referenceNumber = 'MS-' . $year . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+
+        // Create the manuscript
+        $manuscript = new Manuscript();
+        $manuscript->scholar_profile_id = $scholarProfileId;
+        $manuscript->reference_number = $referenceNumber;
+        $manuscript->title = $manuscriptType === 'Outline' ? 
+            'Thesis/Dissertation Outline - Auto-generated from Fund Request' : 
+            'Research Dissemination Final Manuscript - Auto-generated from Fund Request';
+        $manuscript->abstract = 'This manuscript was automatically created upon approval of the ' . 
+            ($manuscriptType === 'Outline' ? 'Thesis/Dissertation Outright Grant' : 'Research Dissemination Grant') . 
+            ' fund request. Please update the title, abstract, and other details as needed.';
+        $manuscript->manuscript_type = $manuscriptType;
+        $manuscript->status = 'Draft';
+        $manuscript->save();
+
+        // Log the manuscript creation
+        $this->auditService->logCreate('Manuscript', $manuscript->id, [
+            'created_from_fund_request' => $fundRequest->id,
+            'auto_generated' => true,
+            'manuscript_type' => $manuscriptType
+        ]);
     }
 }

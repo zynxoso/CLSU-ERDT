@@ -31,7 +31,7 @@
             <!-- Manuscript Information Section -->
             <div>
                     <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                        <i class="fas fa-file-text mr-2" style="color: #2E7D32;"></i>
+                        <i class="fas fa-file-text mr-2" style="color: #4CAF50;"></i>
                     Manuscript Information
                 </h2>
 
@@ -50,7 +50,7 @@
                                 style="border-color: #E0E0E0; font-size: 15px;"
                             placeholder="Enter manuscript title"
                             required
-                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                 onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                         >
                         @error('title')
@@ -74,7 +74,7 @@
                                 style="border-color: #E0E0E0; font-size: 15px;"
                             placeholder="Enter manuscript abstract"
                             required
-                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                 onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                         >{{ old('abstract', $manuscript->abstract) }}</textarea>
                         @error('abstract')
@@ -96,7 +96,7 @@
                                 class="w-full border rounded-lg px-4 py-2 transition-all"
                                 style="border-color: #E0E0E0; font-size: 15px;"
                             required
-                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                 onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                         >
                             <option value="">Select Type</option>
@@ -122,7 +122,7 @@
                                 class="w-full border rounded-lg px-4 py-2 transition-all"
                                 style="border-color: #E0E0E0; font-size: 15px;"
                             required
-                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                 onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                         >
                             <option value="draft" {{ old('status', $manuscript->status) == 'draft' ? 'selected' : '' }}>Draft</option>
@@ -154,7 +154,7 @@
                                 class="w-full border rounded-lg px-4 py-2 transition-all"
                                 style="border-color: #E0E0E0; font-size: 15px;"
                             placeholder="Separate names with commas (e.g., John Doe, Jane Smith)"
-                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                 onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                         >
                         @error('co_authors')
@@ -170,7 +170,7 @@
             <!-- Author Information Section -->
                 <div class="border-t pt-6" style="border-color: #E0E0E0;">
                     <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                        <i class="fas fa-user-graduate mr-2" style="color: #2E7D32;"></i>
+                        <i class="fas fa-user-graduate mr-2" style="color: #4CAF50;"></i>
                     Author Information
                 </h2>
 
@@ -189,7 +189,7 @@
                             </div>
                         </div>
                             <p class="text-sm mt-1" style="color: #757575; font-size: 14px;">
-                                <i class="fas fa-info-circle mr-1" style="color: #2E7D32;"></i>
+                                <i class="fas fa-info-circle mr-1" style="color: #4CAF50;"></i>
                             Scholar cannot be changed after creation
                         </p>
                     </div>
@@ -215,7 +215,7 @@
                         </div>
                         <a href="{{ route('admin.manuscripts.download', $manuscript->id) }}"
                                class="inline-flex items-center px-3 py-1 rounded-md transition-colors text-sm"
-                               style="background-color: #E3F2FD; color: #1976D2;"
+                               style="background-color: #E3F2FD; color: #4A90E2;"
                                onmouseover="this.style.backgroundColor='#BBDEFB'"
                                onmouseout="this.style.backgroundColor='#E3F2FD'">
                             <i class="fas fa-download mr-1"></i>
@@ -229,7 +229,7 @@
             <!-- File Upload Section -->
                 <div class="border-t pt-6" style="border-color: #E0E0E0;">
                     <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                        <i class="fas fa-upload mr-2" style="color: #F8BBD0;"></i>
+                        <i class="fas fa-upload mr-2" style="color: #4CAF50;"></i>
                     {{ $manuscript->file_path ? 'Replace File' : 'Upload File' }}
                 </h2>
 
@@ -245,13 +245,13 @@
                                 name="file"
                                 accept=".pdf"
                                     class="w-full border rounded-lg px-4 py-2 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold"
-                                    style="border-color: #E0E0E0; font-size: 15px; file:background-color: #E8F5E8; file:color: #2E7D32;"
-                                    onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                    style="border-color: #E0E0E0; font-size: 15px; file:background-color: rgba(76, 175, 80, 0.1); file:color: #4CAF50;"
+                                    onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                     onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                             >
                         </div>
                             <p class="text-sm mt-1" style="color: #757575; font-size: 14px;">
-                                <i class="fas fa-info-circle mr-1" style="color: #2E7D32;"></i>
+                                <i class="fas fa-info-circle mr-1" style="color: #4CAF50;"></i>
                             {{ $manuscript->file_path ? 'Upload a new PDF file to replace the current one (optional). Maximum file size: 10MB' : 'Upload a PDF file (optional). Maximum file size: 10MB' }}
                         </p>
                         @error('file')
@@ -283,7 +283,7 @@
                                 class="w-full border rounded-lg px-4 py-2 transition-all resize-vertical"
                                 style="border-color: #E0E0E0; font-size: 15px;"
                             placeholder="Add any additional notes or comments about this manuscript"
-                                onfocus="this.style.borderColor='#2E7D32'; this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
+                                onfocus="this.style.borderColor='#4CAF50'; this.style.boxShadow='0 0 0 2px rgba(76, 175, 80, 0.2)'"
                                 onblur="this.style.borderColor='#E0E0E0'; this.style.boxShadow='none'"
                         >{{ old('admin_notes', $manuscript->admin_notes) }}</textarea>
                         @error('admin_notes')
@@ -306,7 +306,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="rounded-lg p-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
                         <div class="flex items-center">
-                                <i class="fas fa-calendar-plus mr-2" style="color: #1976D2;"></i>
+                                <i class="fas fa-calendar-plus mr-2" style="color: #4A90E2;"></i>
                             <div>
                                     <p class="text-xs" style="color: #757575;">Created</p>
                                     <p class="text-sm font-medium" style="color: #212121;">{{ $manuscript->created_at->format('M d, Y') }}</p>
@@ -315,7 +315,7 @@
                         </div>
                         <div class="rounded-lg p-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
                         <div class="flex items-center">
-                                <i class="fas fa-calendar-edit mr-2" style="color: #2E7D32;"></i>
+                                <i class="fas fa-calendar-edit mr-2" style="color: #4CAF50;"></i>
                             <div>
                                     <p class="text-xs" style="color: #757575;">Last Updated</p>
                                     <p class="text-sm font-medium" style="color: #212121;">{{ $manuscript->updated_at->format('M d, Y') }}</p>
@@ -324,7 +324,7 @@
                         </div>
                         <div class="rounded-lg p-4" style="background-color: #F8F9FA; border: 1px solid #E0E0E0;">
                         <div class="flex items-center">
-                                <i class="fas fa-hashtag mr-2" style="color: #F8BBD0;"></i>
+                                <i class="fas fa-hashtag mr-2" style="color: #4CAF50;"></i>
                             <div>
                                     <p class="text-xs" style="color: #757575;">Manuscript ID</p>
                                     <p class="text-sm font-medium" style="color: #212121;">#{{ $manuscript->id }}</p>
@@ -347,9 +347,9 @@
                     </a>
                     <button type="submit"
                                 class="inline-flex items-center justify-center px-6 py-2 rounded-lg transition-colors focus:outline-none"
-                                style="background-color: #2E7D32; color: white; font-size: 15px;"
-                                onmouseover="this.style.backgroundColor='#1B5E20'"
-                                onmouseout="this.style.backgroundColor='#2E7D32'"
+                                style="background-color: #4CAF50; color: white; font-size: 15px;"
+                                onmouseover="this.style.backgroundColor='#43A047'"
+                                onmouseout="this.style.backgroundColor='#4CAF50'"
                                 onfocus="this.style.boxShadow='0 0 0 2px rgba(46, 125, 50, 0.2)'"
                                 onblur="this.style.boxShadow='none'">
                         <i class="fas fa-save mr-2"></i>
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isValid = field.value.trim() !== '';
 
         if (isValid) {
-            field.style.borderColor = '#2E7D32';
+            field.style.borderColor = '#4CAF50';
         } else {
             field.style.borderColor = '#D32F2F';
         }

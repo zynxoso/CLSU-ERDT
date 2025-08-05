@@ -7,10 +7,39 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
 use App\Casts\EncryptedAttribute;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class FundRequest extends Model
 {
     use HasFactory, Auditable;
+
+    // Status constants
+    public const STATUS_DRAFT = 'Draft';
+    public const STATUS_SUBMITTED = 'Submitted';
+    public const STATUS_UNDER_REVIEW = 'Under Review';
+    public const STATUS_APPROVED = 'Approved';
+    public const STATUS_REJECTED = 'Rejected';
+    public const STATUS_COMPLETED = 'Completed';
+
+    // Valid statuses array
+    public const VALID_STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_SUBMITTED,
+        self::STATUS_UNDER_REVIEW,
+        self::STATUS_APPROVED,
+        self::STATUS_REJECTED,
+        self::STATUS_COMPLETED,
+    ];
+
+    // Status progression mapping
+    public const STATUS_PROGRESSION = [
+        self::STATUS_DRAFT => [self::STATUS_SUBMITTED],
+        self::STATUS_SUBMITTED => [self::STATUS_UNDER_REVIEW, self::STATUS_APPROVED, self::STATUS_REJECTED],
+        self::STATUS_UNDER_REVIEW => [self::STATUS_APPROVED, self::STATUS_REJECTED],
+        self::STATUS_APPROVED => [self::STATUS_COMPLETED],
+        self::STATUS_REJECTED => [], // Terminal status
+        self::STATUS_COMPLETED => [], // Terminal status
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +55,7 @@ class FundRequest extends Model
         'details',
         'status',
         'status_history',
-        'admin_notes',
+        'rejection_reason',
         'reviewed_by',
         'reviewed_at',
         'bank_account_number',
@@ -82,7 +111,7 @@ class FundRequest extends Model
 
             // Log financial data creation
             Log::info('Fund request being created with financial data', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'has_bank_account' => !empty($model->bank_account_number),
                 'has_tax_id' => !empty($model->tax_identification_number),
                 'amount' => $model->amount,
@@ -93,7 +122,7 @@ class FundRequest extends Model
         static::created(function ($model) {
             // Log after creation when ID is available
             Log::info('Fund request created with financial data', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'fund_request_id' => $model->getKey(),
                 'has_bank_account' => !empty($model->bank_account_number),
                 'has_tax_id' => !empty($model->tax_identification_number),
@@ -110,7 +139,7 @@ class FundRequest extends Model
                     : null;
 
                 Log::info('Tax identification number updated', [
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'fund_request_id' => $fundRequest->getKey(),
                     'timestamp' => now(),
                 ]);
@@ -121,7 +150,7 @@ class FundRequest extends Model
             foreach ($financialFields as $field) {
                 if ($fundRequest->isDirty($field)) {
                     Log::info('Financial data updated', [
-                        'user_id' => auth()->id(),
+                        'user_id' => Auth::id(),
                         'fund_request_id' => $fundRequest->getKey(),
                         'field' => $field,
                         'timestamp' => now(),
@@ -142,8 +171,8 @@ class FundRequest extends Model
                         'status' => $newStatus,
                         'previous_status' => $oldStatus,
                         'timestamp' => now()->toDateTimeString(),
-                        'user_id' => auth()->id(),
-                        'user_name' => auth()->user() ? auth()->user()->name : 'System',
+                        'user_id' => Auth::id(),
+                        'user_name' => Auth::user() ? Auth::user()->name : 'System',
                     ];
 
                     $fundRequest->status_history = $history;
@@ -216,18 +245,78 @@ class FundRequest extends Model
      */
     public function addStatusHistory(string $status, ?string $notes = null): void
     {
+        // Validate status before adding to history
+        if (!$this->isValidStatus($status)) {
+            throw new \InvalidArgumentException("Invalid status: {$status}");
+        }
+
         $history = $this->status_history ?? [];
 
         $history[] = [
             'status' => $status,
             'notes' => $notes,
             'timestamp' => now()->toDateTimeString(),
-            'user_id' => auth()->id(),
-            'user_name' => auth()->user() ? auth()->user()->name : 'System',
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user() ? Auth::user()->name : 'System',
         ];
 
         $this->status_history = $history;
         $this->save();
+    }
+
+    /**
+     * Check if a status is valid.
+     *
+     * @param string $status
+     * @return bool
+     */
+    public function isValidStatus(string $status): bool
+    {
+        return in_array($status, self::VALID_STATUSES);
+    }
+
+    /**
+     * Check if status transition is allowed.
+     *
+     * @param string $newStatus
+     * @return bool
+     */
+    public function canTransitionTo(string $newStatus): bool
+    {
+        if (!$this->isValidStatus($newStatus)) {
+            return false;
+        }
+
+        $currentStatus = $this->status;
+        $allowedTransitions = self::STATUS_PROGRESSION[$currentStatus] ?? [];
+        
+        return in_array($newStatus, $allowedTransitions);
+    }
+
+    /**
+     * Get the next allowed statuses for the current status.
+     *
+     * @return array
+     */
+    public function getNextAllowedStatuses(): array
+    {
+        return self::STATUS_PROGRESSION[$this->status] ?? [];
+    }
+
+    /**
+     * Set the status with validation.
+     *
+     * @param string $status
+     * @return void
+     * @throws \InvalidArgumentException
+     */
+    public function setStatus(string $status): void
+    {
+        if (!$this->isValidStatus($status)) {
+            throw new \InvalidArgumentException("Invalid status: {$status}. Valid statuses are: " . implode(', ', self::VALID_STATUSES));
+        }
+
+        $this->status = $status;
     }
 
     /**
@@ -236,7 +325,7 @@ class FundRequest extends Model
     public function scopeFindByTaxIdentificationNumber($query, $taxId)
     {
         Log::info('Tax identification number search performed', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'timestamp' => now(),
         ]);
 
@@ -289,7 +378,7 @@ class FundRequest extends Model
     public function logFinancialDataAccess($field)
     {
         Log::info('Financial data accessed', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'fund_request_id' => $this->getKey(),
             'field' => $field,
             'timestamp' => now(),

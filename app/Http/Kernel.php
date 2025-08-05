@@ -41,6 +41,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\CheckPasswordExpiration::class,
+            \App\Http\Middleware\SessionTimeoutMiddleware::class,
         ],
 
         'api' => [
@@ -83,5 +84,6 @@ class Kernel extends HttpKernel
         'password.expiry' => \App\Http\Middleware\CheckPasswordExpiration::class,
         'api.rate.limit' => \App\Http\Middleware\ApiRateLimitMiddleware::class,
         'db.security' => \App\Http\Middleware\DatabaseSecurityMiddleware::class,
+        'session.timeout' => \App\Http\Middleware\SessionTimeoutMiddleware::class,
     ];
 }

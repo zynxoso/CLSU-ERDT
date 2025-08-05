@@ -10,8 +10,8 @@
                     <!-- Title Section -->
                     <div class="flex items-start space-x-4">
                         <div class="flex-shrink-0">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #2E7D32;">
-                                <i class="fas fa-file-alt text-white text-lg"></i>
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: rgba(76, 175, 80, 0.1);">
+                                <i class="fas fa-file-alt text-lg" style="color: #4CAF50;"></i>
                             </div>
                         </div>
                         <div>
@@ -24,17 +24,17 @@
                                     @if($manuscript->status === 'Draft')
                                         text-white" style="background-color: #757575;
                                     @elseif($manuscript->status === 'Submitted')
-                                        text-white" style="background-color: #1976D2;
+                                        text-white" style="background-color: #4A90E2;
                                     @elseif($manuscript->status === 'Under Review')
                                         text-white" style="background-color: #FFCA28;
                                     @elseif($manuscript->status === 'Revision Requested')
                                         text-white" style="background-color: #FF9800;
                                     @elseif($manuscript->status === 'Accepted')
-                                        text-white" style="background-color: #2E7D32;
+                                        text-white" style="background-color: #4CAF50;
                                     @elseif($manuscript->status === 'Rejected')
                                         text-white" style="background-color: #D32F2F;
                                     @elseif($manuscript->status === 'Published')
-                                        text-white" style="background-color: #2E7D32;
+                                        text-white" style="background-color: #4CAF50;
                                     @endif">
                                     <span class="w-2 h-2 rounded-full mr-2" style="background-color: rgba(255, 255, 255, 0.8);"></span>
                                     {{ $manuscript->status }}
@@ -63,8 +63,8 @@
                     <!-- Abstract Section -->
                     <div class="px-6 py-5 border-b" style="border-color: #E0E0E0;">
                         <div class="flex items-center mb-4">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background-color: #2E7D32;">
-                                <i class="fas fa-align-left text-white text-sm"></i>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background-color: rgba(76, 175, 80, 0.1);">
+                                <i class="fas fa-align-left text-sm" style="color: #4CAF50;"></i>
                             </div>
                             <h3 class="text-lg font-medium" style="color: #212121;">Abstract</h3>
                         </div>
@@ -76,12 +76,12 @@
                     <!-- Documents Section -->
                     <div class="px-6 py-5">
                         <div class="flex items-center mb-4">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background-color: #2E7D32;">
-                                <i class="fas fa-paperclip text-white text-sm"></i>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background-color: rgba(76, 175, 80, 0.1);">
+                                <i class="fas fa-paperclip text-sm" style="color: #4CAF50;"></i>
                             </div>
                             <h3 class="text-lg font-medium" style="color: #212121;">Attached Documents</h3>
                             @if($manuscript->documents->count() > 0)
-                                <span class="ml-3 text-xs font-medium px-2 py-1 rounded-full" style="background-color: #E8F5E8; color: #2E7D32;">
+                                <span class="ml-3 text-xs font-medium px-2 py-1 rounded-full" style="background-color: #E8F5E8; color: #4CAF50;">
                                     {{ $manuscript->documents->count() }} {{ Str::plural('file', $manuscript->documents->count()) }}
                                 </span>
                             @endif
@@ -92,7 +92,7 @@
                                 @foreach($manuscript->documents as $document)
                                     <div class="flex items-center justify-between p-4 border rounded-lg" style="background-color: #F8F9FA; border-color: #E0E0E0;">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: #FFEBEE;">
+                                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: rgba(211, 47, 47, 0.1);">
                                                 <i class="fas fa-file-pdf" style="color: #D32F2F;"></i>
                                             </div>
                                             <div>
@@ -101,8 +101,10 @@
                                             </div>
                                         </div>
                                         <a href="{{ route('admin.documents.download', $document->id) }}"
-                                           class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg"
-                                           style="background-color: #2E7D32; color: white;"
+                                           class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors"
+                                           style="background-color: #4CAF50; color: white;"
+                                           onmouseover="this.style.backgroundColor='#43A047'"
+                                           onmouseout="this.style.backgroundColor='#4CAF50'"
                                            title="Download document">
                                             <i class="fas fa-download mr-2"></i>
                                             Download
@@ -201,8 +203,10 @@
                             </div>
 
                             <button type="submit"
-                                class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium rounded-lg shadow-sm"
-                                style="background-color: #2E7D32; color: white;"
+                                class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium rounded-lg shadow-sm transition-colors"
+                                style="background-color: #4CAF50; color: white;"
+                                onmouseover="this.style.backgroundColor='#43A047'"
+                                onmouseout="this.style.backgroundColor='#4CAF50'"
                                 :title="statusChanged ? 'Update manuscript status' : 'No changes to save'">
                                 <span x-text="statusChanged ? 'Update Manuscript & Notify Scholar' : 'Update Manuscript'"></span>
                             </button>
@@ -215,7 +219,7 @@
                 <div class="rounded-xl shadow-sm border" style="background-color: white; border-color: #E0E0E0;">
                     <div class="px-6 py-5">
                         <div class="flex items-center mb-4">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background-color: #FFF3E0;">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background-color: rgba(255, 202, 40, 0.1);">
                                 <i class="fas fa-sticky-note text-sm" style="color: #FFCA28;"></i>
                             </div>
                             <h3 class="text-lg font-medium" style="color: #212121;">Current Admin Notes</h3>
@@ -236,8 +240,8 @@
     /* Enhanced focus states for better accessibility */
     .focus-ring:focus {
         outline: none !important;
-        border-color: #2E7D32 !important;
-        box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2) !important;
+        border-color: #4CAF50 !important;
+        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2) !important;
     }
 
     /* Custom scrollbar for better aesthetics */

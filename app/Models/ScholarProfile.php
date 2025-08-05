@@ -8,7 +8,55 @@ use App\Traits\Auditable;
 use App\Casts\EncryptedAttribute;
 use Illuminate\Support\Facades\Log;
 use App\Models\Scopes\ScholarAccessScope;
+use Illuminate\Support\Facades\Auth;
 
+/**
+ * Class ScholarProfile
+ * 
+ * @property int $id
+ * @property int $user_id
+ * @property string $first_name
+ * @property string|null $middle_name
+ * @property string $last_name
+ * @property string|null $suffix
+ * @property string|null $gender
+ * @property \Carbon\Carbon|null $birth_date
+ * @property string|null $contact_number
+ * @property string|null $phone
+ * @property string|null $address
+ * @property string|null $street
+ * @property string|null $village
+ * @property string|null $zipcode
+ * @property string|null $district
+ * @property string|null $region
+ * @property string|null $department
+ * @property string|null $course_completed
+ * @property string|null $university_graduated
+ * @property string|null $entry_type
+ * @property string|null $intended_degree
+ * @property string|null $thesis_dissertation_title
+ * @property int|null $units_required
+ * @property int|null $units_earned_prior
+
+ * @property \Carbon\Carbon|null $start_date
+ * @property \Carbon\Carbon|null $actual_completion_date
+ * @property string|null $enrollment_type
+ * @property string|null $study_time
+ * @property string|null $scholarship_duration
+
+
+ * @property string|null $profile_photo
+ * @property bool $is_verified
+ * @property \Carbon\Carbon|null $verified_at
+ * @property int|null $verified_by
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|ScholarProfile newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ScholarProfile newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ScholarProfile query()
+ * @method int getKey()
+ */
 class ScholarProfile extends Model
 {
     use HasFactory, Auditable;
@@ -20,50 +68,55 @@ class ScholarProfile extends Model
      */
     protected $fillable = [
         'user_id',
+        // Personal Information (Required)
         'first_name',
         'middle_name',
         'last_name',
-        'gender',
-        'birth_date',
+        'suffix',
+        'gender', // Male, Female, Other, Prefer not to say
+        'birth_date', // YYYY-MM-DD format
         'contact_number',
-        'phone',
-        'address',
-        'city',
+        // Home Address Structure
+        'street',
+        'village',
+        'town',
         'province',
-        'postal_code',
+        'zipcode',
+        'district', // 1-6 or Lone
+        'region', // 1-3, 4A, 4B, 5-12, CARAGA, ARMM, CAR, NCR
         'country',
-        'university',
-        'department',
-        'program',
-        'degree_program',
-        'status',
-        'scholar_id',
-        'major',
+        // Educational Background
+        'course_completed', // e.g., BS Physics, MS Physics
+        'university_graduated', // Full university name with campus/branch
+        // Application Details
+        'entry_type', // NEW or LATERAL
+        'intended_degree', // e.g., MS Physics, PHD Physics
+ // Master's, PhD, Masteral, Doctoral
+        'intended_university', // Full name with campus/branch
+        'department', // Department/College
+        'thesis_dissertation_title',
+        // Academic Load (for Lateral Entrants)
+        'units_required',
+        'units_earned_prior',
+        // Scholarship Details
+        'start_date', // Scholarship start date
+        'enrollment_type', // New, Lateral
+        'study_time', // Full-time, Part-time
+        'scholarship_duration', // Duration in months
+        // System fields
         'profile_photo',
         'is_verified',
         'verified_by',
         'verified_at',
-        'admin_notes',
-        'start_date',
-        'expected_completion_date',
         'actual_completion_date',
-        'bachelor_degree',
-        'bachelor_university',
-        'bachelor_graduation_year',
-        'research_area',
-        'research_title',
-        'research_abstract',
         'notes',
-        'degree_level',
-        'enrollment_type',
-        'study_time',
-        'scholarship_duration',
-        'government_id',
-        'government_id_type',
-        'tax_id',
-        'medical_information',
-        'emergency_contact',
-        'emergency_contact_phone',
+        'scholar_status',
+
+        // Legacy fields (for backward compatibility)
+
+
+        // Notification tracking
+        'last_notified_at',
     ];
 
     /**
@@ -73,20 +126,58 @@ class ScholarProfile extends Model
      */
     protected $casts = [
         'birth_date' => 'date',
+        'start_date' => 'date',
         'is_verified' => 'boolean',
         'verified_at' => 'datetime',
-        'start_date' => 'date',
-        'expected_completion_date' => 'date',
         'actual_completion_date' => 'date',
+        'last_notified_at' => 'datetime',
+        'units_required' => 'integer',
+        'units_earned_prior' => 'integer',
         // Encrypted sensitive fields
         'contact_number' => EncryptedAttribute::class,
-        'phone' => EncryptedAttribute::class,
-        'address' => EncryptedAttribute::class,
-        'government_id' => EncryptedAttribute::class,
-        'tax_id' => EncryptedAttribute::class,
-        'medical_information' => EncryptedAttribute::class,
-        'emergency_contact' => EncryptedAttribute::class,
-        'emergency_contact_phone' => EncryptedAttribute::class,
+    ];
+
+    /**
+     * Validation rules for scholar profile fields.
+     *
+     * @var array<string, string>
+     */
+    public static $validationRules = [
+        // Personal Information (Required)
+        'first_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'suffix' => 'nullable|string|max:10',
+        'birth_date' => 'required|date|date_format:Y-m-d',
+        'gender' => 'required|in:Male,Female,Other,Prefer not to say',
+        'contact_number' => 'required|string|max:20',
+        // Home Address Structure
+        'street' => 'nullable|string|max:255',
+        'village' => 'nullable|string|max:255',
+        'town' => 'nullable|string|max:255',
+        'province' => 'nullable|string|max:255',
+        'zipcode' => 'nullable|string|max:10',
+        'district' => 'nullable|string|max:20',
+        'region' => 'nullable|string|max:20',
+        // Educational Background
+        'course_completed' => 'nullable|string|max:255',
+        'university_graduated' => 'nullable|string|max:255',
+        // Application Details
+        'entry_type' => 'nullable|in:NEW,LATERAL',
+        'intended_degree' => 'nullable|string|max:255',
+
+        'intended_university' => 'nullable|string|max:255',
+        'department' => 'nullable|string|max:255',
+        'thesis_dissertation_title' => 'nullable|string',
+        // Academic Load (for Lateral Entrants)
+        'units_required' => 'nullable|integer|min:0',
+        'units_earned_prior' => 'nullable|integer|min:0',
+        // Scholarship Details
+        'start_date' => 'nullable|date|date_format:Y-m-d',
+        'enrollment_type' => 'required|string|in:New,Lateral',
+        'study_time' => 'required|string|in:Full-time,Part-time',
+        'scholarship_duration' => 'required|integer|min:1|max:60',
+        'status' => 'required|string|in:Active,Graduated,Deferred,Dropped,Inactive',
     ];
 
     /**
@@ -95,11 +186,6 @@ class ScholarProfile extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'government_id',
-        'tax_id',
-        'medical_information',
-        'government_id_hash',
-        'tax_id_hash',
     ];
 
     /**
@@ -113,67 +199,29 @@ class ScholarProfile extends Model
         static::addGlobalScope(new ScholarAccessScope);
 
         static::creating(function ($model) {
-            // Create hash values for searchable fields
-            if (!empty($model->government_id)) {
-                $model->government_id_hash = hash('sha256', $model->government_id);
-            }
-
-            if (!empty($model->tax_id)) {
-                $model->tax_id_hash = hash('sha256', $model->tax_id);
-            }
-
-            // Log sensitive data access (without ID since model isn't saved yet)
-            Log::info('Scholar profile being created with sensitive data', [
-                'user_id' => auth()->id(),
-                'has_government_id' => !empty($model->government_id),
-                'has_tax_id' => !empty($model->tax_id),
+            // Log profile creation
+            Log::info('Scholar profile being created', [
+                'user_id' => Auth::id(),
                 'timestamp' => now(),
             ]);
         });
 
         static::created(function ($model) {
             // Log after creation when ID is available
-            Log::info('Scholar profile created with sensitive data', [
-                'user_id' => auth()->id(),
+            Log::info('Scholar profile created', [
+                'user_id' => Auth::id(),
                 'scholar_profile_id' => $model->getKey(),
-                'has_government_id' => !empty($model->government_id),
-                'has_tax_id' => !empty($model->tax_id),
                 'timestamp' => now(),
             ]);
         });
 
         static::updating(function ($model) {
-            // Update hash values when original values change
-            if ($model->isDirty('government_id')) {
-                $model->government_id_hash = !empty($model->government_id)
-                    ? hash('sha256', $model->government_id)
-                    : null;
-
-                Log::info('Government ID updated', [
-                    'user_id' => auth()->id(),
-                    'scholar_profile_id' => $model->getKey(),
-                    'timestamp' => now(),
-                ]);
-            }
-
-            if ($model->isDirty('tax_id')) {
-                $model->tax_id_hash = !empty($model->tax_id)
-                    ? hash('sha256', $model->tax_id)
-                    : null;
-
-                Log::info('Tax ID updated', [
-                    'user_id' => auth()->id(),
-                    'scholar_profile_id' => $model->getKey(),
-                    'timestamp' => now(),
-                ]);
-            }
-
-            // Log access to other sensitive fields
-            $sensitiveFields = ['medical_information', 'contact_number', 'phone', 'address'];
+            // Log access to sensitive fields
+            $sensitiveFields = ['contact_number', 'phone'];
             foreach ($sensitiveFields as $field) {
                 if ($model->isDirty($field)) {
                     Log::info('Sensitive data updated', [
-                        'user_id' => auth()->id(),
+                        'user_id' => Auth::id(),
                         'scholar_profile_id' => $model->getKey(),
                         'field' => $field,
                         'timestamp' => now(),
@@ -216,14 +264,69 @@ class ScholarProfile extends Model
     }
 
     /**
+     * Get the stipend disbursements for the scholar.
+     */
+    public function stipendDisbursements()
+    {
+        return $this->hasMany(StipendDisbursement::class);
+    }
+
+    /**
+     * Get the latest stipend disbursement for the scholar.
+     */
+    public function latestStipendDisbursement()
+    {
+        return $this->hasOne(StipendDisbursement::class)->latest();
+    }
+
+    /**
      * Get the full name of the scholar.
      *
      * @return string
      */
     public function getFullNameAttribute()
     {
-        return $this->first_name . ' ' . ($this->middle_name ? $this->middle_name . ' ' : '') . $this->last_name;
+        $name = trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
+        return $this->suffix ? $name . ' ' . $this->suffix : $name;
     }
+
+    /**
+     * Get the formatted full address.
+     *
+     * @return string
+     */
+    public function getFormattedAddressAttribute()
+    {
+        $addressParts = array_filter([
+            $this->street,
+            $this->village,
+            $this->province,
+            $this->zipcode
+        ]);
+        
+        return implode(', ', $addressParts);
+    }
+
+    /**
+     * Get the formatted gender display.
+     *
+     * @return string
+     */
+    public function getGenderDisplayAttribute()
+    {
+        return $this->gender === 'F' ? 'Female' : ($this->gender === 'M' ? 'Male' : '');
+    }
+
+    /**
+     * Get the formatted entry type display.
+     *
+     * @return string
+     */
+    public function getEntryTypeDisplayAttribute()
+    {
+        return $this->entry_type === 'NEW' ? 'New Applicant' : ($this->entry_type === 'LATERAL' ? 'Lateral Entry' : '');
+    }
+
 
     /**
      * Get the admin who verified the scholar profile.
@@ -233,71 +336,37 @@ class ScholarProfile extends Model
         return $this->belongsTo(User::class, 'verified_by');
     }
 
-    /**
-     * Search scope for finding by government ID
-     */
-    public function scopeFindByGovernmentId($query, $governmentId)
-    {
-        Log::info('Government ID search performed', [
-            'user_id' => auth()->id(),
-            'timestamp' => now(),
-        ]);
 
-        return $query->where('government_id_hash', hash('sha256', $governmentId));
-    }
+
+
 
     /**
-     * Search scope for finding by tax ID
+     * Scope to filter by status (maps to scholar_status)
      */
-    public function scopeFindByTaxId($query, $taxId)
+    public function scopeWhereStatus($query, $status)
     {
-        Log::info('Tax ID search performed', [
-            'user_id' => auth()->id(),
-            'timestamp' => now(),
-        ]);
-
-        return $query->where('tax_id_hash', hash('sha256', $taxId));
+        $statusMap = [
+            'Active' => 'active',
+            'Graduated' => 'graduated',
+            'Deferred' => 'deferred',
+            'Dropped' => 'dropped',
+            'Inactive' => 'inactive',
+            // Legacy mappings for backward compatibility
+            'Ongoing' => 'active',
+            'Completed' => 'graduated',
+            'Discontinued' => 'dropped',
+            'On Leave' => 'deferred',
+            'Suspended' => 'inactive',
+            'Pending' => 'active'
+        ];
+        
+        $mappedStatus = $statusMap[$status] ?? strtolower($status);
+        return $query->where('scholar_status', $mappedStatus);
     }
 
-    /**
-     * Get masked government ID for display purposes
-     */
-    public function getMaskedGovernmentIdAttribute()
-    {
-        $governmentId = $this->getAttribute('government_id');
-        if (!$governmentId) {
-            return null;
-        }
 
-        $length = strlen($governmentId);
 
-        if ($length <= 4) {
-            return str_repeat('*', $length);
-        }
 
-        // Show only last 4 characters
-        return str_repeat('*', $length - 4) . substr($governmentId, -4);
-    }
-
-    /**
-     * Get masked tax ID for display purposes
-     */
-    public function getMaskedTaxIdAttribute()
-    {
-        $taxId = $this->getAttribute('tax_id');
-        if (!$taxId) {
-            return null;
-        }
-
-        $length = strlen($taxId);
-
-        if ($length <= 4) {
-            return str_repeat('*', $length);
-        }
-
-        // Show only last 4 characters
-        return str_repeat('*', $length - 4) . substr($taxId, -4);
-    }
 
     /**
      * Get masked contact number for display purposes
@@ -320,12 +389,44 @@ class ScholarProfile extends Model
     }
 
     /**
+     * Get the scholar status attribute.
+     */
+    public function getScholarStatusAttribute($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Set the scholar status attribute.
+     */
+    public function setScholarStatusAttribute($value)
+    {
+        $this->attributes['scholar_status'] = $value;
+    }
+
+    /**
+     * Get the status attribute (alias for scholar_status).
+     */
+    public function getStatusAttribute()
+    {
+        return $this->scholar_status;
+    }
+
+    /**
+     * Set the status attribute (alias for scholar_status).
+     */
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['scholar_status'] = $value;
+    }
+
+    /**
      * Log sensitive data access
      */
     public function logSensitiveDataAccess($field)
     {
         Log::info('Sensitive data accessed', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'scholar_profile_id' => $this->getKey(),
             'field' => $field,
             'timestamp' => now(),

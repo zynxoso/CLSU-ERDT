@@ -17,8 +17,10 @@ use App\Http\Controllers\ScholarFundRequestController;
 use App\Http\Controllers\ScholarProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\StipendController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\DownloadableFormController;
 
 // Redirect to home page
 Route::get('/', function () {
@@ -26,16 +28,29 @@ Route::get('/', function () {
 })->name('home');
 
 // Scholar Login Route is handled in auth.php
-
-// Admin/SuperAdmin Login Route
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+// Admin/SuperAdmin Login Route is handled in auth.php
 
 Route::get('/faculty', [PublicPageController::class, 'faculty'])->name('faculty');
 
 // Include authentication routes
 require __DIR__.'/auth.php';
+
+// Backward compatibility redirects for old login URLs
+Route::get('/login', function () {
+    return redirect('/CLSU-ERDT-COORDINATOR', 301);
+});
+
+Route::get('/scholar-login', function () {
+    return redirect('/CLSU-ERDT-SCHOLARSHIP', 301);
+});
+
+Route::post('/login', function () {
+    return redirect('/CLSU-ERDT-COORDINATOR', 301);
+});
+
+Route::post('/scholar-login', function () {
+    return redirect('/CLSU-ERDT-SCHOLARSHIP', 301);
+});
 
 // Public marketing/info pages
 Route::get('/how-to-apply', [PublicPageController::class, 'howToApply'])->name('how-to-apply');
@@ -45,7 +60,7 @@ Route::get('/about', [PublicPageController::class, 'about'])->name('about');
 Route::get('/history', [PublicPageController::class, 'history'])->name('history');
 
 // Scholar routes - only accessible to scholars
-Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function () {
+Route::middleware(['auth:scholar'])->prefix('scholar')->name('scholar.')->group(function () {
     Route::get('/dashboard', [ScholarController::class, 'dashboard'])->name('dashboard');
     Route::get('/notifications', [ScholarController::class, 'notifications'])->name('notifications');
 
@@ -70,6 +85,9 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::get('/fund-requests/create', [FundRequestController::class, 'create'])->name('fund-requests.create');
     Route::post('/fund-requests', [FundRequestController::class, 'store'])->name('fund-requests.store');
     Route::post('/fund-requests/status-updates', [FundRequestController::class, 'getStatusUpdates'])->name('fund-requests.status-updates');
+    Route::get('/fund-requests/existing-types', [FundRequestController::class, 'getExistingRequestTypes'])->name('fund-requests.existing-types');
+    Route::post('/fund-requests/validate-amount', [FundRequestController::class, 'validateAmount'])->name('fund-requests.validate-amount');
+    Route::post('/fund-requests/pre-validate', [FundRequestController::class, 'preValidate'])->name('fund-requests.pre-validate');
     Route::get('/fund-requests/{id}', [FundRequestController::class, 'show'])->name('fund-requests.show');
     Route::get('/fund-requests/{id}/edit', [FundRequestController::class, 'edit'])->name('fund-requests.edit');
     Route::put('/fund-requests/{id}', [FundRequestController::class, 'update'])->name('fund-requests.update');
@@ -102,15 +120,17 @@ Route::middleware(['auth'])->prefix('scholar')->name('scholar.')->group(function
     Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count')->middleware('api.rate.limit:ajax');
 
     // Fund request AJAX endpoints (with rate limiting)
-    Route::post('/fund-requests/status-updates', [FundRequestController::class, 'getStatusUpdates'])->name('fund-requests.status-updates')->middleware('api.rate.limit:ajax');
+    Route::post('/fund-requests/status-updates', [FundRequestController::class, 'getStatusUpdates'])->name('fund-requests.status-updates-ajax')->middleware('api.rate.limit:ajax');
+    
+    // Scholar status updates endpoint (moved from API routes for proper session auth)
+    Route::get('/status-updates', [\App\Http\Controllers\Scholar\StatusUpdateController::class, 'index'])->name('status-updates')->middleware('api.rate.limit:ajax');
 });
 
 // Admin routes - only accessible to admins
-Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth:web', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Admin analytics
-    Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
+
 
     // Admin password change routes
     Route::get('/password/change', [AdminController::class, 'showChangePasswordForm'])->name('password.change');
@@ -136,11 +156,21 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::put('/scholars/{id}', [ScholarController::class, 'update'])->name('scholars.update');
     Route::delete('/scholars/{id}', [ScholarController::class, 'destroy'])->name('scholars.destroy');
 
+    // Admin scholar password management
+    Route::get('/scholars/{id}/change-password', [ScholarController::class, 'showChangePasswordForm'])->name('scholars.change-password');
+    Route::put('/scholars/{id}/change-password', [ScholarController::class, 'changePassword'])->name('scholars.update-password');
+
     // Admin fund request management
     Route::get('/fund-requests', [FundRequestController::class, 'adminIndex'])->name('fund-requests.index');
+    Route::get('/fund-requests/create', [FundRequestController::class, 'create'])->name('fund-requests.create');
+    Route::post('/fund-requests', [FundRequestController::class, 'store'])->name('fund-requests.store');
+    Route::post('/fund-requests/check-duplicates', [FundRequestController::class, 'checkDuplicates'])->name('fund-requests.check-duplicates');
+    Route::post('/fund-requests/pre-validate', [FundRequestController::class, 'adminPreValidate'])->name('fund-requests.admin-pre-validate');
 
     Route::get('/fund-requests/{id}/documents', [FundRequestController::class, 'getDocuments'])->name('fund-requests.documents')->middleware('api.rate.limit:ajax');
     Route::get('/fund-requests/{id}', [FundRequestController::class, 'show'])->name('fund-requests.show');
+    Route::get('/fund-requests/{id}/edit', [FundRequestController::class, 'adminEdit'])->name('fund-requests.edit');
+    Route::put('/fund-requests/{id}', [FundRequestController::class, 'adminUpdate'])->name('fund-requests.update');
     Route::put('/fund-requests/{id}/approve', [FundRequestController::class, 'approve'])->name('fund-requests.approve')->middleware('api.rate.limit:sensitive');
     Route::put('/fund-requests/{id}/reject', [FundRequestController::class, 'reject'])->name('fund-requests.reject')->middleware('api.rate.limit:sensitive');
     Route::put('/fund-requests/{id}/under-review', [FundRequestController::class, 'markAsUnderReview'])->name('fund-requests.under-review')->middleware('api.rate.limit:admin');
@@ -186,10 +216,47 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::resource('users', UserController::class);
     Route::patch('users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
 
-    // Application Timeline Management Routes
-    Route::resource('application-timeline', \App\Http\Controllers\Admin\ApplicationTimelineController::class);
-    Route::patch('application-timeline/{applicationTimeline}/toggle-status', [\App\Http\Controllers\Admin\ApplicationTimelineController::class, 'toggleStatus'])
-        ->name('application-timeline.toggle-status');
+    // Admin Stipend Notification Routes
+    Route::get('/stipends', [StipendController::class, 'index'])->name('stipends.index');
+    Route::get('/stipends/bulk-notify', [StipendController::class, 'showBulkNotify'])->name('stipends.bulk-notify');
+    Route::post('/stipends/bulk-notify', [StipendController::class, 'sendBulkNotifications'])->name('stipends.bulk-notify.send')->middleware('api.rate.limit:sensitive');
+    Route::get('/stipends/stats', [StipendController::class, 'getStats'])->name('stipends.stats')->middleware('api.rate.limit:ajax');
+
+
+
+    // Content Management Routes
+    Route::prefix('content-management')->name('content-management.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('index');
+        
+        // Announcement routes
+        Route::get('/announcements', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('announcements.index');
+        Route::post('/announcements', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeAnnouncement'])->name('announcements.store');
+        Route::put('/announcements/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateAnnouncement'])->name('announcements.update');
+        Route::delete('/announcements/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyAnnouncement'])->name('announcements.destroy');
+        Route::patch('/announcements/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleAnnouncementStatus'])->name('announcements.toggle-status');
+        
+        // Faculty routes
+        Route::get('/faculty', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('faculty.index');
+        Route::post('/faculty', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeFaculty'])->name('faculty.store');
+        Route::put('/faculty/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateFaculty'])->name('faculty.update');
+        Route::delete('/faculty/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyFaculty'])->name('faculty.destroy');
+        Route::patch('/faculty/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleFacultyStatus'])->name('faculty.toggle-status');
+        
+        // Form routes
+        Route::get('/forms', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('forms.index');
+        Route::post('/forms', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeForm'])->name('forms.store');
+        Route::get('/forms/{id}/edit', [\App\Http\Controllers\Admin\ContentManagementController::class, 'editForm'])->name('forms.edit');
+        Route::put('/forms/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateForm'])->name('forms.update');
+        Route::delete('/forms/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyForm'])->name('forms.destroy');
+        Route::patch('/forms/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleFormStatus'])->name('forms.toggle-status');
+        
+        // Timeline routes
+        Route::get('/timelines', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('timelines.index');
+        Route::post('/timelines', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeTimeline'])->name('timelines.store');
+        Route::put('/timelines/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateTimeline'])->name('timelines.update');
+        Route::delete('/timelines/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyTimeline'])->name('timelines.destroy');
+        Route::patch('/timelines/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleTimelineStatus'])->name('timelines.toggle-status');
+    });
 
     // Important Notes Management Routes
     Route::resource('important-notes', \App\Http\Controllers\Admin\ImportantNoteController::class);
@@ -197,9 +264,6 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
         ->name('important-notes.toggle-status');
 
     // History Management Routes
-    Route::resource('history-timeline', \App\Http\Controllers\Admin\HistoryTimelineController::class);
-    Route::patch('history-timeline/{historyTimeline}/toggle-status', [\App\Http\Controllers\Admin\HistoryTimelineController::class, 'toggleStatus'])
-        ->name('history-timeline.toggle-status');
 
     Route::resource('history-achievements', \App\Http\Controllers\Admin\HistoryAchievementController::class);
     Route::patch('history-achievements/{historyAchievement}/toggle-status', [\App\Http\Controllers\Admin\HistoryAchievementController::class, 'toggleStatus'])
@@ -242,7 +306,7 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::post('/system-configuration/academic-calendar', [SuperAdminController::class, 'updateAcademicCalendar'])->name('system_configuration.academic_calendar');
     Route::post('/system-configuration/scholarship-parameters', [SuperAdminController::class, 'updateScholarshipParameters'])->name('system_configuration.scholarship_parameters');
     Route::get('/data-management', [SuperAdminController::class, 'dataManagement'])->name('data_management');
-    Route::get('/website-management', [SuperAdminController::class, 'websiteManagement'])->name('website_management');
+
 
     // Application Timeline Management Routes
     Route::get('/application-timeline', [SuperAdminController::class, 'applicationTimeline'])->name('application_timeline');
@@ -253,14 +317,9 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::delete('/application-timeline/{id}', [SuperAdminController::class, 'deleteTimelineItem'])->name('application_timeline.delete');
     Route::patch('/application-timeline/{id}/toggle-status', [SuperAdminController::class, 'toggleTimelineStatus'])->name('application_timeline.toggle_status');
 
-    // History Timeline Management Routes
-    Route::get('/history-timeline', [SuperAdminController::class, 'historyTimeline'])->name('history_timeline');
-    Route::get('/history-timeline/create', [SuperAdminController::class, 'createHistoryTimelineItem'])->name('history_timeline.create');
-    Route::post('/history-timeline', [SuperAdminController::class, 'storeHistoryTimelineItem'])->name('history_timeline.store');
-    Route::get('/history-timeline/{id}/edit', [SuperAdminController::class, 'editHistoryTimelineItem'])->name('history_timeline.edit');
-    Route::put('/history-timeline/{id}', [SuperAdminController::class, 'updateHistoryTimelineItem'])->name('history_timeline.update');
-    Route::delete('/history-timeline/{id}', [SuperAdminController::class, 'deleteHistoryTimelineItem'])->name('history_timeline.delete');
-    Route::patch('/history-timeline/{id}/toggle-status', [SuperAdminController::class, 'toggleHistoryTimelineStatus'])->name('history_timeline.toggle_status');
+      Route::get('/notifications', function() {
+        return view('super_admin.notifications.index');
+    })->name('notifications.index');
 
     // Announcement Management Routes
     Route::post('/announcements', [SuperAdminController::class, 'storeAnnouncement'])->name('announcements.store')->middleware('api.rate.limit:sensitive');
@@ -273,7 +332,17 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::put('/faculty/{id}', [SuperAdminController::class, 'updateFaculty'])->name('faculty.update')->middleware('api.rate.limit:admin');
     Route::delete('/faculty/{id}', [SuperAdminController::class, 'deleteFaculty'])->name('faculty.delete')->middleware('api.rate.limit:sensitive');
     Route::patch('/faculty/{id}/toggle-status', [SuperAdminController::class, 'toggleFacultyStatus'])->name('faculty.toggle_status')->middleware('api.rate.limit:admin');
+
+    // Downloadable Forms Management Routes
+    Route::resource('downloadable-forms', DownloadableFormController::class)->except(['show']);
+    Route::patch('/downloadable-forms/{downloadableForm}/toggle-status', [DownloadableFormController::class, 'toggleStatus'])->name('downloadable-forms.toggle-status');
+    Route::post('/downloadable-forms/bulk-action', [DownloadableFormController::class, 'bulkAction'])->name('downloadable-forms.bulk-action');
 });
+
+// Public Downloadable Forms Routes
+Route::get('/forms', [DownloadableFormController::class, 'index'])->name('downloadable-forms.public.index');
+Route::get('/forms/{downloadableForm}', [DownloadableFormController::class, 'show'])->name('downloadable-forms.show');
+Route::get('/forms/{downloadableForm}/download', [DownloadableFormController::class, 'download'])->name('downloadable-forms.download');
 
 // Catch-all route to redirect users to appropriate dashboard
 Route::get('/dashboard', function() {

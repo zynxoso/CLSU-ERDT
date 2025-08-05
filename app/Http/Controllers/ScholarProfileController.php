@@ -50,7 +50,7 @@ class ScholarProfileController extends Controller
         $scholarProgress = 0;
 
         // Check if essential profile fields are filled
-        $essentialFields = ['university', 'department', 'program', 'student_id', 'phone', 'address'];
+        $essentialFields = ['intended_university', 'department', 'student_id', 'phone'];
         $filledFields = 0;
         foreach ($essentialFields as $field) {
             if (!empty($scholar->$field)) {
@@ -78,14 +78,8 @@ class ScholarProfileController extends Controller
         // Round to integer
         $scholarProgress = round($scholarProgress);
 
-        // Calculate days remaining (if expected completion date is set)
+        // Calculate days remaining (placeholder - could be based on scholarship duration)
         $daysRemaining = 0;
-        if ($scholar->expected_completion_date) {
-            $completionDate = \Carbon\Carbon::parse($scholar->expected_completion_date);
-            $today = \Carbon\Carbon::today();
-            $daysRemaining = $today->diffInDays($completionDate, false);
-            $daysRemaining = max(0, $daysRemaining); // Ensure not negative
-        }
 
         return view('scholar.profile.index', compact(
             'user',
@@ -125,6 +119,7 @@ class ScholarProfileController extends Controller
      */
     public function update(ScholarProfileUpdateRequest $request): RedirectResponse
     {
+        /** @var \Illuminate\Http\Request $request */
         $user = Auth::user();
 
         // All validation is handled in the ScholarProfileUpdateRequest
@@ -139,15 +134,16 @@ class ScholarProfileController extends Controller
             // Create a new profile
             $scholarProfile = new ScholarProfile();
             $scholarProfile->user_id = $user->id;
-            $scholarProfile->status = 'Pending';
+            $scholarProfile->setAttribute('status', 'Pending');
 
             // Default values if creating new profile
-            $scholarProfile->university = 'Central Luzon State University';
+            $scholarProfile->intended_university = 'Central Luzon State University';
             if (!isset($validatedData['department'])) {
                 $scholarProfile->department = 'Engineering';
             }
-            if (!isset($validatedData['program'])) {
-                $scholarProfile->program = 'Master in Agricultural and Biosystems Engineering';
+            // Default department if not provided
+            if (!isset($validatedData['department'])) {
+                $scholarProfile->department = 'Engineering';
             }
         } else {
             // Store original data for existing profile
@@ -155,19 +151,13 @@ class ScholarProfileController extends Controller
         }
 
         // Update academic information - always set university to CLSU
-        $scholarProfile->university = 'Central Luzon State University';
+        $scholarProfile->intended_university = 'Central Luzon State University';
         if (isset($validatedData['department'])) {
             $scholarProfile->department = $validatedData['department'];
         }
-        if (isset($validatedData['program'])) {
-            $scholarProfile->program = $validatedData['program'];
-        }
-        if (isset($validatedData['degree_level'])) {
-            $scholarProfile->degree_level = $validatedData['degree_level'];
-        }
-        if (isset($validatedData['major'])) {
-            $scholarProfile->major = $validatedData['major'];
-        }
+        // Program field has been removed - department is now the primary field
+
+
 
         // Update personal information
         if (isset($validatedData['first_name'])) {
@@ -191,42 +181,19 @@ class ScholarProfileController extends Controller
             $scholarProfile->phone = $validatedData['phone'];
             $scholarProfile->contact_number = $validatedData['phone']; // Sync for admin views
         }
-        if (isset($validatedData['address'])) {
-            $scholarProfile->address = $validatedData['address'];
-        }
+
 
         // Update optional academic fields
         if (isset($validatedData['start_date'])) {
             $scholarProfile->start_date = $validatedData['start_date'];
         }
-        if (isset($validatedData['expected_completion_date'])) {
-            $scholarProfile->expected_completion_date = $validatedData['expected_completion_date'];
-        }
+        // Expected completion date field has been removed
 
         // Update bachelor's degree information
-        if (isset($validatedData['bachelor_degree'])) {
-            $scholarProfile->bachelor_degree = $validatedData['bachelor_degree'];
-        }
-        if (isset($validatedData['bachelor_university'])) {
-            $scholarProfile->bachelor_university = $validatedData['bachelor_university'];
-        }
 
-        // Update research information (commented out fields in form)
-        if (isset($validatedData['research_title'])) {
-            $scholarProfile->research_title = $validatedData['research_title'];
-        }
-        if (isset($validatedData['research_area'])) {
-            $scholarProfile->research_area = $validatedData['research_area'];
-        }
-        if (isset($validatedData['research_abstract'])) {
-            $scholarProfile->research_abstract = $validatedData['research_abstract'];
-        }
-        if (isset($validatedData['advisor'])) {
-            $scholarProfile->advisor = $validatedData['advisor'];
-        }
-
+        
         // Handle profile photo removal
-        if ($request->has('remove_photo') && $request->remove_photo == '1') {
+        if ($request->has('remove_photo') && $request->input('remove_photo') == '1') {
             try {
                 // Delete existing photo if it exists
                 if ($scholarProfile->profile_photo) {

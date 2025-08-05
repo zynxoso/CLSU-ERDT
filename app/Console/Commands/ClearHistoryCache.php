@@ -8,26 +8,26 @@ use Illuminate\Support\Facades\Cache;
 class ClearHistoryCache extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Pangalan at signature ng console command
      *
      * @var string
      */
     protected $signature = 'history:clear-cache';
 
     /**
-     * The console command description.
+     * Paglalarawan ng console command
      *
      * @var string
      */
-    protected $description = 'Clear all history-related cache entries';
+    protected $description = 'Clear lahat ng history-related cache entries';
 
     /**
-     * Execute the console command.
+     * I-execute ang console command
      */
     public function handle()
     {
+        // mga cache keys na kailangan i-clear
         $cacheKeys = [
-            'history_timeline',
             'history_achievements',
             'history_hero_content',
             'history_intro_content',
@@ -35,10 +35,12 @@ class ClearHistoryCache extends Command
             'history_contact_content'
         ];
 
+        // i-loop at i-clear ang bawat cache key
         foreach ($cacheKeys as $key) {
             Cache::forget($key);
         }
 
+        // ipakita ang success message
         $this->info('History cache cleared successfully!');
 
         return Command::SUCCESS;

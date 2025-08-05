@@ -65,8 +65,8 @@ class ScholarDashboardTest extends TestCase
                          ->get(route('scholar.dashboard'));
 
         $response->assertStatus(200);
-        $response->assertSee($user->scholarProfile->university);
-        $response->assertSee($user->scholarProfile->program);
+        $response->assertSee($user->scholarProfile->intended_university);
+        $response->assertSee($user->scholarProfile->department);
     }
 
     /**

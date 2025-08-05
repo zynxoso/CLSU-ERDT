@@ -24,7 +24,7 @@ class Manuscript extends Model
         'co_authors',
         'keywords',
         'status',
-        'admin_notes',
+        'rejection_reason',
         'reviewed_by',
         'reviewed_at',
     ];

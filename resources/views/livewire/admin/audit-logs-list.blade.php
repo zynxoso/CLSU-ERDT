@@ -82,9 +82,9 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #757575;">{{ $log->created_at->format('M d, Y H:i:s') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center" style="background-color: #F8BBD0;">
+                                        <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center" style="background-color: #2E7D32;">
                                             @if($log->user)
-                                                <span class="text-sm font-medium" style="color: #2E7D32;">{{ substr($log->user->name, 0, 1) }}</span>
+                                                <span class="text-sm font-medium text-white" >{{ substr($log->user->name, 0, 1) }}</span>
                                             @else
                                                 <i class="fas fa-user" style="color: #757575;"></i>
                                             @endif

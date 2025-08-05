@@ -14,51 +14,56 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
+// Controller para sa pag-manage ng mga documents ng mga scholar
 class DocumentController extends Controller
 {
     protected AuditService $auditService;
     protected FileSecurityService $fileSecurityService;
 
+    // Constructor - nagse-setup ng mga service at security
     public function __construct(AuditService $auditService, FileSecurityService $fileSecurityService)
     {
+        // Kailangan naka-login para ma-access ang controller
         $this->middleware('auth');
+        // Nagse-set ng authorization para sa mga actions
         $this->authorizeResource(Document::class, 'document', ['except' => ['scholarIndex', 'scholarCreate', 'scholarFilesJson', 'ajaxUpload', 'scholarStore', 'adminIndex', 'adminShow', 'verify', 'reject', 'download', 'view']]);
         $this->auditService = $auditService;
         $this->fileSecurityService = $fileSecurityService;
     }
 
-    /**
-     * Display a listing of the scholar's documents.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Nagpapakita ng lahat ng documents ng scholar
     public function scholarIndex()
     {
         $user = Auth::user();
+        // Tinitignan kung may permission ang user na makita ang mga documents
         $this->authorize('viewAny', Document::class);
         $scholarProfile = $user->scholarProfile;
+        
+        // Kung walang scholar profile, balik sa dashboard
         if (!$scholarProfile) {
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
+        
+        // Kinukuha ang mga documents ng scholar, pinaka-bago muna
         $documents = Document::where('scholar_profile_id', $scholarProfile->id)
                            ->orderBy('created_at', 'desc')
                            ->paginate(10);
         return view('scholar.documents.index', compact('documents'));
     }
 
-    /**
-     * Show the form for creating a new document.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Nagpapakita ng form para mag-upload ng bagong documents
     public function scholarCreate()
     {
         $user = Auth::user();
+        // Tinitignan kung pwedeng mag-create ng documents
         $this->authorize('create', Document::class);
         $scholarProfile = $user->scholarProfile;
+        
         if (!$scholarProfile) {
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
+        
+        // Mga uri ng documents na pwedeng i-upload
         $categories = [
             'Registration Form',
             'Enrollment Form',
@@ -282,7 +287,7 @@ class DocumentController extends Controller
         }
 
         $validated = $request->validate([
-            'admin_notes' => 'required|string|max:1000',
+            'rejection_reason' => 'required|string|max:1000',
         ]);
 
         $document = Document::findOrFail($id);
@@ -290,7 +295,7 @@ class DocumentController extends Controller
 
         // Update document status
         $document->status = 'Rejected';
-        $document->admin_notes = $validated['admin_notes'];
+        $document->rejection_reason = $validated['rejection_reason'];
         $document->save();
 
         $this->auditService->logUpdate('Document', $document->id, $oldValues, $document->toArray());
@@ -368,7 +373,7 @@ class DocumentController extends Controller
         }
 
         if (Storage::disk('public')->exists($document->file_path)) {
-            return Storage::disk('public')->download($document->file_path, $document->file_name);
+            return response()->download(Storage::disk('public')->path($document->file_path), $document->file_name);
         }
 
         return redirect()->back()->with('error', 'File not found');

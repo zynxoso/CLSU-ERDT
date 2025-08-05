@@ -24,7 +24,7 @@ class ManuscriptResource extends BaseResource
             'co_authors' => $this->co_authors,
             'keywords' => $this->keywords,
             'status' => $this->status,
-            'admin_notes' => $this->admin_notes,
+            'rejection_reason' => $this->rejection_reason,
             'reviewed_by' => $this->reviewed_by,
             'reviewed_at' => $this->reviewed_at,
             'created_at' => $this->created_at,

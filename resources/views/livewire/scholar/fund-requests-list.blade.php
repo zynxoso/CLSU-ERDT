@@ -1,27 +1,39 @@
 <div class="min-h-screen">
     <div class="container mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">My Fund Requests</h1>
-            <a href="{{ route('scholar.fund-requests.create') }}" class="px-4 py-2 text-white rounded-lg bg-[#4CAF50] hover:bg-[#43A047] flex items-center space-x-2">
-                <i class="fas fa-plus" style="color: white !important;"></i>
-                <span>New Request</span>
-            </a>
+        <div class="bg-white border-b border-gray-200 shadow-sm mb-6">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">My Fund Request</h1>
+                    </div>
+                    <a href="{{ route('scholar.fund-requests.create') }}" class="inline-flex items-center px-6 py-3 bg-[#4CAF50] hover:bg-[#43A047] text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-plus mr-2"></i>
+                        <span>New Request</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 relative" role="alert">
-                <p class="font-bold">Success!</p>
-                <p>{!! session('success') !!}</p>
-                <button class="absolute top-0 right-0 mt-4 mr-4 text-green-700 hover:text-green-900" onclick="this.parentElement.style.display='none'">
+            <div class="bg-[#4CAF50]/10 border-l-4 border-[#4CAF50] text-[#2E7D32] p-4 mb-4 relative" role="alert">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-[#4CAF50] mr-2"></i>
+                    <p class="font-bold">Success!</p>
+                </div>
+                <p class="mt-1">{!! session('success') !!}</p>
+                <button class="absolute top-0 right-0 mt-4 mr-4 text-[#2E7D32] hover:text-[#1B5E20]" onclick="this.parentElement.style.display='none'">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 relative" role="alert">
-                <p class="font-bold">Error!</p>
-                <p>{{ session('error') }}</p>
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4 relative" role="alert">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                    <p class="font-bold">Error!</p>
+                </div>
+                <p class="mt-1">{{ session('error') }}</p>
                 <button class="absolute top-0 right-0 mt-4 mr-4 text-red-700 hover:text-red-900" onclick="this.parentElement.style.display='none'">
                     <i class="fas fa-times"></i>
                 </button>
@@ -102,11 +114,12 @@
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select id="status" wire:model.live="status" class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50]">
                         <option value="">All Statuses</option>
-                        <option value="Pending">Pending</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Submitted">Submitted</option>
+                        <option value="Under Review">Under Review</option>
                         <option value="Approved">Approved</option>
                         <option value="Rejected">Rejected</option>
-                        <option value="Under Review">Under Review</option>
-                        <option value="Submitted">Submitted</option>
+                        <option value="Completed">Completed</option>
                     </select>
                 </div>
                 <div class="flex-1 min-w-[200px]">
@@ -132,9 +145,10 @@
                     <button
                         type="button"
                         wire:click="resetFilters"
-                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                        class="px-4 py-2 bg-[#FFCA28] text-white rounded-lg hover:bg-[#FFB300] flex items-center space-x-2 transition-colors duration-200"
                     >
-                        Reset
+                        <i class="fas fa-undo-alt"></i>
+                        <span>Reset</span>
                     </button>
                 </div>
             </div>
@@ -143,7 +157,7 @@
         <!-- Loading indicator -->
         <div wire:loading class="w-full">
             <div class="flex justify-center items-center py-8">
-                <div class="rounded-full h-10 w-10 border-4 border-[#4CAF50]/20 border-t-[#4CAF50]"></div>
+                <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#4CAF50]/20 border-t-[#4CAF50]"></div>
             </div>
         </div>
 
@@ -174,6 +188,8 @@
                                             @if($request->status == 'Approved') bg-[#4CAF50]/20 text-[#2E7D32] border border-[#4CAF50]/30
                                             @elseif($request->status == 'Rejected') bg-red-200 text-red-900 border border-red-300
                                             @elseif($request->status == 'Under Review' || $request->status == 'Submitted') bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30
+                                            @elseif($request->status == 'Completed') bg-purple-200 text-purple-900 border border-purple-300
+                                            @elseif($request->status == 'Draft') bg-gray-200 text-gray-900 border border-gray-300
                                             @else bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30 @endif">
                                             {{ $request->status }}
                                         </span>
@@ -184,7 +200,7 @@
                                                 <i class="fas fa-eye"></i>
                                                 <span class="group-hover:underline">View Request</span>
                                             </a>
-                                            @if($request->status == 'Pending')
+                                            @if($request->status == 'Draft')
                                                 <a href="{{ route('scholar.fund-requests.edit', $request->id) }}" class="text-[#4CAF50] hover:text-[#43A047]">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -229,17 +245,15 @@
     <!-- Document Requirements Modal -->
     <div id="docRequirementsModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen p-0 sm:p-4">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75" aria-hidden="true"></div>
             <!-- Modal panel -->
-            <div class="inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl w-full max-w-lg sm:max-w-2xl md:max-w-3xl mx-4 sm:mx-auto">
+            <div class="inline-block bg-white rounded-lg border border-green-200 text-left overflow-hidden shadow-xl w-full max-w-lg sm:max-w-2xl md:max-w-3xl mx-4 sm:mx-auto">
                 <div class="bg-white p-3 sm:p-4">
                     <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
                         <h3 class="text-base sm:text-lg font-medium text-gray-900" id="modal-title">
                             Required Documents by Request Type
                         </h3>
                         <button type="button" id="closeDocRequirementsBtn" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-times"></i>
+                            <i class="fas fa-times" style="color:black;"></i>
                         </button>
                     </div>
                     <div class="max-h-[60vh] sm:max-h-[70vh] overflow-y-auto px-1 sm:px-2">
@@ -366,7 +380,7 @@
                     text: "Are you sure you want to cancel this fund request?",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#16a34a',
+                    confirmButtonColor: '#4CAF50',
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Yes, cancel it!'
                 }).then((result) => {

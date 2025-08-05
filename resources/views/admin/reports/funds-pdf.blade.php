@@ -24,7 +24,7 @@
         }
 
         th {
-            background-color: #2E7D32;
+            background-color: #4CAF50;
             color: white;
             font-weight: bold;
             text-align: left;
@@ -110,14 +110,14 @@
                         <td>
                             <span class="status-badge
                                 @if($fund->status == 'Approved') status-approved
-                                @elseif($fund->status == 'Pending') status-pending
+                                @elseif(in_array($fund->status, ['Submitted', 'Under Review'])) status-pending
                                 @elseif($fund->status == 'Rejected') status-rejected
                                 @endif">
                                 {{ $fund->status }}
                             </span>
                         </td>
                         <td>{{ $fund->created_at->format('M d, Y') }}</td>
-                        <td>{{ $fund->status != 'Pending' ? $fund->updated_at->format('M d, Y') : 'N/A' }}</td>
+                        <td>{{ !in_array($fund->status, ['Submitted', 'Under Review']) ? $fund->updated_at->format('M d, Y') : 'N/A' }}</td>
                     </tr>
                 @endforeach
             </tbody>

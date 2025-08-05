@@ -39,7 +39,7 @@
                         <h3 class="text-sm mb-1" style="color: #757575; font-size: 14px;">User</h3>
                         <p class="flex items-center" style="color: #212121; font-size: 15px;">
                             @if($auditLog->user)
-                                <span class="h-7 w-7 rounded-full flex items-center justify-center font-semibold mr-2 text-sm" style="background-color: #E3F2FD; color: #1976D2;">
+                                <span class="h-7 w-7 rounded-full flex items-center justify-center font-semibold mr-2 text-sm" style="background-color: #E3F2FD; color: #4A90E2;">
                                     {{ substr($auditLog->user->name, 0, 1) }}
                                 </span>
                                 {{ $auditLog->user->name }} ({{ $auditLog->user->email }})
@@ -55,7 +55,7 @@
                         <h3 class="text-sm mb-1" style="color: #757575; font-size: 14px;">Action</h3>
                         <p>
                             <span class="px-2 py-1 text-xs rounded-full font-medium
-                                @if($auditLog->action == 'create') " style="background-color: #E8F5E8; color: #1B5E20;"
+                                @if($auditLog->action == 'create') " style="background-color: #E8F5E8; color: #4CAF50;"
                                 @elseif($auditLog->action == 'update') " style="background-color: #FFF3C4; color: #F57F17;"
                                 @elseif($auditLog->action == 'delete') " style="background-color: #FFEBEE; color: #B71C1C;"
                                 @elseif($auditLog->action == 'login') " style="background-color: #E3F2FD; color: #0D47A1;"
@@ -108,9 +108,9 @@
                                     onmouseout="this.style.backgroundColor='white'">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" style="color: #424242;">{{ $key }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #757575;">-</td>
-                                    <td class="px-6 py-4 text-sm" style="color: #2E7D32;">
+                                    <td class="px-6 py-4 text-sm" style="color: #4CAF50;">
                                         @if(is_array($value))
-                                            <pre class="text-xs" style="color: #2E7D32;">{{ json_encode($value, JSON_PRETTY_PRINT) }}</pre>
+                                            <pre class="text-xs" style="color: #4CAF50;">{{ json_encode($value, JSON_PRETTY_PRINT) }}</pre>
                                         @else
                                             {{ $value }}
                                         @endif
@@ -166,9 +166,9 @@
                                     onmouseout="this.style.backgroundColor='white'">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" style="color: #424242;">{{ $key }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #757575;">-</td>
-                                    <td class="px-6 py-4 text-sm" style="color: #1976D2;">
+                                    <td class="px-6 py-4 text-sm" style="color: #4A90E2;">
                                         @if(is_array($value))
-                                            <pre class="text-xs" style="color: #1976D2;">{{ json_encode($value, JSON_PRETTY_PRINT) }}</pre>
+                                            <pre class="text-xs" style="color: #4A90E2;">{{ json_encode($value, JSON_PRETTY_PRINT) }}</pre>
                                         @else
                                             {{ $value }}
                                         @endif

@@ -79,9 +79,9 @@ class FundRequestsList extends Component
             return;
         }
 
-        // Only pending requests can be deleted
-        if ($fundRequest->status !== 'Pending') {
-            session()->flash('error', 'Only pending requests can be cancelled');
+        // Only draft requests can be deleted
+        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
+            session()->flash('error', 'Only draft requests can be cancelled');
             return;
         }
 
@@ -147,9 +147,9 @@ class FundRequestsList extends Component
             ->pluck('total', 'status');
 
         $this->totalRequested = FundRequest::where('scholar_profile_id', $scholarProfile->id)->sum('amount');
-        $this->totalApproved = $totals['Approved'] ?? 0;
-        $this->totalPending = $totals['Pending'] ?? 0;
-        $this->totalRejected = $totals['Rejected'] ?? 0;
+        $this->totalApproved = $totals[FundRequest::STATUS_APPROVED] ?? 0;
+        $this->totalPending = ($totals[FundRequest::STATUS_SUBMITTED] ?? 0) + ($totals[FundRequest::STATUS_UNDER_REVIEW] ?? 0);
+        $this->totalRejected = $totals[FundRequest::STATUS_REJECTED] ?? 0;
     }
 
     public function render()

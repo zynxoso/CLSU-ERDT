@@ -41,13 +41,13 @@ class ReportController extends Controller
         $stats = [
             'scholars' => [
                 'total' => ScholarProfile::count(),
-                'active' => ScholarProfile::where('status', 'Active')->count(),
-                'graduated' => ScholarProfile::where('status', 'Graduated')->count(),
-                'discontinued' => ScholarProfile::where('status', 'Discontinued')->count(),
+                'active' => ScholarProfile::whereStatus('Active')->count(),
+                'graduated' => ScholarProfile::whereStatus('Graduated')->count(),
+                'discontinued' => ScholarProfile::whereStatus('Discontinued')->count(),
             ],
             'funds' => [
                 'total' => FundRequest::count(),
-                'pending' => FundRequest::where('status', 'Pending')->count(),
+                'pending' => FundRequest::whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count(),
                 'approved' => FundRequest::where('status', 'Approved')->count(),
                 'rejected' => FundRequest::where('status', 'Rejected')->count(),
                 'total_amount' => FundRequest::where('status', 'Approved')->sum('amount'),
@@ -300,21 +300,68 @@ class ReportController extends Controller
             // Add headers based on report type
             switch ($reportType) {
                 case 'scholars':
-                    fputcsv($file, ['ID', 'Name', 'Email', 'Program', 'University', 'Status', 'Start Date', 'Expected Completion', 'Created At']);
+                    fputcsv($file, [
+                        'SCHOLAR ID', 'FIRST NAME', 'MIDDLE NAME', 'LAST NAME', 'SUFFIX', 
+                        'GENDER', 'BIRTH DATE', 'CONTACT NUMBER', 'STREET', 'VILLAGE', 
+                        'TOWN', 'PROVINCE', 'ZIPCODE', 'DISTRICT', 'REGION', 'COUNTRY',
+                        'COURSE COMPLETED', 'UNIVERSITY GRADUATED', 'ENTRY TYPE', 
+                        'INTENDED DEGREE', 'LEVEL', 'INTENDED UNIVERSITY', 'DEPARTMENT', 
+                        'MAJOR', 'THESIS/DISSERTATION TITLE', 'UNITS REQUIRED', 
+                        'UNITS EARNED PRIOR', 'START DATE', 'ENROLLMENT TYPE', 
+                        'SCHOLARSHIP DURATION', 'SCHOLAR STATUS'
+                    ]);
                     foreach ($data as $row) {
-                        $userName = $row->user ? $row->user->name : 'Unknown';
-                        $userEmail = $row->user ? $row->user->email : 'N/A';
+                        // Format gender
+                        $gender = 'N/A';
+                        if ($row->gender === 'Male') $gender = 'M';
+                        elseif ($row->gender === 'Female') $gender = 'F';
+                        
+                        // Format level (abbreviated)
+                        $level = 'N/A';
+                        if ($row->intended_degree) {
+                            if (stripos($row->intended_degree, 'master') !== false || stripos($row->intended_degree, 'ms') !== false) {
+                                $level = 'MS';
+                            } elseif (stripos($row->intended_degree, 'phd') !== false || stripos($row->intended_degree, 'doctor') !== false) {
+                                $level = 'PHD';
+                            }
+                        }
+                        
+                        // Format dates
+                        $birthDate = $row->birth_date ? $row->birth_date->format('Y-m-d') : 'N/A';
+                        $startDate = $row->start_date ? $row->start_date->format('Y-m-d') : 'N/A';
 
                         fputcsv($file, [
-                            $row->id,
-                            $userName,
-                            $userEmail,
-                            $row->program ?? 'N/A',
-                            $row->university ?? 'N/A',
-                            $row->status ?? 'N/A',
-                            $row->start_date ?? 'N/A',
-                            $row->expected_completion_date ?? 'N/A',
-                            $row->created_at
+                            $row->id ?? 'N/A',
+                            $row->first_name ?? 'N/A',
+                            $row->middle_name ?? 'N/A',
+                            $row->last_name ?? 'N/A',
+                            $row->suffix ?? 'N/A',
+                            $gender,
+                            $birthDate,
+                            $row->contact_number ?? 'N/A',
+                            $row->street ?? 'N/A',
+                            $row->village ?? 'N/A',
+                            $row->town ?? 'N/A',
+                            $row->province ?? 'N/A',
+                            $row->zipcode ?? 'N/A',
+                            $row->district ?? 'N/A',
+                            $row->region ?? 'N/A',
+                            $row->country ?? 'N/A',
+                            $row->course_completed ?? 'N/A',
+                            $row->university_graduated ?? 'N/A',
+                            $row->entry_type ?? 'N/A',
+                            $row->intended_degree ?? 'N/A',
+                            $level,
+                            $row->intended_university ?? 'N/A',
+                            $row->department ?? 'N/A',
+                            $row->major ?? 'N/A',
+                            $row->thesis_dissertation_title ?? 'N/A',
+                            $row->units_required ?? 'N/A',
+                            $row->units_earned_prior ?? 'N/A',
+                            $startDate,
+                            $row->enrollment_type ?? 'N/A',
+                            $row->scholarship_duration ?? 'N/A',
+                            $row->scholar_status ?? 'N/A'
                         ]);
                     }
                     break;

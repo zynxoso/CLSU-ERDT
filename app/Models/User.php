@@ -91,6 +91,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the stipend disbursements processed by this user.
+     */
+    public function processedStipendDisbursements()
+    {
+        return $this->hasMany(StipendDisbursement::class, 'processed_by');
+    }
+
+    /**
      * Check if the user is an admin.
      *
      * @return bool

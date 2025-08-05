@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class EncryptedAttribute implements CastsAttributes
 {
     /**
-     * Cast the given value.
+     * pag-convert ng encrypted na value pabalik sa original na value
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @param  string  $key
@@ -36,7 +36,7 @@ class EncryptedAttribute implements CastsAttributes
     }
 
     /**
-     * Prepare the given value for storage.
+     * pag-encrypt ng value bago i-save sa database
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @param  string  $key

@@ -24,7 +24,7 @@
         }
 
         th {
-            background-color: #2E7D32;
+            background-color: #4CAF50;
             color: white;
             font-weight: bold;
             text-align: left;
@@ -64,7 +64,7 @@
 
         .status-graduated {
             background-color: #E3F2FD;
-            color: #1976D2;
+            color: #4A90E2;
         }
 
         .status-discontinued {
@@ -89,10 +89,10 @@
                 <tr>
                     <th width="18%">Name</th>
                     <th width="22%">Email</th>
-                    <th width="20%">Program</th>
-                    <th width="15%">University</th>
+                    <th width="20%">Course</th>
+                    <th width="15%">Intended University</th>
                     <th width="8%">Status</th>
-                    <th width="8%">Start Date</th>
+                    <th width="8%">Start Year</th>
                     <th width="9%">Expected Completion</th>
                 </tr>
             </thead>
@@ -100,11 +100,11 @@
                 @foreach($data as $scholar)
                     <tr>
                         <td>
-                            <strong>{{ $scholar->user ? $scholar->user->name : 'Unknown' }}</strong>
+                            <strong>{{ $scholar->full_name ?? 'Unknown' }}</strong>
                         </td>
                         <td>{{ $scholar->user ? $scholar->user->email : 'N/A' }}</td>
-                        <td>{{ $scholar->program ?? 'N/A' }}</td>
-                        <td>{{ $scholar->university ?? 'N/A' }}</td>
+                        <td>{{ $scholar->course ?? 'N/A' }}</td>
+                        <td>{{ $scholar->intended_university ?? 'N/A' }}</td>
                         <td>
                             <span class="status-badge
                                 @if($scholar->status == 'Active') status-active
@@ -115,8 +115,7 @@
                                 {{ $scholar->status }}
                             </span>
                         </td>
-                        <td>{{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'N/A' }}</td>
-                        <td>{{ $scholar->expected_completion_date ? date('M d, Y', strtotime($scholar->expected_completion_date)) : 'N/A' }}</td>
+                        'N/A' }}</td>
                     </tr>
                 @endforeach
             </tbody>

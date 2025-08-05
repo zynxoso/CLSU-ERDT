@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 use Closure;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class VerifyCsrfToken extends Middleware
 {
@@ -41,7 +42,7 @@ class VerifyCsrfToken extends Middleware
             if (!$this->tokensMatch($request)) {
                 Log::warning('CSRF token mismatch', [
                     'url' => $request->fullUrl(),
-                    'session_token' => $request->session()->token(),
+                    'session_token' => session()->token(),
                     'request_token' => $request->input('_token') ?: $request->header('X-CSRF-TOKEN'),
                     'user_agent' => $request->userAgent(),
                     'ip' => $request->ip()

@@ -56,13 +56,12 @@
                 <label for="status" class="label">Status</label>
                 <select wire:model.live="status" id="status" class="select select-bordered w-full">
                     <option value="">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="for_revision">For Revision</option>
-                    <option value="partially_approved">Partially Approved</option>
-                    <option value="disbursed">Disbursed</option>
-                    <option value="completed">Completed</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Completed">Completed</option>
                 </select>
             </div>
             <div>
@@ -108,21 +107,20 @@
                                 <td>{{ $request->created_at->format('M d, Y') }}</td>
                                 <td>
                                     <span class="badge
-                                        @if($request->status === 'pending') badge-warning
-                                        @elseif($request->status === 'approved') badge-success
-                                        @elseif($request->status === 'rejected') badge-error
-                                        @elseif($request->status === 'for_revision') badge-info
-                                        @elseif($request->status === 'partially_approved') badge-primary
-                                        @elseif($request->status === 'disbursed') badge-info
-                                        @elseif($request->status === 'completed') badge-success
+                                        @if($request->status === 'Draft') badge-secondary
+                                        @elseif($request->status === 'Submitted') badge-warning
+                                        @elseif($request->status === 'Under Review') badge-info
+                                        @elseif($request->status === 'Approved') badge-success
+                                        @elseif($request->status === 'Rejected') badge-error
+                                        @elseif($request->status === 'Completed') badge-primary
                                         @endif
                                         text-white">
-                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                        {{ $request->status }}
                                     </span>
                                 </td>
                                 <td>
                                     <a href="{{ route('scholar.fund-requests.show', $request->id) }}" class="btn btn-sm btn-info text-white">View</a>
-                                    @if($request->status === 'pending' || $request->status === 'for_revision')
+                                    @if($request->status === 'Draft')
                                         <a href="{{ route('scholar.fund-requests.edit', $request->id) }}" class="btn btn-sm btn-warning text-white">Edit</a>
                                     @endif
                                 </td>

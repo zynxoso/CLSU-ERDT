@@ -59,9 +59,9 @@ class FundRequestFilters extends Component
 
         // Calculate statistics for summary cards
         $totalRequested = FundRequest::where('scholar_profile_id', $scholarId)->count();
-        $approved = FundRequest::where('scholar_profile_id', $scholarId)->where('status', 'approved')->count();
-        $pending = FundRequest::where('scholar_profile_id', $scholarId)->where('status', 'pending')->count();
-        $rejected = FundRequest::where('scholar_profile_id', $scholarId)->where('status', 'rejected')->count();
+        $approved = FundRequest::where('scholar_profile_id', $scholarId)->where('status', FundRequest::STATUS_APPROVED)->count();
+        $pending = FundRequest::where('scholar_profile_id', $scholarId)->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count();
+        $rejected = FundRequest::where('scholar_profile_id', $scholarId)->where('status', FundRequest::STATUS_REJECTED)->count();
 
         return view('livewire.scholar.fund-request-filters', [
             'fundRequests' => $fundRequests,

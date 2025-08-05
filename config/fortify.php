@@ -144,8 +144,8 @@ return [
     */
 
     'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
+        // Features::registration(), // Removed - no self-registration needed
+        // Features::resetPasswords(), // Removed - admin-controlled password resets only
         Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::twoFactorAuthentication([

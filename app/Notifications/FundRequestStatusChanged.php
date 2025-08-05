@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use App\Models\FundRequest;
 
 class FundRequestStatusChanged extends Notification
@@ -34,7 +35,7 @@ class FundRequestStatusChanged extends Notification
         $this->notes = $notes;
 
         // Store notification in custom notifications table
-        // $this->storeCustomNotification();
+        $this->storeCustomNotification();
     }
 
     /**
@@ -42,11 +43,17 @@ class FundRequestStatusChanged extends Notification
      *
      * @return void
      */
-    /*
     protected function storeCustomNotification()
     {
-        $user = $this->fundRequest->user;
+        // Load the scholar profile and user relationships
+        $this->fundRequest->load('scholarProfile.user');
+
+        $user = $this->fundRequest->scholarProfile?->user;
         if (!$user) {
+            Log::warning('FundRequestStatusChanged: Unable to find user for fund request', [
+                'fund_request_id' => $this->fundRequest->id,
+                'scholar_profile_id' => $this->fundRequest->scholar_profile_id
+            ]);
             return;
         }
 
@@ -54,19 +61,21 @@ class FundRequestStatusChanged extends Notification
         $message = 'Your fund request for "' . $this->fundRequest->purpose . '" has been updated from ' .
                    $this->oldStatus . ' to ' . $this->newStatus;
 
-        $data = $this->toArray($user);
+        if ($this->notes) {
+            $message .= "\n\nAdmin Notes: " . $this->notes;
+        }
 
-        // Create custom notification
-        $user->customNotifications()->create([
-            'title' => $title,
-            'message' => $message,
-            'type' => 'FundRequestStatusChanged',
-            'data' => $data,
-            'link' => route('scholar.fund-requests.show', $this->fundRequest->id),
-            'is_read' => false,
-        ]);
+        // Create custom notification using the NotificationService
+        $notificationService = app(\App\Services\NotificationService::class);
+        $notificationService->notify(
+            $user->id,
+            $title,
+            $message,
+            'fund_request',
+            route('scholar.fund-requests.show', $this->fundRequest->id),
+            false // Email is handled by Laravel notification system
+        );
     }
-    */
 
     /**
      * Get the notification's delivery channels.
@@ -76,8 +85,8 @@ class FundRequestStatusChanged extends Notification
      */
     public function via($notifiable)
     {
-        // Use both database and mail channels
-        return ['database', 'mail'];
+        // Only use database channel, removing mail channel
+        return ['database'];
     }
 
     /**

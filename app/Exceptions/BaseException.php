@@ -5,29 +5,29 @@ namespace App\Exceptions;
 use Exception;
 
 /**
- * Base exception class for all custom exceptions in the application.
+ * Base exception class para sa lahat ng custom exceptions sa application.
  *
- * This class provides common functionality for all custom exceptions,
- * such as error codes and additional context data.
+ * Ang class na ito ay nagbibigay ng common functionality para sa lahat ng custom exceptions,
+ * tulad ng error codes at additional context data.
  */
 class BaseException extends Exception
 {
     /**
-     * The error code for this exception.
+     * Ang error code para sa exception na ito.
      *
      * @var string
      */
     protected string $errorCode = 'GENERAL_ERROR';
 
     /**
-     * Additional context data for this exception.
+     * Additional context data para sa exception na ito.
      *
      * @var array
      */
     protected array $context = [];
 
     /**
-     * Create a new exception instance.
+     * Gumawa ng bagong exception instance.
      *
      * @param string $message
      * @param int $code
@@ -42,7 +42,7 @@ class BaseException extends Exception
     }
 
     /**
-     * Get the error code for this exception.
+     * Kunin ang error code para sa exception na ito.
      *
      * @return string
      */
@@ -52,7 +52,7 @@ class BaseException extends Exception
     }
 
     /**
-     * Set the error code for this exception.
+     * I-set ang error code para sa exception na ito.
      *
      * @param string $errorCode
      * @return $this
@@ -64,7 +64,7 @@ class BaseException extends Exception
     }
 
     /**
-     * Get the context data for this exception.
+     * Kunin ang context data para sa exception na ito.
      *
      * @return array
      */
@@ -74,7 +74,7 @@ class BaseException extends Exception
     }
 
     /**
-     * Add context data to this exception.
+     * Magdagdag ng context data sa exception na ito.
      *
      * @param array $context
      * @return $this

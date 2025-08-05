@@ -35,7 +35,7 @@ class StatusUpdateController extends BaseController
             ],
             [
                 'id' => 2,
-                'status' => 'Pending',
+                'status' => 'Under Review',
                 'history' => [
                     [
                         'status' => 'Submitted',

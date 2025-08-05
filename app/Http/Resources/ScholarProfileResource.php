@@ -24,30 +24,26 @@ class ScholarProfileResource extends BaseResource
             'gender' => $this->gender,
             'birth_date' => $this->birth_date,
             'contact_number' => $this->contact_number,
-            'address' => $this->address,
-            'city' => $this->city,
+
             'province' => $this->province,
-            'postal_code' => $this->postal_code,
             'country' => $this->country,
-            'university' => $this->university,
+            'intended_university' => $this->intended_university,
             'department' => $this->department,
-            'program' => $this->program,
-            'degree_program' => $this->degree_program,
+            // Program field removed - using department instead
+            'intended_degree' => $this->intended_degree,
             'year_level' => $this->year_level,
             'expected_graduation' => $this->expected_graduation,
             'status' => $this->status,
-            'scholar_id' => $this->scholar_id,
             'profile_photo' => $this->profile_photo,
             'is_verified' => $this->is_verified,
             'verified_at' => $this->verified_at,
             'start_date' => $this->start_date,
-            'expected_completion_date' => $this->expected_completion_date,
+            // Expected completion date field removed
             'actual_completion_date' => $this->actual_completion_date,
-            'bachelor_degree' => $this->bachelor_degree,
-            'bachelor_university' => $this->bachelor_university,
-            'bachelor_graduation_year' => $this->bachelor_graduation_year,
-            'research_area' => $this->research_area,
-            'degree_level' => $this->degree_level,
+
+
+            // Bachelor graduation year field removed
+
             'enrollment_type' => $this->enrollment_type,
             'study_time' => $this->study_time,
             'scholarship_duration' => $this->scholarship_duration,

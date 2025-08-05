@@ -214,9 +214,14 @@
                             <!-- Scholar Filter -->
                             <div>
                                 <label class="block text-sm font-medium mb-2" style="color: #424242;">Scholar</label>
-                                <input type="text" wire:model.live.debounce.300ms="downloadScholar" placeholder="Scholar Name"
-                                       class="w-full border rounded-lg px-3 py-2"
-                                       style="border-color: #E0E0E0;">
+                                <select wire:model.live="downloadScholar"
+                                        class="w-full border rounded-lg px-3 py-2"
+                                        style="border-color: #E0E0E0;">
+                                    <option value="">All Scholars</option>
+                                    @foreach($scholars as $scholarOption)
+                                        <option value="{{ $scholarOption->name }}">{{ $scholarOption->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <!-- Title Search -->
@@ -260,12 +265,12 @@
                         <div class="flex flex-wrap gap-2 mb-4">
                             <button wire:click="applyCurrentFiltersToDownload"
                                     class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm"
-                                    style="background-color: #E3F2FD; color: #1976D2;">
+                                    style="background-color: #2E7D32; color: #e3fde6;">
                                 <i class="fas fa-copy mr-1.5"></i> Use Current Filters
                             </button>
                             <button wire:click="resetDownloadFilters"
                                     class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm"
-                                    style="background-color: #F8F9FA; color: #424242;">
+                                    style="background-color: #2E7D32; color: #e3fde6;">
                                 <i class="fas fa-eraser mr-1.5"></i> Clear All
                             </button>
                         </div>

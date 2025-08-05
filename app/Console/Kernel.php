@@ -8,18 +8,18 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
+     * Mga Artisan commands na provided ng application.
      *
      * @var array
      */
     protected $commands = [
-        // Debug commands removed
+        // Debug commands na-remove na
     ];
 
     /**
-     * Define the application's command schedule.
+     * Define ng command schedule ng application.
      *
-     * These schedules are run in the console.
+     * Mga schedule na ito ay tumatakbo sa console.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
     }
 
     /**
-     * Register the commands for the application.
+     * Register ng mga commands para sa application.
      *
      * @return void
      */

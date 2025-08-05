@@ -1,27 +1,41 @@
 <div class="min-h-screen">
     <div class="container mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">My Manuscripts</h1>
-            <a href="{{ route('scholar.manuscripts.create') }}" class="px-4 py-2 bg-[#4CAF50] hover:bg-[#43A047] text-white rounded-lg flex items-center space-x-2">
-                <i class="fas fa-plus text-[#E8F5E9]"></i>
-                <span>New Manuscript</span>
-            </a>
+
+
+        <div class="bg-white border-b border-gray-200 shadow-sm mb-6">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">My Manuscripts</h1>
+                    </div>
+                    <a href="{{ route('scholar.manuscripts.create') }}" class="inline-flex items-center px-6 py-3 bg-[#4CAF50] hover:bg-[#43A047] text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-plus mr-2"></i>
+                        <span>New Manuscript</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 relative" role="alert">
-                <p class="font-bold">Success!</p>
-                <p>{!! session('success') !!}</p>
-                <button class="absolute top-0 right-0 mt-4 mr-4 text-green-700 hover:text-green-900" onclick="this.parentElement.style.display='none'">
+            <div class="bg-[#4CAF50]/10 border-l-4 border-[#4CAF50] text-[#2E7D32] p-4 mb-4 relative" role="alert">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-[#4CAF50] mr-2"></i>
+                    <p class="font-bold">Success!</p>
+                </div>
+                <p class="mt-1">{!! session('success') !!}</p>
+                <button class="absolute top-0 right-0 mt-4 mr-4 text-[#2E7D32] hover:text-[#1B5E20]" onclick="this.parentElement.style.display='none'">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 relative" role="alert">
-                <p class="font-bold">Error!</p>
-                <p>{{ session('error') }}</p>
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4 relative" role="alert">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                    <p class="font-bold">Error!</p>
+                </div>
+                <p class="mt-1">{{ session('error') }}</p>
                 <button class="absolute top-0 right-0 mt-4 mr-4 text-red-700 hover:text-red-900" onclick="this.parentElement.style.display='none'">
                     <i class="fas fa-times"></i>
                 </button>
@@ -71,9 +85,9 @@
                     <button
                         type="button"
                         wire:click="resetFilters"
-                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2"
+                        class="px-4 py-2 bg-[#FFCA28] text-white rounded-lg hover:bg-[#FFB300] flex items-center space-x-2 transition-colors duration-200"
                     >
-                        <i class="fas fa-undo-alt text-gray-100"></i>
+                        <i class="fas fa-undo-alt"></i>
                         <span>Reset</span>
                     </button>
                 </div>
@@ -83,7 +97,7 @@
         <!-- Loading indicator -->
         <div wire:loading class="w-full">
             <div class="flex justify-center items-center py-8">
-                <div class="rounded-full h-10 w-10 border-4 border-[#4CAF50]/20 border-t-[#4CAF50]"></div>
+                <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#4CAF50]/20 border-t-[#4CAF50]"></div>
             </div>
         </div>
 

@@ -40,7 +40,7 @@ class SuperAdminDashboard extends Component
     public $recentFundRequests;
     public $recentDocuments;
     public $recentManuscripts;
-    public $programCounts;
+    // Program counts removed (program field removed)
     public $recentUsers;
 
     // User properties for password modal
@@ -78,15 +78,15 @@ class SuperAdminDashboard extends Component
         // Load scholar statistics
         $scholars = ScholarProfile::all();
         $this->totalScholars = $scholars->count();
-        $this->pendingScholars = $scholars->where('status', 'Pending')->count();
-        $this->activeScholars = $scholars->where('status', 'Active')->count();
+        $this->pendingScholars = ScholarProfile::whereStatus('Pending')->count();
+        $this->activeScholars = ScholarProfile::whereStatus('Active')->count();
         $this->recentScholars = $scholars->sortByDesc('created_at')->take(5);
 
         // Load fund request statistics
         $fundRequests = FundRequest::all();
         $this->totalFundRequests = $fundRequests->count();
-        $this->pendingFundRequests = $fundRequests->where('status', 'Pending')->count();
-        $this->approvedRequests = $fundRequests->where('status', 'Approved')->count();
+        $this->pendingFundRequests = $fundRequests->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count();
+        $this->approvedRequests = $fundRequests->where('status', FundRequest::STATUS_APPROVED)->count();
         $this->recentFundRequests = $fundRequests->sortByDesc('created_at')->take(3);
 
         // Load document statistics
@@ -104,33 +104,14 @@ class SuperAdminDashboard extends Component
 
         // Calculate completion metrics
         $this->completionRate = $scholars->count() > 0
-            ? round(($scholars->where('status', 'Graduated')->count() / $scholars->count()) * 100)
+            ? round((ScholarProfile::whereStatus('Graduated')->count() / $scholars->count()) * 100)
             : 0;
 
-        $currentYear = now()->year;
-        $this->completionsThisYear = $scholars->where('status', 'Completed')
-            ->filter(function($scholar) use ($currentYear) {
-                return Carbon::parse($scholar->updated_at)->year == $currentYear;
-            })->count();
+        $this->completionsThisYear = ScholarProfile::whereStatus('Completed')
+            ->whereYear('updated_at', now()->year)
+            ->count();
 
-        // Calculate program distribution
-        $this->programCounts = collect();
-        $programGroups = $scholars->groupBy('program');
-
-        if ($this->totalScholars > 0) {
-            foreach ($programGroups as $program => $scholarsInProgram) {
-                $count = $scholarsInProgram->count();
-                $percentage = round(($count / $this->totalScholars) * 100);
-                $this->programCounts->push((object)[
-                    'program' => $program ?: 'Not Specified',
-                    'count' => $count,
-                    'percentage' => $percentage
-                ]);
-            }
-
-            // Sort by count descending
-            $this->programCounts = $this->programCounts->sortByDesc('count')->values();
-        }
+        // Program distribution removed (program field removed)
 
         $this->lastRefresh = now()->format('H:i:s');
     }

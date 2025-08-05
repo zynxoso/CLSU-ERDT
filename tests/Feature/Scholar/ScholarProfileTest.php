@@ -64,12 +64,11 @@ class ScholarProfileTest extends TestCase
         }
 
         $profileData = [
-            'university' => 'Central Luzon State University',
+            'intended_university' => 'Central Luzon State University',
             'department' => 'Computer Science',
-            'program' => 'Master in Information Technology',
+            'intended_degree' => 'PHD in ABE',
             'student_id' => $this->faker->numerify('2023########'),
             'phone' => '09123456789',
-            'address' => $this->faker->address,
         ];
 
         $response = $this->actingAs($user)
@@ -80,9 +79,9 @@ class ScholarProfileTest extends TestCase
 
         // Verify the data was updated
         $user->scholarProfile->refresh();
-        $this->assertEquals($profileData['university'], $user->scholarProfile->university);
+        $this->assertEquals($profileData['intended_university'], $user->scholarProfile->intended_university);
         $this->assertEquals($profileData['department'], $user->scholarProfile->department);
-        $this->assertEquals($profileData['program'], $user->scholarProfile->program);
+        $this->assertEquals($profileData['intended_degree'], $user->scholarProfile->intended_degree);
     }
 
     /**

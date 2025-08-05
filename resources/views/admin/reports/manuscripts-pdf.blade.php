@@ -24,7 +24,7 @@
         }
 
         th {
-            background-color: #2E7D32;
+            background-color: #4CAF50;
             color: white;
             font-weight: bold;
             text-align: left;
@@ -54,7 +54,7 @@
 
         .status-draft {
             background-color: #E3F2FD;
-            color: #1976D2;
+            color: #4A90E2;
         }
 
         .status-review {

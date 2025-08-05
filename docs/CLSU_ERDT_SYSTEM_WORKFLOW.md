@@ -1,8 +1,17 @@
-# CLSU-ERDT System Workflow Documentation
+# 🎓 CLSU-ERDT System Workflow Documentation
 
 ## System Overview
 
-The **Central Luzon State University - Engineering Research and Development for Technology (CLSU-ERDT)** system is a comprehensive Laravel-based web application designed to manage scholars, their fund requests, manuscript submissions, and administrative oversight. The system supports multiple user roles with distinct workflows and capabilities.
+The CLSU-ERDT (Central Luzon State University - Engineering Research and Development for Technology) system is a comprehensive, enterprise-grade Laravel-based web application designed to manage scholars, fund requests, and manuscript submissions for the Department of Agricultural and Biosystems Engineering (ABE) at CLSU. The system incorporates advanced security features, performance optimization, and comprehensive workflow management.
+
+## 🎯 System Objectives
+
+- **Scholar Management**: Comprehensive tracking and management of CLSU ABE scholars
+- **Fund Request Processing**: Streamlined fund request submission and approval workflow
+- **Manuscript Management**: Complete manuscript submission and review process
+- **Security & Compliance**: Enterprise-grade security with audit trails
+- **Performance Optimization**: High-performance system with advanced caching
+- **User Experience**: Intuitive interface with real-time notifications
 
 ## User Roles & Access Levels
 
@@ -342,25 +351,49 @@ Draft → Submitted → Under Review → Revision Requested/Accepted/Rejected �
 
 ---
 
-## 🛠 Technical Architecture
+## 🏗️ Technical Architecture
 
-### **Technology Stack:**
-- **Framework**: Laravel (PHP)
-- **Database**: MySQL/PostgreSQL with security policies
-- **Frontend**: Blade templates with modern CSS/JS
-- **Authentication**: Laravel's built-in auth with custom guards
-- **File Storage**: Secure file handling with scanning
-- **Caching**: Redis/Memcached for performance
+### Framework & Technologies
+- **Backend**: Laravel 12.x (PHP 8.2+) with advanced security features
+- **Frontend**: Blade templating with Tailwind CSS 3.x, Alpine.js, Bootstrap 5.3
+- **Database**: MySQL/PostgreSQL with optimized Eloquent ORM
+- **Caching**: Redis for session management, rate limiting, and performance caching
+- **Queue System**: Redis-based job queues for background processing
+- **File Storage**: Secure local storage with CyberSweep scanning
+- **Authentication**: Laravel Fortify with multi-factor authentication support
+- **Security**: Multi-layered DDoS protection and rate limiting
+- **Build Tools**: Vite 6.x for modern asset compilation
+- **Testing**: PHPUnit with comprehensive test coverage
 
-### **Key Laravel Features Utilized:**
-- **Eloquent ORM**: Database abstraction and relationships
-- **Middleware**: Security and authentication layers
-- **Service Providers**: Dependency injection and configuration
-- **Events & Listeners**: Notification and audit systems
-- **Queues**: Background job processing
-- **Validation**: Comprehensive input validation
-- **Authorization**: Policy-based access control
+### Key Laravel Features Utilized
+- **Eloquent ORM**: Advanced database relationships and optimized queries
+- **Middleware**: Authentication, authorization, rate limiting, and security scanning
+- **Events & Listeners**: Real-time notification triggers and comprehensive audit logging
+- **Jobs & Queues**: Background email processing and file scanning
+- **Policies**: Fine-grained authorization control with role-based permissions
+- **Form Requests**: Advanced input validation, sanitization, and security checks
+- **Notifications**: Multi-channel email and in-app notifications
+- **File Storage**: Secure document management with virus scanning
+- **Livewire**: Dynamic interfaces for real-time user interactions
+- **API Resources**: RESTful API endpoints with rate limiting
+
+### 🛡️ Security Features
+- **CyberSweep**: Advanced file scanning and threat detection
+- **Rate Limiting**: 8-tier rate limiting with IP blocking
+- **DDoS Protection**: Multi-layered attack prevention
+- **Input Validation**: Comprehensive XSS and SQL injection prevention
+- **Audit Logging**: Complete activity tracking and compliance
+- **Encryption**: Data encryption at rest and in transit
+- **Session Security**: Secure session management with Redis
+
+### 📊 Performance Optimizations
+- **Redis Caching**: High-performance data caching
+- **Database Indexing**: Optimized database queries
+- **Asset Optimization**: Minified and compressed assets
+- **Lazy Loading**: Efficient data loading strategies
+- **Queue Processing**: Background job processing
+- **CDN Ready**: Prepared for content delivery networks
 
 ---
 
-This documentation provides a comprehensive overview of the CLSU-ERDT system workflow, from initial user authentication through complex multi-step processes like fund requests and manuscript submissions. The system emphasizes security, transparency, and efficient workflow management while maintaining detailed audit trails and user notifications throughout all processes. 
+This documentation provides a comprehensive overview of the CLSU-ERDT system workflow, from initial user authentication through complex multi-step processes like fund requests and manuscript submissions. The system emphasizes security, transparency, and efficient workflow management while maintaining detailed audit trails and user notifications throughout all processes.

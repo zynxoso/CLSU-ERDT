@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Http\Controllers\Scholar;
 
 use App\Http\Controllers\Controller;
@@ -11,22 +9,31 @@ use App\Models\Manuscript;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Para sa mga updates ng scholar
+ */
 class StatusUpdateController extends Controller
 {
+    /**
+     * Kunin ang mga bagong updates
+     */
     public function index(Request $request)
     {
+        // Kunin ang user na naka-login
         $scholar = Auth::user();
 
+        // Check kung may scholar
         if (!$scholar || !$scholar->scholarProfile) {
             return ApiResponse::error('Unauthorized', 401);
         }
 
-        // Get recent fund requests
+        // Kunin ang mga fund request
         $fundRequests = FundRequest::where('scholar_profile_id', $scholar->scholarProfile->id)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
+            ->orderBy('created_at', 'desc') // Bago muna
+            ->take(5) // 5 lang
             ->get()
             ->map(function ($request) {
+                // Gawing array
                 return [
                     'type' => 'fund_request',
                     'status' => $request->status,
@@ -36,12 +43,13 @@ class StatusUpdateController extends Controller
                 ];
             });
 
-        // Get recent manuscripts
+        // Kunin ang mga manuscript
         $manuscripts = Manuscript::where('scholar_profile_id', $scholar->scholarProfile->id)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
+            ->orderBy('created_at', 'desc') // Bago muna
+            ->take(5) // 5 lang
             ->get()
             ->map(function ($manuscript) {
+                // Gawing array
                 return [
                     'type' => 'manuscript',
                     'status' => $manuscript->status,
@@ -51,12 +59,13 @@ class StatusUpdateController extends Controller
                 ];
             });
 
-        // Combine and sort by most recent
-        $updates = $fundRequests->concat($manuscripts)
-            ->sortByDesc('updated_at')
-            ->values()
-            ->take(10);
+        // Pagsamahin lahat
+        $updates = $fundRequests->concat($manuscripts) // Sama-sama
+            ->sortByDesc('updated_at') // Ayusin
+            ->values() // Reset
+            ->take(10); // 10 lang
 
+        // Ibalik ang result
         return ApiResponse::success([
             'updates' => $updates
         ]);

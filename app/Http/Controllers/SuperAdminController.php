@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Services\AuditService;
-use App\Models\HistoryTimeline;
+
 use App\Models\SiteSetting;
 use App\Services\SystemConfigService;
 use Illuminate\Support\Facades\DB;
@@ -463,17 +463,7 @@ class SuperAdminController extends Controller
         return view('super_admin.data_management');
     }
 
-    /**
-     * Show the website management page.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function websiteManagement()
-    {
-        $facultyMembers = FacultyMember::ordered()->get();
-        $announcements = Announcement::orderByPriority()->get();
-        return view('super_admin.website_management', compact('facultyMembers', 'announcements'));
-    }
+
 
     /**
      * Show the application timeline management page.
@@ -624,38 +614,44 @@ class SuperAdminController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
-            'role' => 'required|string|in:admin,scholar,super_admin',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
+            'role' => ['required', 'in:admin,super_admin'],
+            'is_active' => ['sometimes', 'boolean'],
         ]);
 
-        if ($request->filled('password')) {
-            $request->validate([
-                'password' => ['confirmed', \Illuminate\Validation\Rules\Password::defaults()],
-            ]);
-
-            $user->password = Hash::make($request->password);
-            $user->is_default_password = true;
-            $user->must_change_password = true;
+        // Prevent changing the role of the default super admin
+        if ($user->id === 1 && $request->role !== 'super_admin') {
+            return redirect()->back()->with('error', 'Cannot change the role of the default super admin.');
         }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role = $request->role;
-        $user->is_active = $request->has('is_active');
-        $user->save();
+        DB::beginTransaction();
+        try {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role,
+                'is_active' => $request->has('is_active') ? $request->is_active : $user->is_active,
+            ]);
 
-        // Log the user update action
-        $this->auditService->log(
-            'update',
-            'user',
-            $user->id,
-            'User updated: ' . $user->name,
-            $request->all()
-        );
+            if ($request->has('password') && !empty($request->password)) {
+                $request->validate(['password' => ['string', 'min:8', 'confirmed']]);
+                $user->update(['password' => Hash::make($request->password)]);
+            }
 
-        return redirect()->route('super_admin.user_management')
-            ->with('success', 'User updated successfully');
+            $this->auditService->log('user_updated', 'User', $user->id,
+                'Updated user details for ' . $user->name
+            );
+            DB::commit();
+
+            return redirect()->route('super_admin.user_management.edit', $user->id)
+                ->with('success', 'User updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Failed to update user. ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -677,33 +673,35 @@ class SuperAdminController extends Controller
     public function storeUser(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'role' => 'required|string|in:admin,scholar,super_admin',
-            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', 'in:admin'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'password' => Hash::make($request->password),
-            'is_active' => $request->has('is_active'),
-            'is_default_password' => true,
-            'must_change_password' => true,
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'is_active' => $request->filled('is_active'),
+            ]);
 
-        // Log the user creation action
-        $this->auditService->log(
-            'create',
-            'user',
-            $user->id,
-            'User created: ' . $user->name,
-            $request->except('password', 'password_confirmation')
-        );
+            $this->auditService->log('user_created', 'User', $user->id,
+                'Created user ' . $user->name . ' with role ' . $user->role
+            );
+            DB::commit();
 
-        return redirect()->route('super_admin.user_management')
-            ->with('success', 'User created successfully');
+            return redirect()->route('super_admin.user_management')
+                ->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Failed to create user. ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -768,7 +766,7 @@ class SuperAdminController extends Controller
             'specialization' => $request->specialization,
             'education_background' => $request->degree . ' - ' . $request->specialization, // Combine for education background
             'research_description' => '', // Empty for now
-            'degree_level' => $request->degree,
+            
             'university_origin' => $request->institution,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => true
@@ -824,7 +822,7 @@ class SuperAdminController extends Controller
             'specialization' => $request->specialization,
             'education_background' => $request->degree . ' - ' . $request->specialization, // Combine for education background
             'research_description' => $faculty->research_description ?? '', // Keep existing or empty
-            'degree_level' => $request->degree,
+            
             'university_origin' => $request->institution,
             'sort_order' => $request->sort_order ?? 0
         ];
@@ -1039,166 +1037,7 @@ class SuperAdminController extends Controller
         ]);
     }
 
-    // History Timeline Management Methods
 
-    /**
-     * Show the history timeline management page.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function historyTimeline()
-    {
-        return view('super_admin.history_timeline');
-    }
-
-    /**
-     * Show the form for creating a new history timeline item.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function createHistoryTimelineItem()
-    {
-        return view('super_admin.history_timeline_create');
-    }
-
-    /**
-     * Store a newly created history timeline item.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function storeHistoryTimelineItem(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'event_date' => 'required|date',
-            'year_label' => 'nullable|string|max:20',
-            'category' => 'required|in:milestone,achievement,partnership',
-            'icon' => 'nullable|string|max:100',
-            'color' => 'required|string|max:50',
-            'sort_order' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        $data = $request->except('image');
-
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('history/timeline', 'public');
-            $data['image_path'] = $imagePath;
-        }
-
-        \App\Models\HistoryTimelineItem::create($data);
-
-        $this->auditService->log('history_timeline_created', 'History Timeline', null,
-            'Created new history timeline item: ' . $request->title);
-
-        return redirect()->route('super_admin.history_timeline')
-            ->with('success', 'History timeline item created successfully.');
-    }
-
-    /**
-     * Show the form for editing a history timeline item.
-     *
-     * @param int $id
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function editHistoryTimelineItem($id)
-    {
-        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
-        return view('super_admin.history_timeline_edit', compact('timelineItem'));
-    }
-
-    /**
-     * Update the specified history timeline item.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function updateHistoryTimelineItem(Request $request, $id)
-    {
-        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'event_date' => 'required|date',
-            'year_label' => 'nullable|string|max:20',
-            'category' => 'required|in:milestone,achievement,partnership',
-            'icon' => 'nullable|string|max:100',
-            'color' => 'required|string|max:50',
-            'sort_order' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        $data = $request->except('image');
-
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($timelineItem->image_path) {
-                Storage::disk('public')->delete($timelineItem->image_path);
-            }
-
-            $imagePath = $request->file('image')->store('history/timeline', 'public');
-            $data['image_path'] = $imagePath;
-        }
-
-        $timelineItem->update($data);
-
-        $this->auditService->log('history_timeline_updated', 'History Timeline', $id,
-            'Updated history timeline item: ' . $timelineItem->title);
-
-        return redirect()->route('super_admin.history_timeline')
-            ->with('success', 'History timeline item updated successfully.');
-    }
-
-    /**
-     * Delete the specified history timeline item.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function deleteHistoryTimelineItem($id)
-    {
-        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
-        $title = $timelineItem->title;
-
-        // Delete associated image
-        if ($timelineItem->image_path) {
-            Storage::disk('public')->delete($timelineItem->image_path);
-        }
-
-        $timelineItem->delete();
-
-        $this->auditService->log('history_timeline_deleted', 'History Timeline', $id,
-            'Deleted history timeline item: ' . $title);
-
-        return redirect()->route('super_admin.history_timeline')
-            ->with('success', 'History timeline item deleted successfully.');
-    }
-
-    /**
-     * Toggle the active status of a history timeline item.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function toggleHistoryTimelineStatus($id)
-    {
-        $timelineItem = \App\Models\HistoryTimelineItem::findOrFail($id);
-        $timelineItem->update([
-            'is_active' => !$timelineItem->is_active
-        ]);
-
-        $status = $timelineItem->is_active ? 'activated' : 'deactivated';
-
-        $this->auditService->log('history_timeline_status_changed', 'History Timeline', $id,
-            'Status changed for history timeline item: ' . $timelineItem->title . ' - ' . $status);
-
-        return redirect()->route('super_admin.history_timeline')
-            ->with('success', "History timeline item {$status} successfully.");
-    }
 
     /**
      * Create a new admin user.

@@ -10,12 +10,13 @@ use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {
     /**
-     * Validate and update the given user's profile information.
+     * validation at pag-update ng profile information ng user
      *
      * @param  array<string, string>  $input
      */
     public function update(User $user, array $input): void
     {
+        // validation sa pag-update ng user profile information
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
 
@@ -28,6 +29,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             ],
         ])->validateWithBag('updateProfileInformation');
 
+        // pag-update ng user data sa database
         $user->forceFill([
             'name' => $input['name'],
             'email' => $input['email'],

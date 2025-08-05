@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\ApplicationTimeline;
 use App\Models\ImportantNote;
 use App\Models\FacultyMember;
-use App\Models\HistoryTimelineItem;
+
 use App\Models\HistoryAchievement;
 use App\Models\HistoryContentBlock;
+use App\Models\DownloadableForm;
 use Illuminate\Support\Facades\Cache;
 
 class PublicPageController extends Controller
@@ -26,7 +27,10 @@ class PublicPageController extends Controller
         // Fetch active important notes ordered by sort_order
         $importantNotes = ImportantNote::active()->ordered()->get();
 
-        return view('how-to-apply', compact('timelines', 'importantNotes'));
+        // Fetch active downloadable forms grouped by category
+        $downloadableForms = DownloadableForm::active()->ordered()->get()->groupBy('category');
+
+        return view('how-to-apply', compact('timelines', 'importantNotes', 'downloadableForms'));
     }
 
     /**
@@ -50,9 +54,6 @@ class PublicPageController extends Controller
     public function history()
     {
         // Cache the history data for 1 hour to improve performance
-        $timelineItems = Cache::remember('history_timeline', 3600, function() {
-            return HistoryTimelineItem::active()->ordered()->get();
-        });
 
         $achievements = Cache::remember('history_achievements', 3600, function() {
             return HistoryAchievement::active()->ordered()->get();
@@ -75,7 +76,6 @@ class PublicPageController extends Controller
         });
 
         return view('history', compact(
-            'timelineItems',
             'achievements',
             'heroContent',
             'introContent',

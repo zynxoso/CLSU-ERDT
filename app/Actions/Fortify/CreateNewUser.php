@@ -13,28 +13,32 @@ class CreateNewUser implements CreatesNewUsers
     use PasswordValidationRules;
 
     /**
-     * Validate and create a newly registered user.
+     * Validation at pag gawa ng bagong user account.
+     * Para sa secure na pag register ng mga bagong users.
      *
-     * @param  array<string, string>  $input
+     * @param  array<string, string>  $input  Data mula sa registration form
+     * @return User  Yung bagong user na na-create
      */
     public function create(array $input): User
     {
+        // Validation ng mga input data para sure na tama yung format
         Validator::make($input, [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'], // Validation ng pangalan - required, text, max 255 chars
             'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique(User::class),
+                'required',    // Validation na may email
+                'string',      // Validation na text format
+                'email',       // Validation ng email format
+                'max:255',     // Validation ng length max 255 chars
+                Rule::unique(User::class), // Validation na unique sa lahat ng users
             ],
-            'password' => $this->passwordRules(),
+            'password' => $this->passwordRules(), // Validation ng password rules
         ])->validate();
 
+        // Pag gawa ng bagong user record sa database
         return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => Hash::make($input['password']),
+            'name' => $input['name'],                    // Pag save ng pangalan
+            'email' => $input['email'],                  // Pag save ng email
+            'password' => Hash::make($input['password']), // Pag encrypt ng password para secure
         ]);
     }
 }

@@ -15,13 +15,14 @@ class ManuscriptsExport implements FromCollection, WithHeadings
         $this->manuscripts = $manuscripts;
     }
 
+    // pag-convert ng manuscripts data para sa excel export
     public function collection()
     {
         return $this->manuscripts->map(function ($manuscript) {
             return [
                 'Title' => $manuscript->title,
-                'Author' => $manuscript->author->name ?? '',
-                'Submission Date' => $manuscript->submission_date ? $manuscript->submission_date->format('Y-m-d') : '',
+                'Author' => $manuscript->author->name ?? '', // kunin ang pangalan ng author o blank kung walang author
+                'Submission Date' => $manuscript->submission_date ? $manuscript->submission_date->format('Y-m-d') : '', // i-format ang date o blank kung walang date
                 'Status' => $manuscript->status,
                 'Type' => $manuscript->type,
                 'Keywords' => $manuscript->keywords,
@@ -29,6 +30,7 @@ class ManuscriptsExport implements FromCollection, WithHeadings
         });
     }
 
+    // mga header names para sa excel file
     public function headings(): array
     {
         return [

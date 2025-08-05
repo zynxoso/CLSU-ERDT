@@ -104,6 +104,10 @@ class AuditLogsList extends Component
     {
         $query = AuditLog::query()
             ->with('user')
+            // Exclude logs from superadmins
+            ->whereHas('user', function ($query) {
+                $query->where('role', '!=', 'superadmin');
+            })
             ->when($this->search, function ($query) {
                 return $query->where(function ($q) {
                     $q->whereHas('user', function ($userQuery) {
@@ -139,11 +143,21 @@ class AuditLogsList extends Component
 
         $auditLogs = $query->paginate($this->perPage);
 
-        // Get unique actions for filter dropdown
-        $actions = AuditLog::select('action')->distinct()->pluck('action');
+        // Get unique actions for filter dropdown, excluding superadmin actions
+        $actions = AuditLog::whereHas('user', function ($query) {
+                $query->where('role', '!=', 'superadmin');
+            })
+            ->select('action')
+            ->distinct()
+            ->pluck('action');
 
-        // Get unique entity types for filter dropdown
-        $entityTypes = AuditLog::select('model_type')->distinct()->pluck('model_type');
+        // Get unique entity types for filter dropdown, excluding superadmin entity types
+        $entityTypes = AuditLog::whereHas('user', function ($query) {
+                $query->where('role', '!=', 'superadmin');
+            })
+            ->select('model_type')
+            ->distinct()
+            ->pluck('model_type');
 
         return view('livewire.admin.audit-logs-list', [
             'auditLogs' => $auditLogs,

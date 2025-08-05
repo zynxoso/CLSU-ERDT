@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use App\Models\Manuscript;
 
 class ManuscriptStatusChanged extends Notification
@@ -32,6 +33,48 @@ class ManuscriptStatusChanged extends Notification
         $this->oldStatus = $oldStatus;
         $this->newStatus = $newStatus;
         $this->notes = $notes;
+
+        // Store notification in custom notifications table
+        $this->storeCustomNotification();
+    }
+
+    /**
+     * Store the notification in the custom notifications table.
+     *
+     * @return void
+     */
+    protected function storeCustomNotification()
+    {
+        // Load the scholar profile and user relationships
+        $this->manuscript->load('scholarProfile.user');
+
+        $user = $this->manuscript->scholarProfile?->user;
+        if (!$user) {
+            Log::warning('ManuscriptStatusChanged: Unable to find user for manuscript', [
+                'manuscript_id' => $this->manuscript->id,
+                'scholar_profile_id' => $this->manuscript->scholar_profile_id
+            ]);
+            return;
+        }
+
+        $title = 'Manuscript Status Update';
+        $message = 'Your manuscript "' . $this->manuscript->title . '" has been updated from ' .
+                   $this->oldStatus . ' to ' . $this->newStatus;
+
+        if ($this->notes) {
+            $message .= "\n\nAdmin Notes: " . $this->notes;
+        }
+
+        // Create custom notification using the NotificationService
+        $notificationService = app(\App\Services\NotificationService::class);
+        $notificationService->notify(
+            $user->id,
+            $title,
+            $message,
+            'manuscript',
+            route('scholar.manuscripts.show', $this->manuscript->id),
+            false // Email is handled by Laravel notification system
+        );
     }
 
     /**

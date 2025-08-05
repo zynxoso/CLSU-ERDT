@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -26,10 +27,12 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        // Get the authenticated user and update with validated data
+        $user = Auth::user();
+        $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->save();
+        if ($user->isDirty('email')) {
+            $user->save();
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
@@ -44,15 +47,19 @@ class ProfileController extends Controller
             'password' => ['required', 'current_password'],
         ]);
 
+        // Get the authenticated user and determine role
         $user = $request->user();
+        $isAdmin = $user && in_array($user->role, ['admin', 'super_admin']);
 
         Auth::logout();
-
         $user->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // Clear session data
+        session()->invalidate();
+        session()->regenerateToken();
 
-        return Redirect::to('/');
+        // Redirect to appropriate login page based on user role
+        $loginRoute = $isAdmin ? 'login' : 'scholar-login';
+        return redirect()->route($loginRoute);
     }
 }

@@ -43,12 +43,12 @@
                     <!-- Step 1 -->
                     <div class="flex flex-col items-center text-center flex-1">
                         <div class="relative">
-                            <div id="step1Indicator" class="w-12 h-12 rounded-full bg-red-800 text-white flex items-center justify-center text-lg font-semibold shadow-lg transition-all duration-300 hover:bg-red-900">
+                            <div id="step1Indicator" class="w-12 h-12 rounded-full bg-[#4CAF50] text-white flex items-center justify-center text-lg font-semibold shadow-lg transition-all duration-300 hover:bg-[#43A047]">
                                 1
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="text-sm font-semibold text-red-800">Data Privacy Agreement</div>
+                            <div class="text-sm font-semibold text-[#2E7D32]">Data Privacy Agreement</div>
                             <div class="text-xs text-gray-500 mt-1">Terms & Conditions</div>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                     <!-- Progress Line 1 -->
                     <div class="flex-1 mx-4">
                         <div id="progressLine1" class="h-1 bg-gray-300 rounded-full relative overflow-hidden">
-                            <div class="h-full bg-green-600 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+                            <div class="h-full bg-[#4CAF50] rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -76,7 +76,7 @@
                     <!-- Progress Line 2 -->
                     <div class="flex-1 mx-4">
                         <div id="progressLine2" class="h-1 bg-gray-300 rounded-full relative overflow-hidden">
-                            <div class="h-full bg-green-600 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+                            <div class="h-full bg-[#4CAF50] rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -104,7 +104,7 @@
                     By submitting your manuscript, you consent to the collection, storage, and processing of your personal and manuscript data in accordance with our data privacy policies. Your information will be used solely for manuscript review and publication purposes and will not be shared with unauthorized third parties. You have the right to access, correct, or request deletion of your data at any time.
                 </div>
                 <div class="flex items-center">
-                    <input id="privacy-agreement-checkbox" type="checkbox" class="h-4 w-4 text-red-800 focus:ring-red-700 border-gray-300 rounded">
+                    <input id="privacy-agreement-checkbox" type="checkbox" class="h-4 w-4 text-[#4CAF50] focus:ring-[#4CAF50] border-gray-300 rounded">
                     <label for="privacy-agreement-checkbox" class="ml-2 block text-sm text-gray-700">
                         I agree to the Data Privacy Agreement
                     </label>
@@ -112,7 +112,7 @@
                 <p id="privacy-agreement-error" class="text-red-500 text-xs mt-1 hidden">You must agree to the Data Privacy Agreement to proceed.</p>
             </div>
             <div class="flex justify-end">
-                <button type="button" id="nextToStep2" class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
+                <button type="button" id="nextToStep2" class="px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
                     Next
                 </button>
             </div>
@@ -125,7 +125,7 @@
                     Manuscript Title <span class="text-red-500">*</span>
                 </label>
                 <input type="text" id="title" name="title" value="{{ old('title') }}"
-                    class="w-full bg-white border @error('title') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-700" required>
+                    class="w-full bg-white border @error('title') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]" required>
                 @error('title')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -137,7 +137,7 @@
                     Manuscript Type <span class="text-red-500">*</span>
                 </label>
                 <select id="manuscript_type" name="manuscript_type"
-                    class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-700" required>
+                    class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]" required>
                     <option value="">Select Type</option>
                     <option value="Outline" {{ old('manuscript_type') == 'Outline' ? 'selected' : '' }}>Outline</option>
                     <option value="Final" {{ old('manuscript_type') == 'Final' ? 'selected' : '' }}>Final</option>
@@ -152,7 +152,7 @@
                     Co-Authors
                 </label>
                 <input type="text" id="co_authors" name="co_authors" value="{{ old('co_authors') }}"
-                    class="w-full bg-white border @error('co_authors') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-700">
+                    class="w-full bg-white border @error('co_authors') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]">
                 @error('co_authors')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -164,7 +164,7 @@
                     Abstract <span class="text-red-500">*</span>
                 </label>
                 <textarea id="abstract" name="abstract" rows="4"
-                    class="w-full bg-white border @error('abstract') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-700" required>{{ old('abstract') }}</textarea>
+                    class="w-full bg-white border @error('abstract') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]" required>{{ old('abstract') }}</textarea>
                 @error('abstract')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -175,7 +175,7 @@
                 <button type="button" id="backToStep1" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors duration-200">
                     Back
                 </button>
-                <button type="button" id="nextToStep3" class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
+                <button type="button" id="nextToStep3" class="px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
                     Next
                 </button>
             </div>
@@ -188,13 +188,13 @@
                     Upload Manuscript File (PDF) <span class="text-red-500">*</span>
                 </label>
                 <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full min-h-[8rem] sm:min-h-[12rem] md:min-h-[16rem] border-2 border-red-300 border-dashed rounded-lg cursor-pointer bg-red-50 hover:bg-red-100 transition-colors duration-200 px-2 sm:px-6">
+                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full min-h-[8rem] sm:min-h-[12rem] md:min-h-[16rem] border-2 border-[#4CAF50]/30 border-dashed rounded-lg cursor-pointer bg-[#4CAF50]/5 hover:bg-[#4CAF50]/10 transition-colors duration-200 px-2 sm:px-6">
                         <div class="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 w-full">
-                            <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 text-red-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 text-[#4CAF50]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                             </svg>
-                            <p class="mb-2 text-sm sm:text-base text-red-700 text-center"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                            <p class="text-xs sm:text-sm text-red-600 text-center">PDF Only (Max. 10MB)</p>
+                            <p class="mb-2 text-sm sm:text-base text-[#2E7D32] text-center"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p class="text-xs sm:text-sm text-[#4CAF50] text-center">PDF Only (Max. 10MB)</p>
                         </div>
                         <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pdf" required>
                     </label>
@@ -208,7 +208,7 @@
                     Additional Notes
                 </label>
                 <textarea id="notes" name="notes" rows="3"
-                    class="w-full bg-white border @error('notes') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-700">{{ old('notes') }}</textarea>
+                    class="w-full bg-white border @error('notes') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]">{{ old('notes') }}</textarea>
                 @error('notes')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -219,7 +219,7 @@
                 <button type="button" id="backToStep2" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
                     Back
                 </button>
-                <button type="submit" class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900">
+                <button type="submit" class="px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047]">
                     <i class="fas fa-save mr-2"></i> Save Manuscript
                 </button>
             </div>
@@ -287,7 +287,7 @@
             text: "This will save your manuscript as a draft. You can edit and submit it for review later.",
             icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: '#228b22',
+            confirmButtonColor: '#4CAF50',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Save as draft!',
             cancelButtonText: 'Cancel'
@@ -309,28 +309,28 @@
 
             if (i < currentStep) {
                 // Completed step - show checkmark with green background
-                stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-red-800');
-                stepIndicator.classList.add('bg-green-600', 'text-white');
+                stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-[#4CAF50]');
+                stepIndicator.classList.add('bg-[#4CAF50]', 'text-white');
                 stepIndicator.innerHTML = '<i class="fas fa-check"></i>';
-                stepTitle.classList.remove('text-gray-500', 'text-red-800');
-                stepTitle.classList.add('text-green-600');
+                stepTitle.classList.remove('text-gray-500', 'text-[#2E7D32]');
+                stepTitle.classList.add('text-[#2E7D32]');
                 stepSubtitle.classList.remove('text-gray-400');
                 stepSubtitle.classList.add('text-gray-500');
             } else if (i === currentStep) {
                 // Current active step - show number with red background
-                stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-green-600');
-                stepIndicator.classList.add('bg-red-800', 'text-white');
+                stepIndicator.classList.remove('bg-gray-300', 'text-gray-500', 'bg-[#4CAF50]');
+                stepIndicator.classList.add('bg-[#4CAF50]', 'text-white');
                 stepIndicator.innerHTML = i.toString();
-                stepTitle.classList.remove('text-gray-500', 'text-green-600');
-                stepTitle.classList.add('text-red-800');
+                stepTitle.classList.remove('text-gray-500', 'text-[#2E7D32]');
+                stepTitle.classList.add('text-[#2E7D32]');
                 stepSubtitle.classList.remove('text-gray-400');
                 stepSubtitle.classList.add('text-gray-500');
             } else {
                 // Future inactive step
-                stepIndicator.classList.remove('bg-green-600', 'bg-red-800', 'text-white');
+                stepIndicator.classList.remove('bg-[#4CAF50]', 'bg-[#4CAF50]', 'text-white');
                 stepIndicator.classList.add('bg-gray-300', 'text-gray-500');
                 stepIndicator.innerHTML = i.toString();
-                stepTitle.classList.remove('text-green-600', 'text-red-800');
+                stepTitle.classList.remove('text-[#2E7D32]', 'text-[#2E7D32]');
                 stepTitle.classList.add('text-gray-500');
                 stepSubtitle.classList.remove('text-gray-500');
                 stepSubtitle.classList.add('text-gray-400');
@@ -456,7 +456,7 @@
                     validationErrors.push('File size exceeds 10MB limit');
                 }
 
-                let fileIcon = '<i class="fas fa-file-pdf text-red-600 text-2xl"></i>';
+                let fileIcon = '<i class="fas fa-file-pdf text-[#4CAF50] text-2xl"></i>';
                 let statusClass = '';
                 let statusIcon = '';
 
@@ -607,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const troubleshootingLink = document.createElement('div');
     troubleshootingLink.className = 'mt-4 text-center';
     troubleshootingLink.innerHTML = `
-        <button type="button" id="showTroubleshooting" class="text-blue-600 hover:text-blue-800 text-sm underline">
+        <button type="button" id="showTroubleshooting" class="text-[#4A90E2] hover:text-[#357ABD] text-sm underline">
             <i class="fas fa-question-circle mr-1"></i>
             Having trouble uploading? Click here for help
         </button>

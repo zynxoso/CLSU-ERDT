@@ -3,176 +3,276 @@
 @section('title', 'My Profile')
 
 @section('content')
-<div class="min-h-screen">
-    <div class="container mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">My Profile</h1>
-            <a href="{{ route('scholar.profile.edit') }}" class="px-4 py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center space-x-2">
-                <i class="fas fa-edit text-[#E3F2FD]"></i>
-                <span>Edit Profile</span>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Profile Summary -->
-            <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <div class="p-6 text-center border-b border-gray-200">
-                    <div class="w-28 h-28 rounded-full bg-gray-100 mx-auto mb-4 overflow-hidden">
-                        @if($scholar->profile_photo)
-                            <img src="{{ asset('images/' . $scholar->profile_photo) }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="fas fa-user text-4xl text-gray-500"></i>
-                            </div>
-                        @endif
-                    </div>
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-1">{{ $user->name }}</h2>
-                    <p class="text-lg text-gray-600">{{ $scholar->program }} Scholar</p>
-                    <p class="text-gray-500 text-base mt-1">{{ $scholar->university }}</p>
-
-                    <div class="mt-4 flex justify-center">
-                        <span class="px-4 py-1.5 text-sm rounded-full font-medium
-                            @if($scholar->status == 'Active') bg-[#4CAF50]/20 text-[#2E7D32] border border-[#4CAF50]/30
-                            @elseif($scholar->status == 'Inactive') bg-red-200 text-red-900 border border-red-300
-                            @elseif($scholar->status == 'Completed') bg-[#4A90E2]/20 text-[#1565C0] border border-[#4A90E2]/30
-                            @else bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30 @endif">
-                            {{ $scholar->status }}
-                        </span>
-                    </div>
+<div class="min-h-screen bg-gray-50">
+    <!-- Header Section -->
+    <div class="bg-white border-b border-gray-200 shadow-sm">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Scholar Profile</h1>
+                    <p class="text-gray-600 mt-1">Manage and view your academic information</p>
                 </div>
+                <a href="{{ route('scholar.profile.edit') }}" 
+                   class="inline-flex items-center px-6 py-3 bg-[#2E7D32] text-white font-medium rounded-lg 
+                          hover:bg-[#1B5E20] transition-all duration-200 shadow-md hover:shadow-lg 
+                          transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2">
+                    <i class="fas fa-edit mr-2"></i>
+                    <span>Edit Profile</span>
+                </a>
+            </div>
+        </div>
+    </div>
 
-                <div class="p-6">
-                    <div class="mb-6">
-                        <h3 class="text-base font-medium text-gray-700 mb-3">Contact Information</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <i class="fas fa-envelope text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">{{ $user->email }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-phone text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->contact_number ?? $scholar->phone ?? 'Not provided' }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-map-marker-alt text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->address ?? 'Not provided' }}</span>
-                            </div>
+    <div class="container mx-auto px-4 py-8">
+
+        <!-- Profile Overview Card -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
+            <div class="bg-gradient-to-r from-[#2E7D32] to-[#4CAF50] px-8 py-6">
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                    <!-- Profile Photo -->
+                    <div class="relative">
+                        <div class="w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/30 overflow-hidden shadow-xl">
+                            @if($scholar->profile_photo)
+                                <img src="{{ asset('images/' . $scholar->profile_photo) }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-user text-5xl text-white/70"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <!-- Status Badge -->
+                        <div class="absolute -bottom-2 -right-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                @if($scholar->status == 'Active') bg-green-100 text-green-800 border-2 border-green-200
+                                @elseif($scholar->status == 'Inactive') bg-red-100 text-red-800 border-2 border-red-200
+                                @elseif($scholar->status == 'Completed') bg-blue-100 text-blue-800 border-2 border-blue-200
+                                @else bg-yellow-100 text-yellow-800 border-2 border-yellow-200 @endif">
+                                <i class="fas fa-circle text-xs mr-1"></i>
+                                {{ $scholar->status }}
+                            </span>
                         </div>
                     </div>
-
-                    <div class="mb-6">
-                        <h3 class="text-base font-medium text-gray-700 mb-3">Personal Information</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <i class="fas fa-birthday-cake text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->birth_date ? $scholar->birth_date->format('M d, Y') : 'Not provided' }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-venus-mars text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->gender ?? 'Not provided' }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="text-base font-medium text-gray-700 mb-3">Scholarship Details</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <i class="fas fa-graduation-cap text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">{{ $scholar->degree_level ?? 'Not provided' }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-calendar text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">Started: {{ $scholar->start_date ? $scholar->start_date->format('M d, Y') : 'Not provided' }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-calendar-check text-[#4A90E2] w-6"></i>
-                                <span class="text-gray-700 ml-3 text-base">Expected completion: {{ $scholar->expected_completion_date ? $scholar->expected_completion_date->format('M d, Y') : 'Not provided' }}</span>
-                            </div>
-                        </div>
+                    
+                    <!-- Basic Info -->
+                    <div class="text-center md:text-left flex-1">
+                        <h2 class="text-3xl font-bold text-white mb-2">
+                            {{ $scholar->full_name }}
+                        </h2>
+                        <p class="text-xl text-white/90 mb-1">{{ $user->email }}</p>
+                        <p class="text-lg text-white/80 mb-1">{{ $scholar->birth_date ? \Carbon\Carbon::parse($scholar->birth_date)->format('F j, Y') : 'Not specified' }}</p>
+                        <p class="text-lg text-white/80 mb-1">{{ $scholar->academic_level ?? 'Academic Level Not Set' }}</p>
+                        <p class="text-lg text-white/80 mb-4">{{ $scholar->gender ?? 'Not specified' }}</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Profile Details -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Academic Information -->
-                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Academic Information</h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">University</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->university }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Department</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->department ?? 'Not provided' }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Program</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->program }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Degree Level</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->degree_level ?? 'Not provided' }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Major/Specialization</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->major ?? 'Not provided' }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Bachelor's Degree</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->bachelor_degree ?? 'Not provided' }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Bachelor's University</h4>
-                                <p class="text-gray-800 text-base">{{ $scholar->bachelor_university ?? 'Not provided' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Research Information -->
-                <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">Research Information</h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="mb-6">
-                            <h4 class="text-sm font-medium text-[#4A90E2] mb-2">Research Title</h4>
-                            <p class="text-gray-800 text-base">{{ $scholar->research_title ?? 'Not provided' }}</p>
-                        </div>
-
-                        @if($scholar->enrollment_type || $scholar->study_time || $scholar->scholarship_duration)
-                        <div>
-                            <h4 class="text-sm font-medium text-[#4A90E2] mb-3">Program Details</h4>
+        <!-- Tabbed Interface -->
+        <div class="bg-white rounded-lg shadow border border-gray-200">
+            <div class="p-6">
+                <!-- Overview & Contact -->
+                <div class="mb-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Scholar Details -->
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-semibold mb-4">Scholar Details</h3>
+                            
                             <div class="space-y-3">
-                                @if($scholar->enrollment_type)
-                                <div class="flex items-center">
-                                    <i class="fas fa-user-graduate text-[#4A90E2] w-6"></i>
-                                    <span class="text-gray-700 ml-3 text-base">Enrollment: {{ $scholar->enrollment_type }}</span>
+                                <div class="border-b pb-2">
+                                    <label class="text-sm font-medium text-gray-600">Intended University</label>
+                                    <p class="text-gray-900">{{ $scholar->intended_university ?? 'Not specified' }}</p>
                                 </div>
+                                
+                                <div class="border-b pb-2">
+                                    <label class="text-sm font-medium text-gray-600">Intended Degree</label>
+                                    <p class="text-gray-900">{{ $scholar->intended_degree ?? 'Not specified' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
+                            
+                            <div class="space-y-3">
+                                <div class="border-b pb-2">
+                                    <label class="text-sm font-medium text-gray-600">Email Address</label>
+                                    <p class="text-gray-900">{{ $user->email }}</p>
+                                </div>
+                                
+                                @if($scholar->contact_number)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Phone Number</label>
+                                        <p class="text-gray-900">{{ $scholar->contact_number }}</p>
+                                    </div>
                                 @endif
-                                @if($scholar->study_time)
-                                <div class="flex items-center">
-                                    <i class="fas fa-clock text-[#4A90E2] w-6"></i>
-                                    <span class="text-gray-700 ml-3 text-base">Study Time: {{ $scholar->study_time }}</span>
-                                </div>
-                                @endif
-                                @if($scholar->scholarship_duration)
-                                <div class="flex items-center">
-                                    <i class="fas fa-calendar-alt text-[#4A90E2] w-6"></i>
-                                    <span class="text-gray-700 ml-3 text-base">Duration: {{ $scholar->scholarship_duration }} months</span>
-                                </div>
+                                
+                                @if($scholar->formatted_address)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Address</label>
+                                        <p class="text-gray-900">{{ $scholar->formatted_address }}</p>
+                                    </div>
                                 @endif
                             </div>
                         </div>
-                        @endif
                     </div>
                 </div>
+
+                <!-- Academic Information & Scholarship Timeline -->
+                <div class="mb-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Academic Information -->
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-semibold mb-4">Academic Information</h3>
+                            
+                            <div class="space-y-3">
+                                <div class="border-b pb-2">
+                                    <label class="text-sm font-medium text-gray-600">Department</label>
+                                    <p class="text-gray-900">{{ $scholar->department ?? 'Not specified' }}</p>
+                                </div>
+                                
+                                <div class="border-b pb-2">
+                                    <label class="text-sm font-medium text-gray-600">Major/Specialization</label>
+                                    <p class="text-gray-900">{{ $scholar->major ?? 'Not specified' }}</p>
+                                </div>
+                                
+                                @if($scholar->entry_type)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Entry Type</label>
+                                        <p class="text-gray-900">{{ $scholar->entry_type_display }}</p>
+                                    </div>
+                                @endif
+                                
+                                <div class="border-b pb-2">
+                                    <label class="text-sm font-medium text-gray-600">University Graduated</label>
+                                    <p class="text-gray-900">{{ $scholar->university_graduated ?? 'Not specified' }}</p>
+                                </div>
+                                
+                                @if($scholar->course_completed)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Course Completed</label>
+                                        <p class="text-gray-900">{{ $scholar->course_completed }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Academic Progress -->
+                            @if($scholar->units_required || $scholar->units_earned_prior || $scholar->intended_degree)
+                            <div class="mt-8">
+                                <h4 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 mb-4">Academic Progress</h4>
+                                
+                                @if($scholar->intended_degree)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Intended Degree</label>
+                                        <p class="text-gray-900">{{ $scholar->intended_degree }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->units_required)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Units Required</label>
+                                        <p class="text-gray-900">{{ $scholar->units_required }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->units_earned_prior)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Units Earned Prior</label>
+                                        <p class="text-gray-900">{{ $scholar->units_earned_prior }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                            @endif
+                            
+                            <!-- Thesis/Dissertation -->
+                            @if($scholar->thesis_dissertation_title)
+                            <div class="mt-8">
+                                <h4 class="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 mb-4">Thesis/Dissertation</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                                        <label class="text-xs font-medium text-purple-600 uppercase tracking-wide">Thesis/Dissertation Title</label>
+                                        <p class="text-gray-900 font-medium mt-1">{{ $scholar->thesis_dissertation_title }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        
+                        <!-- Scholarship Timeline -->
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-semibold mb-4">Scholarship Timeline</h3>
+                            
+                            <div class="space-y-3">
+                                @if($scholar->scholarship_type)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Scholarship Type</label>
+                                        <p class="text-gray-900">{{ $scholar->scholarship_type }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->funding_source)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Funding Source</label>
+                                        <p class="text-gray-900">{{ $scholar->funding_source }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->start_date)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Start Date</label>
+                                        <p class="text-gray-900">{{ $scholar->start_date ? \Carbon\Carbon::parse($scholar->start_date)->format('F j, Y') : 'Not specified' }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->end_date)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">End Date</label>
+                                        <p class="text-gray-900">{{ $scholar->end_date ? \Carbon\Carbon::parse($scholar->end_date)->format('F j, Y') : 'Not specified' }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->actual_completion_date)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Actual Completion</label>
+                                        <p class="text-gray-900">{{ \Carbon\Carbon::parse($scholar->actual_completion_date)->format('M Y') }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->enrollment_type)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Enrollment Type</label>
+                                        <p class="text-gray-900">{{ $scholar->enrollment_type }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->study_time)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Study Time</label>
+                                        <p class="text-gray-900">{{ $scholar->study_time }}</p>
+                                    </div>
+                                @endif
+                                
+                                @if($scholar->scholarship_duration)
+                                    <div class="border-b pb-2">
+                                        <label class="text-sm font-medium text-gray-600">Scholarship Duration</label>
+                                        <p class="text-gray-900">{{ $scholar->scholarship_duration }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Notes -->
+                @if($scholar->notes)
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-4">Additional Notes</h3>
+                    <div class="border-b pb-2">
+                        <p class="text-gray-900">{{ $scholar->notes }}</p>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -187,5 +287,7 @@
     <span>{{ session('status') }}</span>
 </div>
 @endif
+
+
 
 @endsection

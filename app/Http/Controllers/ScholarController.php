@@ -76,9 +76,9 @@ class ScholarController extends Controller
             $scholarProfile = new \stdClass();
             $scholarProfile->id = null; // Add id property to prevent undefined property error
             $scholarProfile->status = null;
-            $scholarProfile->program = null;
-            $scholarProfile->university = null;
-            $scholarProfile->expected_completion_date = null;
+            $scholarProfile->department = null;
+            $scholarProfile->intended_university = null;
+            // Expected completion date field removed
             $scholarProfile->start_date = null;
         }
 
@@ -89,22 +89,13 @@ class ScholarController extends Controller
 
         if (isset($scholarProfile->id)) {
             // If it's an actual scholar profile object
-            if ($scholarProfile->start_date && $scholarProfile->expected_completion_date) {
-                $startDate = \Carbon\Carbon::parse($scholarProfile->start_date);
-                $endDate = \Carbon\Carbon::parse($scholarProfile->expected_completion_date);
-                $today = \Carbon\Carbon::now();
-
-                $totalDays = $startDate->diffInDays($endDate);
-                $daysPassed = $startDate->diffInDays($today);
-
-                $scholarProgress = $totalDays > 0 ? min(100, round(($daysPassed / $totalDays) * 100)) : 0;
-                $daysRemaining = max(0, $endDate->diffInDays($today));
-            }
+            // Progress calculation removed (expected_completion_date field removed)
+            // Could be based on scholarship duration or other metrics
         }
 
         // Get fund requests data
         $fundRequests = $scholarProfile->id ? FundRequest::where('scholar_profile_id', $scholarProfile->id)->get() : collect();
-        $pendingRequests = $fundRequests->where('status', 'Pending')->count();
+        $pendingRequests = $fundRequests->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count();
         $approvedRequests = $fundRequests->where('status', 'Approved')->count();
         $rejectedRequests = $fundRequests->where('status', 'Rejected')->count();
         $recentFundRequests = $fundRequests->sortByDesc('created_at')->take(3);
@@ -181,10 +172,11 @@ class ScholarController extends Controller
      */
     public function store(ScholarCreateRequest $request)
     {
+        /** @var \Illuminate\Http\Request $request */
         // Create a detailed log file for debugging
         $logPath = storage_path('logs/scholar_creation.log');
         $logMessage = "Scholar creation attempted at " . now() . " by user ID: " . Auth::id() . "\n";
-        $logMessage .= "Request data: " . json_encode($request->all()) . "\n";
+        $logMessage .= "Request data: " . json_encode($request->input()) . "\n";
 
         // Ensure logs directory exists
         if (!file_exists(storage_path('logs'))) {
@@ -275,30 +267,58 @@ class ScholarController extends Controller
             $scholarProfile->middle_name = $validated['middle_name'];
             $scholarProfile->last_name = $validated['last_name'];
             $scholarProfile->contact_number = $validated['contact_number'];
+            
+            // Optional personal fields
+            if (isset($validated['birth_date'])) {
+                $scholarProfile->birth_date = $validated['birth_date'];
+            }
+            if (isset($validated['gender'])) {
+                $scholarProfile->gender = $validated['gender'];
+            }
 
             // Address information
-            $scholarProfile->address = $validated['address'];
-            $scholarProfile->city = $validated['city'];
-            $scholarProfile->province = $validated['province'];
-            $scholarProfile->postal_code = $validated['postal_code'];
-            $scholarProfile->country = $validated['country'];
+            if (isset($validated['province'])) {
+                $scholarProfile->province = $validated['province'];
+            }
+            if (isset($validated['country'])) {
+                $scholarProfile->country = $validated['country'];
+            }
+            if (isset($validated['street'])) {
+                $scholarProfile->street = $validated['street'];
+            }
+            if (isset($validated['village'])) {
+                $scholarProfile->village = $validated['village'];
+            }
+            if (isset($validated['city'])) {
+                $scholarProfile->city = $validated['city'];
+            }
+            if (isset($validated['district'])) {
+                $scholarProfile->district = $validated['district'];
+            }
+            if (isset($validated['region'])) {
+                $scholarProfile->region = $validated['region'];
+            }
 
             // Academic information
-            $scholarProfile->university = $validated['university'];
-            $scholarProfile->program = $validated['program'];
+            $scholarProfile->intended_university = $validated['intended_university'];
+            // Program field removed - using department instead
             $scholarProfile->department = $validated['department'];
-            $scholarProfile->major = $validated['major'];
-            $scholarProfile->degree_level = $validated['degree_level'];
-            $scholarProfile->status = $validated['status'];
+
+
+$scholarProfile->setAttribute('status', $validated['status']);
             $scholarProfile->start_date = $validated['start_date'];
-            $scholarProfile->expected_completion_date = $validated['expected_completion_date'];
+            // Expected completion date field removed
             $scholarProfile->enrollment_type = $validated['enrollment_type'];
             $scholarProfile->study_time = $validated['study_time'];
             $scholarProfile->scholarship_duration = $validated['scholarship_duration'];
 
-            // Academic background
-            $scholarProfile->bachelor_degree = $validated['bachelor_degree'];
-            $scholarProfile->bachelor_university = $validated['bachelor_university'];
+            // Optional fields
+            if (isset($validated['notes'])) {
+                $scholarProfile->notes = $validated['notes'];
+            }
+            if (isset($validated['actual_completion_date'])) {
+                $scholarProfile->actual_completion_date = $validated['actual_completion_date'];
+            }
 
             $scholarProfile->save();
             $logMessage = "Scholar profile saved with ID: " . $scholarProfile->id . "\n";
@@ -377,6 +397,7 @@ class ScholarController extends Controller
      */
     public function update(ScholarUpdateRequest $request, $id, NotificationService $notificationService)
     {
+        /** @var \Illuminate\Http\Request $request */
         // All validation is handled in the ScholarUpdateRequest
 
         // Find the scholar profile
@@ -390,96 +411,73 @@ class ScholarController extends Controller
 
         try {
             // Update personal information
-            $scholar->first_name = $request->first_name;
-            $scholar->middle_name = $request->middle_name;
-            $scholar->last_name = $request->last_name;
-            $scholar->contact_number = $request->contact_number;
-            $scholar->address = $request->address;
+            $scholar->first_name = $request->input('first_name');
+            $scholar->middle_name = $request->input('middle_name');
+            $scholar->last_name = $request->input('last_name');
+            $scholar->contact_number = $request->input('contact_number');
+
 
             // Optional personal fields
-            if ($request->has('gender')) {
-                $scholar->gender = $request->gender;
+            if ($request->input('gender')) {
+                $scholar->gender = $request->input('gender');
             }
-            if ($request->has('birth_date')) {
-                $scholar->birth_date = $request->birth_date;
+            if ($request->input('birth_date')) {
+                $scholar->birth_date = $request->input('birth_date');
             }
 
             // Location information
-            if ($request->has('city')) {
-                $scholar->city = $request->city;
+            if ($request->input('province')) {
+                $scholar->province = $request->input('province');
             }
-            if ($request->has('province')) {
-                $scholar->province = $request->province;
-            }
-            if ($request->has('postal_code')) {
-                $scholar->postal_code = $request->postal_code;
-            }
-            if ($request->has('country')) {
-                $scholar->country = $request->country;
+            if ($request->input('country')) {
+                $scholar->country = $request->input('country');
             }
 
             // Academic information
-            $scholar->university = $request->university;
-            $scholar->program = $request->program;
-            $scholar->department = $request->department;
-            $scholar->major = $request->major;
+            $scholar->intended_university = $request->input('intended_university');
+            // Program field removed - using department instead
+            $scholar->department = $request->input('department');
+
 
             // Debug logging for status update
             \Illuminate\Support\Facades\Log::info('Scholar status update', [
                 'scholar_id' => $scholar->id,
                 'old_status' => $scholar->status,
-                'new_status' => $request->status,
-                'request_data' => $request->all()
+                'new_status' => $request->input('status'),
+                'request_data' => $request->input()
             ]);
 
-            $scholar->status = $request->status;
-            $scholar->start_date = $request->start_date;
-            $scholar->expected_completion_date = $request->expected_completion_date;
+            $scholar->status = $request->input('status');
+            $scholar->start_date = $request->input('start_date');
+            // Expected completion date field removed
 
-            if ($request->has('actual_completion_date')) {
-                $scholar->actual_completion_date = $request->actual_completion_date;
+            if ($request->input('actual_completion_date')) {
+                $scholar->actual_completion_date = $request->input('actual_completion_date');
             }
-            if ($request->has('degree_program')) {
-                $scholar->degree_program = $request->degree_program;
+            if ($request->input('intended_degree')) {
+                $scholar->intended_degree = $request->input('intended_degree');
             }
-            if ($request->has('year_level')) {
-                $scholar->year_level = $request->year_level;
-            }
-            if ($request->has('scholar_id')) {
-                $scholar->scholar_id = $request->scholar_id;
+            if ($request->input('year_level')) {
+                $scholar->year_level = $request->input('year_level');
             }
 
             // Optional academic background fields
-            if ($request->has('bachelor_degree')) {
-                $scholar->bachelor_degree = $request->bachelor_degree;
-            }
-            if ($request->has('bachelor_university')) {
-                $scholar->bachelor_university = $request->bachelor_university;
-            }
-            if ($request->has('research_area')) {
-                $scholar->research_area = $request->research_area;
-            }
-            if ($request->has('research_title')) {
-                $scholar->research_title = $request->research_title;
-            }
-            if ($request->has('research_abstract')) {
-                $scholar->research_abstract = $request->research_abstract;
-            }
+
+
 
             // Notes
-            if ($request->has('notes')) {
-                $scholar->notes = $request->notes;
+            if ($request->input('notes')) {
+                $scholar->notes = $request->input('notes');
             }
-            if ($request->has('admin_notes') && Auth::user()->role === 'admin') {
-                $scholar->admin_notes = $request->admin_notes;
-            }
+
+            // Verification status handling removed
 
             // Save the updated scholar profile
             $scholar->save();
 
             // Update user name if changed
             $user = $scholar->user;
-            $newName = $request->first_name . ' ' . ($request->middle_name ? $request->middle_name . ' ' : '') . $request->last_name;
+            $newName = $request->input('first_name') . ' ' . ($request->input('middle_name') ? $request->input('middle_name') . ' ' : '') . $request->input('last_name');
 
             if ($user && $user->name !== $newName) {
                 $user->name = $newName;
@@ -487,8 +485,8 @@ class ScholarController extends Controller
             }
 
             // Update user email if changed
-            if ($user && $request->has('email') && $user->email !== $request->email) {
-                $user->email = $request->email;
+            if ($user && $request->input('email') && $user->email !== $request->input('email')) {
+                $user->email = $request->input('email');
                 $user->save();
             }
 
@@ -585,6 +583,67 @@ class ScholarController extends Controller
         // For now, return with a success message
         return redirect()->route('admin.scholars.index')
             ->with('success', 'Scholar deleted successfully.');
+    }
+
+    /**
+     * Show the form for changing scholar's password.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showChangePasswordForm($id)
+    {
+        $scholar = ScholarProfile::with('user')->findOrFail($id);
+        
+        return view('admin.scholars.change-password', compact('scholar'));
+    }
+
+    /**
+     * Update the scholar's password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @param  \App\Services\NotificationService  $notificationService
+     * @return \Illuminate\Http\Response
+     */
+    public function changePassword(Request $request, $id, NotificationService $notificationService)
+    {
+        $scholar = ScholarProfile::with('user')->findOrFail($id);
+        
+        // Validate the new password
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        try {
+            // Update the user's password
+            $scholar->user->update([
+                'password' => Hash::make($request->password),
+                'is_default_password' => false,
+                'must_change_password' => false,
+            ]);
+
+            // Send notification to scholar about password change
+            $notificationService->notify(
+                $scholar->user->id,
+                '🔐 Password Changed by Administrator',
+                'Your account password has been changed by an administrator. If you did not request this change, please contact the admin office immediately.',
+                'password_change',
+                route('scholar.dashboard')
+            );
+
+            // Log the password change action
+            $this->auditService->log('password_changed_by_admin', 'User', $scholar->user->id, 
+                'Password changed by admin for scholar: ' . $scholar->user->name);
+
+            return redirect()->route('admin.scholars.show', $id)
+                ->with('success', 'Scholar password changed successfully. The scholar has been notified of this change.');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to change password: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**

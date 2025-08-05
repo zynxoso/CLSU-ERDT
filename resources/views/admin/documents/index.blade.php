@@ -83,9 +83,9 @@
                                                 @if(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['pdf']))
                                                     <i class="fas fa-file-pdf text-red-500 text-lg"></i>
                                                 @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                                    <i class="fas fa-file-image text-blue-500 text-lg"></i>
+                                                    <i class="fas fa-file-image text-lg" style="color: #4A90E2;"></i>
                                                 @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['doc', 'docx']))
-                                                    <i class="fas fa-file-word text-blue-700 text-lg"></i>
+                                                    <i class="fas fa-file-word text-lg" style="color: #4A90E2;"></i>
                                                 @else
                                                     <i class="fas fa-file text-gray-500 text-lg"></i>
                                                 @endif
@@ -110,7 +110,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($document->is_verified)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" style="background-color: rgba(76, 175, 80, 0.1); color: #4CAF50;">
                                                 Verified
                                             </span>
                                         @elseif($document->status == 'Rejected')

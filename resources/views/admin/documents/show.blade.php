@@ -112,10 +112,10 @@
                             @endif
                         </p>
                     </div>
-                    @if($document->admin_notes)
+                    @if($document->rejection_reason)
                     <div class="md:col-span-2">
-                        <h3 class="text-sm text-gray-500 mb-1">Admin Notes</h3>
-                        <p class="text-gray-800">{{ $document->admin_notes }}</p>
+                        <h3 class="text-sm text-gray-500 mb-1">Rejection Reason</h3>
+                        <p class="text-gray-800">{{ $document->rejection_reason }}</p>
                     </div>
                     @endif
                     @if($document->description)
@@ -164,8 +164,8 @@
             @csrf
             @method('PUT')
             <div class="mb-4">
-                <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
-                <textarea id="admin_notes" name="admin_notes" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
+                <textarea id="rejection_reason" name="rejection_reason" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
             <div class="flex justify-end space-x-3">
                 <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300" 

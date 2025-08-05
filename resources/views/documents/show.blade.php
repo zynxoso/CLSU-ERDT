@@ -72,8 +72,8 @@
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
-                        <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
-                        <textarea id="admin_notes" name="admin_notes" rows="3"
+                        <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
+                        <textarea id="rejection_reason" name="rejection_reason" rows="3"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required></textarea>
                     </div>
@@ -128,13 +128,13 @@
     </div>
 
     <!-- Admin Feedback (if any and if rejected) -->
-    @if($document->status == 'Rejected' && $document->admin_notes)
+    @if($document->status == 'Rejected' && $document->rejection_reason)
     <div class="mt-6 bg-white rounded-lg shadow overflow-hidden">
         <div class="bg-red-50 border-b border-red-100 px-6 py-4">
             <h2 class="text-lg font-medium text-red-800">Rejection Reason</h2>
         </div>
         <div class="p-6">
-            <p class="text-gray-900">{{ $document->admin_notes }}</p>
+            <p class="text-gray-900">{{ $document->rejection_reason }}</p>
             @if($document->verified_at)
             <p class="text-sm text-gray-500 mt-4">Rejected on {{ $document->verified_at->format('M d, Y H:i') }}</p>
             @endif

@@ -8,10 +8,10 @@
         <div class="mb-6 print:hidden">
             <a href="{{ route('admin.reports.index') }}"
                class="transition-colors"
-               style="color: #2E7D32; font-size: 15px;"
+               style="color: #4CAF50; font-size: 15px;"
                onmouseover="this.style.color='#1B5E20'"
-               onmouseout="this.style.color='#2E7D32'">
-                <i class="fas fa-arrow-left mr-2"></i> Back to Reports
+               onmouseout="this.style.color='#4CAF50'">
+                <i class="fas fa-arrow-left mr-2" style="color: #4CAF50;"></i> Back to Reports
             </a>
             <h1 class="text-2xl font-bold mt-2" style="color: #212121; font-size: 24px;">{{ $title }}</h1>
             @if($startDate && $endDate)
@@ -26,9 +26,9 @@
                     <div class="mt-2 md:mt-0 print:hidden">
                         <button onclick="window.print()"
                                 class="px-4 py-2 rounded-lg transition-colors duration-200"
-                                style="background-color: #2E7D32; color: white; font-size: 15px;"
+                                style="background-color: #4CAF50; color: white; font-size: 15px;"
                                 onmouseover="this.style.backgroundColor='#1B5E20'"
-                                onmouseout="this.style.backgroundColor='#2E7D32'">
+                                onmouseout="this.style.backgroundColor='#4CAF50'">
                             <i class="fas fa-print mr-2" style="color: white !important;"></i> Print Report
                         </button>
                     </div>
@@ -52,11 +52,10 @@
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Name</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Email</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Program</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">University</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Course</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Intended University</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Start Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #757575;">Expected Completion</th>
+
                                 </tr>
                             </thead>
                             <tbody class="divide-y" style="background-color: white; border-color: #E0E0E0;">
@@ -70,28 +69,27 @@
                                                     @if($scholar->profile_photo)
                                                         <img src="{{ asset('images/' . $scholar->profile_photo) }}" alt="{{ $scholar->user->name }}" class="h-8 w-8 rounded-full">
                                                     @else
-                                                        <i class="fas fa-user" style="color: #2E7D32;"></i>
+                                                        <i class="fas fa-user" style="color: #4CAF50;"></i>
                                                     @endif
                                                 </div>
                                                 <div class="ml-3 print:ml-0">
-                                                    <div class="text-sm font-medium" style="color: #212121;">{{ $scholar->user->name ?? 'Unknown' }}</div>
+                                                    <div class="text-sm font-medium" style="color: #212121;">{{ $scholar->full_name ?? 'Unknown' }}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->user->email }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->program }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->university }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->course }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->intended_university }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 py-1 text-xs rounded-full
                                                 @if($scholar->status == 'Active') " style="background-color: #E8F5E8; color: #1B5E20;"
-                                                @elseif($scholar->status == 'Graduated') " style="background-color: #E3F2FD; color: #1976D2;"
+                                                @elseif($scholar->status == 'Graduated') " style="background-color: #E3F2FD; color: #4A90E2;"
                                                 @elseif($scholar->status == 'Terminated') " style="background-color: #FFEBEE; color: #B71C1C;"
                                                 @else " style="background-color: #FFF3C4; color: #F57F17;" @endif">
                                                 {{ $scholar->status }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->start_date ? date('M d, Y', strtotime($scholar->start_date)) : 'N/A' }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $scholar->expected_completion_date ? date('M d, Y', strtotime($scholar->expected_completion_date)) : 'N/A' }}</td>
+
                                     </tr>
                                 @endforeach
                             </tbody>

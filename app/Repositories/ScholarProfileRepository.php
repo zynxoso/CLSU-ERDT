@@ -36,18 +36,18 @@ class ScholarProfileRepository extends BaseRepository
      */
     public function findByUniversity(string $university): Collection
     {
-        return $this->model->where('university', $university)->get();
+        return $this->model->where('intended_university', $university)->get();
     }
 
     /**
-     * Find scholar profiles by program
+     * Find scholar profiles by intended degree
      *
-     * @param string $program
+     * @param string $intendedDegree
      * @return Collection
      */
-    public function findByProgram(string $program): Collection
+    public function findByIntendedDegree(string $intendedDegree): Collection
     {
-        return $this->model->where('program', $program)->get();
+        return $this->model->where('intended_degree', 'like', '%' . $intendedDegree . '%')->get();
     }
 
     /**
@@ -58,7 +58,7 @@ class ScholarProfileRepository extends BaseRepository
      */
     public function findByStatus(string $status): Collection
     {
-        return $this->model->where('status', $status)->get();
+        return $this->model->whereStatus($status)->get();
     }
 
     /**
@@ -68,7 +68,7 @@ class ScholarProfileRepository extends BaseRepository
      */
     public function getActiveScholars(): Collection
     {
-        return $this->model->where('status', 'active')->get();
+        return $this->model->whereStatus('active')->get();
     }
 
     /**
@@ -78,6 +78,6 @@ class ScholarProfileRepository extends BaseRepository
      */
     public function getGraduatedScholars(): Collection
     {
-        return $this->model->where('status', 'graduated')->get();
+        return $this->model->whereStatus('graduated')->get();
     }
 }

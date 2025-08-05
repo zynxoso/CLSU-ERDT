@@ -9,10 +9,10 @@
     }
     .status-pending {
         background-color: #FFCA28;
-        color: #424242;
+        color: #975A16;
     }
     .status-approved {
-        background-color: #2E7D32;
+        background-color: #4CAF50;
         color: white;
     }
     .status-rejected {
@@ -20,8 +20,8 @@
         color: white;
     }
     .status-review {
-        background-color: #1976D2;
-        color: white;
+        background-color: #FFCA28;
+        color: #975A16;
     }
     .info-card {
         background-color: white;
@@ -63,15 +63,15 @@
     <div class="mb-6 rounded-lg overflow-hidden" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <div class="flex items-start">
             <div class="flex-shrink-0 w-2"
-                @if($fundRequest->status == 'Approved') style="background-color: #2E7D32;"
+                @if($fundRequest->status == 'Approved') style="background-color: #4CAF50;"
                 @elseif($fundRequest->status == 'Rejected') style="background-color: #D32F2F;"
                 @elseif($fundRequest->status == 'Under Review') style="background-color: #FFCA28;"
                 @else style="background-color: #757575;" @endif>
             </div>
             <div class="flex-1 p-4"
-                @if($fundRequest->status == 'Approved') style="background-color: #2E7D32; color: white;"
+                @if($fundRequest->status == 'Approved') style="background-color: #4CAF50; color: white;"
                 @elseif($fundRequest->status == 'Rejected') style="background-color: #D32F2F; color: white;"
-                @elseif($fundRequest->status == 'Under Review') style="background-color: #FFCA28; color: #424242;"
+                @elseif($fundRequest->status == 'Under Review') style="background-color: #FFCA28; color: #975A16;"
                 @else style="background-color: #757575; color: white;" @endif>
                 <div class="flex items-start">
                     <div class="flex-shrink-0 pt-0.5">
@@ -133,10 +133,10 @@
                             <p class="info-label">Purpose</p>
                             <p class="info-value">{{ $fundRequest->purpose }}</p>
                         </div>
-                        @if($fundRequest->admin_notes)
+                        @if($fundRequest->rejection_reason)
                         <div class="md:col-span-2 pt-4 border-t" style="border-color: #E0E0E0;">
-                            <p class="info-label">Admin Notes</p>
-                            <p class="text-sm p-3 rounded-lg mt-1" style="color: #424242; background-color: #F5F5F5;">{{ $fundRequest->admin_notes }}</p>
+                            <p class="info-label">Rejection Reason</p>
+                            <p class="text-sm p-3 rounded-lg mt-1" style="color: #424242; background-color: #F5F5F5;">{{ $fundRequest->rejection_reason }}</p>
                         </div>
                         @endif
                     </div>
@@ -148,7 +148,7 @@
                 <div class="px-6 py-4 border-b" style="border-color: #E0E0E0;">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-semibold" style="color: #424242;">Supporting Documents</h2>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full" style="background-color: #E8F5E8; color: #2E7D32;">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full" style="background-color: rgba(76, 175, 80, 0.1); color: #4CAF50;">
                             {{ $fundRequest->documents->count() }} {{ Str::plural('Document', $fundRequest->documents->count()) }}
                         </span>
                     </div>
@@ -160,7 +160,7 @@
                             <div class="border rounded-lg p-4" style="border-color: #E0E0E0; background-color: #FAFAFA;">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div class="flex items-center min-w-0">
-                                        <div class="flex-shrink-0 p-2 rounded-lg mr-3" style="background-color: #F8BBD0;">
+                                        <div class="flex-shrink-0 p-2 rounded-lg mr-3" style="background-color: #4CAF50;">
                                             <i class="fas
                                                 @if(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['pdf']))
                                                     fa-file-pdf
@@ -171,7 +171,7 @@
                                                 @else
                                                     fa-file
                                                 @endif
-                                                text-lg" style="color: #2E7D32;"></i>
+                                                text-lg text-white"></i>
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-sm font-medium truncate" title="{{ $document->file_name }}" style="color: #424242;">
@@ -187,12 +187,12 @@
                                         <a href="{{ route('admin.documents.view', $document->id) }}"
                                            target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md"
-                                           style="color: white; background-color: #1976D2;">
+                                           style="color: white; background-color: #4A90E2;">
                                             <i class="fas fa-eye mr-1.5" style="color: white;"></i> View
                                         </a>
                                         <a href="{{ route('admin.documents.download', $document->id) }}"
                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md"
-                                           style="color: white; background-color: #2E7D32;">
+                                           style="color: white; background-color: #4CAF50;">
                                             <i class="fas fa-download mr-1.5" style="color: white;"></i> Download
                                         </a>
                                     </div>
@@ -218,10 +218,22 @@
                 <div class="px-6 py-4 border-b" style="border-color: #E0E0E0;">
                     <h2 class="text-lg font-semibold" style="color: #424242;">Actions</h2>
                 </div>
-                <div class="p-6 space-y-3">
+                <div class="p-6">
+                    <!-- Validation Info -->
+                    <div class="mb-4 p-3 rounded-lg" style="background-color: #E3F2FD; border: 1px solid #90CAF9;">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle mr-2 mt-0.5" style="color: #4A90E2;"></i>
+                            <div class="text-sm" style="color: #1565C0;">
+                                <p class="font-medium mb-1">Validation Status</p>
+                                <p>This request has passed all validation checks and is ready for review.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
                     <button onclick="document.getElementById('approve-modal').classList.remove('hidden')"
                             class="w-full flex items-center justify-center px-4 py-2 rounded-md shadow-sm text-sm font-medium"
-                            style="color: white; background-color: #2E7D32;">
+                            style="color: white; background-color: #4CAF50;">
                         <i class="fas fa-check-circle mr-2"></i> Approve Request
                     </button>
                     <button onclick="document.getElementById('reject-modal').classList.remove('hidden')"
@@ -231,7 +243,7 @@
                     </button>
                     <button onclick="document.getElementById('under-review-modal').classList.remove('hidden')"
                             class="w-full flex items-center justify-center px-4 py-2 rounded-md shadow-sm text-sm font-medium"
-                            style="color: #424242; background-color: #FFCA28;">
+                            style="color: #975A16; background-color: #FFCA28;">
                         <i class="fas fa-search mr-2"></i> Set Under Review
                     </button>
                 </div>
@@ -245,13 +257,13 @@
                 </div>
                 <div class="p-6">
                     <div class="flex items-center mb-4">
-                        <div class="flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center" style="background-color: #F8BBD0;">
+                        <div class="flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center" style="background-color: #4CAF50;">
                             @if($fundRequest->scholarProfile->profile_photo)
                                 <img src="{{ asset('images/' . $fundRequest->scholarProfile->profile_photo) }}"
                                      alt="{{ $fundRequest->scholarProfile->user->name }}"
                                      class="h-12 w-12 rounded-full">
                             @else
-                                <i class="fas fa-user text-lg" style="color: #2E7D32;"></i>
+                                <i class="fas fa-user text-lg text-white" ></i>
                             @endif
                         </div>
                         <div class="ml-4">
@@ -262,8 +274,8 @@
 
                     <div class="space-y-3">
                         <div>
-                            <p class="info-label">Program</p>
-                            <p class="info-value">{{ $fundRequest->scholarProfile->program ?? 'N/A' }}</p>
+                            <p class="info-label">Department</p>
+                        <p class="info-value">{{ $fundRequest->scholarProfile->department ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <p class="info-label">Contact Number</p>
@@ -281,7 +293,7 @@
                 <div class="p-6">
                     <div class="space-y-4">
                         <div class="flex items-start">
-                            <div class="flex-shrink-0 w-2 h-2 rounded-full mt-2" style="background-color: #2E7D32;"></div>
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full mt-2" style="background-color: #4A90E2;"></div>
                             <div class="ml-4 flex-1">
                                 <p class="text-sm font-medium" style="color: #424242;">Request Submitted</p>
                                 <p class="text-xs" style="color: #757575;">{{ $fundRequest->created_at->format('M d, Y \a\t g:i A') }}</p>
@@ -300,7 +312,7 @@
 
                         @if($fundRequest->status == 'Approved')
                         <div class="flex items-start">
-                            <div class="flex-shrink-0 w-2 h-2 rounded-full mt-2" style="background-color: #2E7D32;"></div>
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full mt-2" style="background-color: #4CAF50;"></div>
                             <div class="ml-4 flex-1">
                                 <p class="text-sm font-medium" style="color: #424242;">Request Approved</p>
                                 <p class="text-xs" style="color: #757575;">{{ $fundRequest->updated_at->format('M d, Y \a\t g:i A') }}</p>
@@ -332,6 +344,8 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+<script src="{{ asset('js/admin-fund-request-validation.js') }}"></script>
 <script>
     // Close modals when clicking outside
     document.addEventListener('click', function(e) {

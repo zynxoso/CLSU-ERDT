@@ -3,19 +3,19 @@
 namespace App\Exceptions;
 
 /**
- * Exception thrown when a request is malformed or contains invalid data.
+ * Exception na ginagamit kapag ang request ay mali o may invalid na data.
  */
 class BadRequestException extends BaseException
 {
     /**
-     * The error code for this exception.
+     * Ang error code para sa exception na ito.
      *
      * @var string
      */
     protected string $errorCode = 'BAD_REQUEST';
 
     /**
-     * Create a new bad request exception instance.
+     * Gumawa ng bagong bad request exception instance.
      *
      * @param string $message
      * @param int $code

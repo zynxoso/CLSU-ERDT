@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
-use App\Models\Scholar;
+use App\Models\ScholarProfile;
 use App\Models\FundRequest;
 
 class CacheService
@@ -21,7 +21,7 @@ class CacheService
     public function getAllScholars()
     {
         return Cache::remember('all_scholars', self::CACHE_DURATION, function () {
-            return Scholar::with(['program', 'university'])->get();
+            return ScholarProfile::get();
         });
     }
 
@@ -34,7 +34,7 @@ class CacheService
     public function getScholarById($id)
     {
         return Cache::remember('scholar_' . $id, self::CACHE_DURATION, function () use ($id) {
-            return Scholar::with(['program', 'university'])->find($id);
+            return ScholarProfile::find($id);
         });
     }
 
@@ -60,11 +60,11 @@ class CacheService
     {
         return Cache::remember('dashboard_stats', self::CACHE_DURATION, function () {
             return [
-                'total_scholars' => Scholar::count(),
-                'active_scholars' => Scholar::where('status', 'Ongoing')->count(),
-                'graduated_scholars' => Scholar::where('status', 'Graduated')->count(),
+                'total_scholars' => ScholarProfile::count(),
+                'active_scholars' => ScholarProfile::whereStatus('Ongoing')->count(),
+                'graduated_scholars' => ScholarProfile::whereStatus('Graduated')->count(),
                 'total_fund_requests' => FundRequest::count(),
-                'pending_fund_requests' => FundRequest::where('status', 'Pending')->count(),
+                'pending_fund_requests' => FundRequest::whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count(),
             ];
         });
     }
@@ -79,7 +79,7 @@ class CacheService
         Cache::forget('all_scholars');
 
         // Clear individual scholar caches
-        $scholarIds = Scholar::pluck('id')->toArray();
+        $scholarIds = ScholarProfile::pluck('id')->toArray();
         foreach ($scholarIds as $id) {
             Cache::forget('scholar_' . $id);
         }

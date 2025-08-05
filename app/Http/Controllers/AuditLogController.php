@@ -7,12 +7,17 @@ use App\Models\AuditLog;
 use App\Services\AuditService;
 use App\Models\User;
 
+// Ito ang controller na naghahandle ng pag-track ng mga ginagawa ng users sa system
 class AuditLogController extends Controller
 {
     protected $auditService;
 
     /**
-     * Create a new controller instance.
+     * Pag-setup ng controller
+     *
+     * - Tinitiyak na naka-login ang user
+     * - Checking kung admin ang user
+     * - Setting up ng audit service
      *
      * @param AuditService $auditService
      * @return void
@@ -25,15 +30,19 @@ class AuditLogController extends Controller
     }
 
     /**
-     * Display a listing of audit logs.
+     * Nagpapakita ng listahan ng lahat ng audit logs
+     * - May filtering para sa madaling paghahanap
+     * - May pagination para di mabigat sa system
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
+        // Kunin ang audit logs kasama ang user info
         $query = AuditLog::with('user');
 
-        // Apply filters
+        // Mga filters para sa paghahanap
+        // Filter by user ID
         if ($request->has('user_id') && $request->user_id) {
             $query->where('user_id', $request->user_id);
         }
@@ -75,11 +84,18 @@ class AuditLogController extends Controller
         return view('admin.audit-logs.index', compact('auditLogs', 'entityTypes', 'actions', 'users'));
     }
 
+    /**
+     * Para sa pag-export ng audit logs sa CSV file
+     * - Pwedeng i-download ng admin
+     * - May kasamang filters din kagaya ng sa index
+     */
     public function export(Request $request)
     {
+        // Kunin muna lahat ng audit logs na kailangan
         $query = AuditLog::with('user');
 
-        // Apply filters
+        // Mga filters para sa pag-export
+        // Filter by user ID
         if ($request->has('user_id') && $request->user_id) {
             $query->where('user_id', $request->user_id);
         }
@@ -119,10 +135,12 @@ class AuditLogController extends Controller
             'Content-Disposition' => 'attachment; filename="audit_logs_' . date('Y-m-d') . '.csv"',
         ];
 
+        // Function para gumawa ng CSV file
         $callback = function() use ($auditLogs) {
+            // Gumawa ng bagong file
             $file = fopen('php://output', 'w');
 
-            // Add CSV headers
+            // Lagyan ng mga headers ang CSV
             fputcsv($file, [
                 'ID',
                 'Timestamp',
@@ -159,15 +177,20 @@ class AuditLogController extends Controller
     }
 
     /**
-     * Display the specified audit log.
+     * Nagpapakita ng detalye ng isang audit log
+     * - Pwedeng makita ang eksaktong ginawa
+     * - Kasama ang info ng user na gumawa
+     * - Makikita ang dating values at bagong values
      *
-     * @param  int  $id
+     * @param  int  $id  ID ng audit log na gusto makita
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+        // Kunin ang audit log base sa ID
         $auditLog = AuditLog::with('user')->findOrFail($id);
 
+        // Ipakita ang view na may detalye ng audit log
         return view('admin.audit-logs.show', compact('auditLog'));
     }
 }

@@ -198,4 +198,71 @@ class FundRequestTest extends TestCase
     /**
      * Skip tests for editing, updating, and submission until database issues are resolved.
      */
+
+    /**
+     * Test that notifications are created when fund request status changes.
+     */
+    public function test_notifications_created_when_fund_request_status_changes()
+    {
+        // Find a scholar user
+        $user = User::where('role', 'scholar')->first();
+
+        if (!$user) {
+            $this->markTestSkipped('No scholar user found in database');
+        }
+
+        // Ensure scholar has a profile
+        $scholarProfile = $user->scholarProfile;
+        if (!$scholarProfile) {
+            $this->markTestSkipped('Scholar has no profile');
+        }
+
+        // Create a fund request for testing
+        $requestType = RequestType::first();
+        if (!$requestType) {
+            $requestType = RequestType::create([
+                'name' => 'Test Request Type',
+                'description' => 'For testing purposes',
+                'max_amount' => 50000,
+                'requirements' => 'None',
+                'is_active' => true
+            ]);
+        }
+
+        $fundRequest = FundRequest::create([
+            'scholar_profile_id' => $scholarProfile->id,
+            'request_type_id' => $requestType->id,
+            'amount' => 5000,
+            'purpose' => 'Test Purpose',
+            'status' => 'Submitted'
+        ]);
+
+        // Check initial notification count
+        $initialNotificationCount = \App\Models\CustomNotification::where('user_id', $user->id)->count();
+
+        // Trigger status change notification by creating the notification directly
+        // This simulates what happens when an admin changes the status
+        $notification = new \App\Notifications\FundRequestStatusChanged(
+            $fundRequest,
+            'Submitted',
+            'Approved',
+            'Test admin notes'
+        );
+
+        // The notification should have automatically created a custom notification
+        // Check that a custom notification was created
+        $this->assertDatabaseHas('custom_notifications', [
+            'user_id' => $user->id,
+            'title' => 'Fund Request Status Update',
+            'type' => 'fund_request',
+            'is_read' => false
+        ]);
+
+        // Verify the notification count increased
+        $newNotificationCount = \App\Models\CustomNotification::where('user_id', $user->id)->count();
+        $this->assertGreaterThan($initialNotificationCount, $newNotificationCount);
+
+        // Clean up
+        $fundRequest->delete();
+    }
 }

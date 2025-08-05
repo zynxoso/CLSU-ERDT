@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Manuscript;
+use App\Models\User;
 use App\Services\AuditService;
 use Illuminate\Support\Facades\Auth;
 
@@ -240,6 +241,15 @@ class ManuscriptManagement extends Component
         return $query->count();
     }
 
+    public function getScholarsProperty()
+    {
+        // Eager load relationships to avoid N+1 issues
+        return User::where('role', 'scholar')
+            ->whereHas('scholarProfile.manuscripts')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function getFilteredManuscriptsProperty()
     {
         $query = Manuscript::with(['scholarProfile.user', 'documents']);
@@ -312,6 +322,9 @@ class ManuscriptManagement extends Component
     {
         return view('livewire.admin.manuscript-management', [
             'manuscripts' => $this->filteredManuscripts,
+            'exportUrl' => $this->getExportUrlProperty(),
+            'batchDownloadUrl' => $this->getBatchDownloadUrlProperty(),
+            'scholars' => $this->getScholarsProperty(),
         ]);
     }
 }

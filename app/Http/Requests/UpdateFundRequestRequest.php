@@ -22,7 +22,7 @@ class UpdateFundRequestRequest extends FormRequest
         }
 
         // Only draft requests can be updated
-        if ($fundRequest->status !== 'Draft') {
+        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
             return false;
         }
 
@@ -39,7 +39,7 @@ class UpdateFundRequestRequest extends FormRequest
         return [
             'request_type_id' => 'required|exists:request_types,id',
             'amount' => 'required|numeric|min:0',
-            'status' => 'sometimes|in:Draft,Submitted'
+            'status' => 'sometimes|in:' . FundRequest::STATUS_DRAFT . ',' . FundRequest::STATUS_SUBMITTED
         ];
     }
 
@@ -68,7 +68,7 @@ class UpdateFundRequestRequest extends FormRequest
     {
         $fundRequest = $this->route('fundRequest');
 
-        if ($fundRequest->status !== 'Draft') {
+        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
             abort(403, 'Only draft requests can be updated.');
         }
 

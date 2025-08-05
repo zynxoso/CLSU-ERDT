@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -14,11 +15,12 @@ class ScholarUpdateRequest extends FormRequest
     public function authorize(): bool
     {
         // Check for admin permissions or if scholar is updating their own profile
-        return $this->user() &&
-               ($this->user()->role === 'admin' ||
-               ($this->user()->role === 'scholar' &&
-                $this->user()->scholarProfile &&
-                $this->route('id') == $this->user()->scholarProfile->id));
+        $user = Auth::user();
+        return $user &&
+               ($user->role === 'admin' ||
+               ($user->role === 'scholar' &&
+                $user->scholarProfile &&
+                request()->route('id') == $user->scholarProfile->id));
     }
 
     /**
@@ -29,13 +31,14 @@ class ScholarUpdateRequest extends FormRequest
     public function rules(): array
     {
         $currentYear = Carbon::now()->year;
-        $scholarId = $this->route('id');
+        $scholarId = request()->route('id');
 
         return [
             // Personal information
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\-\']+$/'],
+            'suffix' => ['nullable', 'string', 'in:Jr.,Sr.,II,III,IV,V'],
             'email' => [
                 'required',
                 'string',
@@ -51,7 +54,14 @@ class ScholarUpdateRequest extends FormRequest
                 'max:20',
                 'regex:/^(\+?\d{1,3}[\s-]?)?(\(?\d{1,4}\)?[\s-]?)?\d{5,11}$/'
             ],
-            'address' => ['required', 'string', 'min:5', 'max:500'],
+
+            
+            // Detailed Address
+            'street' => ['nullable', 'string', 'max:255'],
+            'village' => ['nullable', 'string', 'max:255'],
+            'zipcode' => ['nullable', 'string', 'max:10'],
+            'district' => ['nullable', 'string', 'max:255'],
+            'region' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other,Prefer not to say'],
             'birth_date' => [
                 'nullable',
@@ -61,60 +71,36 @@ class ScholarUpdateRequest extends FormRequest
             ],
 
             // Academic information
-            'university' => ['required', 'string', 'max:255'],
+            'intended_university' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
-            'program' => ['required', 'string', 'max:255'],
-            'major' => ['required', 'string', 'max:255'],
+            'course_completed' => ['nullable', 'string', 'in:MS in Agricultural Engineering,BS Agricultural and Biosystem Engineering'],
+            'university_graduated' => ['nullable', 'string', 'max:255'],
+            'entry_type' => ['nullable', 'string', 'in:NEW,LATERAL'],
+            'intended_degree' => ['nullable', 'string', 'in:PHD in ABE,MS in ABE,MS Agricultural Engineering'],
+            'thesis_dissertation_title' => ['nullable', 'string', 'max:1000'],
+            'units_required' => ['nullable', 'integer', 'min:0', 'max:200'],
+            'units_earned_prior' => ['nullable', 'integer', 'min:0', 'max:200'],
+
+
+            'enrollment_type' => ['required', 'string', 'in:New,Lateral'],
+            'study_time' => ['required', 'string', 'in:Full-time,Part-time'],
+            'scholarship_duration' => ['required', 'integer', 'min:1', 'max:60'],
             'status' => [
                 'required',
                 'string',
-                'in:New,Ongoing,On Extension,Graduated,Terminated'
-            ],
-            'start_date' => [
-                'required',
-                'date',
-                'after:'.Carbon::now()->subYears(10)->format('Y-m-d'),
-                'before:'.Carbon::now()->addYears(1)->format('Y-m-d'),
-            ],
-            'expected_completion_date' => [
-                'required',
-                'date',
-                'after:start_date',
-                'before:'.Carbon::now()->addYears(10)->format('Y-m-d'),
+                'in:Active,Graduated,Deferred,Dropped,Inactive'
             ],
             'actual_completion_date' => [
                 'nullable',
                 'date',
-                'after:start_date',
-                'before:'.Carbon::now()->addYears(1)->format('Y-m-d'),
+                'before:'.Carbon::now()->addYears(8)->format('Y-m-d'),
             ],
 
-            // Previous education
-            'bachelor_degree' => ['nullable', 'string', 'max:255'],
-            'bachelor_university' => ['nullable', 'string', 'max:255'],
-
-            // Research information
-            'research_area' => ['nullable', 'string', 'max:255'],
-            'research_title' => ['nullable', 'string', 'max:255'],
-            'research_abstract' => ['nullable', 'string', 'max:5000'],
             'notes' => ['nullable', 'string', 'max:1000'],
 
             // Location information (optional)
-            'city' => ['nullable', 'string', 'max:255'],
             'province' => ['nullable', 'string', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
             'country' => ['nullable', 'string', 'max:255'],
-
-            // Additional information
-            'scholar_id' => [
-                'nullable',
-                'string',
-                'max:50',
-                Rule::unique('scholar_profiles', 'scholar_id')->ignore($scholarId)
-            ],
-            'degree_program' => ['nullable', 'string', 'max:255'],
-            'year_level' => ['nullable', 'integer', 'min:1', 'max:10'],
-            'admin_notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -128,8 +114,8 @@ class ScholarUpdateRequest extends FormRequest
         return [
             'email' => 'email address',
             'contact_number' => 'phone number',
-            'bachelor_degree' => 'bachelor\'s degree',
-            'bachelor_university' => 'bachelor\'s university',
+
+
         ];
     }
 
@@ -149,10 +135,9 @@ class ScholarUpdateRequest extends FormRequest
             'birth_date.after' => 'The birth date must be within the last 100 years.',
             'start_date.after' => 'The start date cannot be more than 10 years in the past.',
             'start_date.before' => 'The start date cannot be more than 1 year in the future.',
-            'expected_completion_date.after' => 'The expected completion date must be after the start date.',
-            'expected_completion_date.before' => 'The expected completion date cannot be more than 10 years in the future.',
+
             'actual_completion_date.after' => 'The actual completion date must be after the start date.',
-            'actual_completion_date.before' => 'The actual completion date cannot be more than 1 year in the future.',
+            'actual_completion_date.before' => 'The actual completion date cannot be more than 8 years in the future.',
         ];
     }
 }

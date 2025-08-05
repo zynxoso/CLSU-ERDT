@@ -35,7 +35,7 @@ class CheckPasswordExpiration
                 'admin.password.change',
                 'admin.password.update',
                 'super_admin.password.change',
-                'super_admin.password.update',
+            'super_admin.password.update',
                 'logout',
                 'password.*'
             ];

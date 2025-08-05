@@ -79,7 +79,7 @@ class ManageScholars extends Component
         $scholars = ScholarProfile::query()
             ->with('user')
             ->when($this->status, function ($query) {
-                return $query->where('status', $this->status);
+                return $query->whereStatus($this->status);
             })
             ->when($this->start_date_filter, function ($query) {
                 if (strpos($this->start_date_filter, '-') !== false) {
@@ -96,7 +96,7 @@ class ManageScholars extends Component
                 return $query->where(function ($q) {
                     $q->where('first_name', 'like', '%' . $this->search . '%')
                       ->orWhere('last_name', 'like', '%' . $this->search . '%')
-                      ->orWhere('university', 'like', '%' . $this->search . '%')
+                      ->orWhere('intended_university', 'like', '%' . $this->search . '%')
                       ->orWhereHas('user', function ($userQuery) {
                           $userQuery->where('email', 'like', '%' . $this->search . '%');
                       });

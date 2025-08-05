@@ -29,16 +29,16 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center" style="background-color: #F8BBD0;">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center overflow-hidden shadow-sm border" style="background-color: rgba(76, 175, 80, 0.1); border-color: #4CAF50;">
                                     @if($manuscript->scholarProfile && $manuscript->scholarProfile->profile_photo)
                                         <img src="{{ asset('images/' . $manuscript->scholarProfile->profile_photo) }}" alt="{{ $manuscript->scholarProfile->user->name }}" class="h-8 w-8 rounded-full">
                                     @else
-                                        <i class="fas fa-user" style="color: #2E7D32;"></i>
+                                        <i class="fas fa-user" style="color: #4CAF50;"></i>
                                     @endif
                                 </div>
                                 <div class="ml-3">
                                     <div class="text-sm font-medium" style="color: #212121; font-size: 15px;">{{ $manuscript->user ? $manuscript->user->name : 'Unknown' }}</div>
-                                    <div class="text-xs" style="color: #757575; font-size: 13px;">{{ Str::limit($manuscript->scholarProfile ? $manuscript->scholarProfile->program : 'N/A', 25, '.....') }}</div>
+                                    <div class="text-xs" style="color: #757575; font-size: 13px;">{{ Str::limit($manuscript->scholarProfile ? $manuscript->scholarProfile->department : 'N/A', 25, '.....') }}</div>
                                 </div>
                             </div>
                         </td>
@@ -46,27 +46,53 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex justify-center">
                                 <span class="inline-flex justify-center items-center w-[100px] px-3 py-1.5 text-xs font-semibold rounded-full
-                                    @if($manuscript->status == 'Published') text-white" style="background-color: #2E7D32;
-                                    @elseif($manuscript->status == 'Accepted') text-white" style="background-color: #2E7D32;
+                                    @if($manuscript->status == 'Published') text-white" style="background-color: #4CAF50;
+                                    @elseif($manuscript->status == 'Accepted') text-white" style="background-color: #4CAF50;
                                     @elseif($manuscript->status == 'Revision Requested') text-white" style="background-color: #FF9800;
                                     @elseif($manuscript->status == 'Under Review') text-white" style="background-color: #FFCA28;
-                                    @elseif($manuscript->status == 'Submitted') text-white" style="background-color: #1976D2;
+                                    @elseif($manuscript->status == 'Submitted') text-white" style="background-color: #4A90E2;
                                     @elseif($manuscript->status == 'Rejected') text-white" style="background-color: #D32F2F;
                                     @else text-white" style="background-color: #757575; @endif">
                                     {{ $manuscript->status }}
                                 </span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                            <div class="flex items-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <div class="flex justify-center items-center space-x-2">
                                 <a href="{{ route('admin.manuscripts.show', $manuscript->id) }}"
-                                   class="manuscript-action-link transition-colors duration-200 px-3 py-1 rounded-md"
-                                   style="color: #2E7D32; background-color: #E8F5E8; font-size: 14px;"
-                                   onmouseover="this.style.backgroundColor='#C8E6C8'"
-                                   onmouseout="this.style.backgroundColor='#E8F5E8'"
-                                   title="View Details">
-                                    View
+                                    class="inline-flex items-center justify-center px-3 py-1 text-sm rounded-md transition-colors"
+                                    style="background-color: rgba(74, 144, 226, 0.1); color: #4A90E2;"
+                                    onmouseover="this.style.backgroundColor='rgba(74, 144, 226, 0.2)'"
+                                    onmouseout="this.style.backgroundColor='rgba(74, 144, 226, 0.1)'"
+                                    title="View Manuscript Details">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
+                                    View Details
                                 </a>
+                                @if(in_array($manuscript->status, ['Draft', 'Submitted', 'Under Review', 'Revision Requested']))
+                                    <a href="{{ route('admin.manuscripts.edit', $manuscript->id) }}"
+                                        class="inline-flex items-center justify-center px-3 py-1 text-sm rounded-md transition-colors"
+                                        style="background-color: rgba(76, 175, 80, 0.1); color: #4CAF50;"
+                                        onmouseover="this.style.backgroundColor='rgba(76, 175, 80, 0.2)'"
+                                        onmouseout="this.style.backgroundColor='rgba(76, 175, 80, 0.1)'"
+                                        title="Edit Manuscript">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            </path>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -76,7 +102,7 @@
     </div>
 @else
     <div class="text-center py-12">
-        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4" style="background-color: #F8F9FA;">
+        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 border shadow-sm" style="background-color: rgba(76, 175, 80, 0.1); border-color: #4CAF50;">
             <i class="fas fa-book text-2xl" style="color: #9E9E9E;"></i>
         </div>
         <h3 class="text-lg font-medium mb-2" style="color: #212121;">No Manuscripts Found</h3>

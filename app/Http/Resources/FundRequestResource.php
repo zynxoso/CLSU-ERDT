@@ -24,7 +24,7 @@ class FundRequestResource extends BaseResource
             'details' => $this->details,
             'status' => $this->status,
             'status_history' => $this->status_history,
-            'admin_notes' => $this->admin_notes,
+            'rejection_reason' => $this->rejection_reason,
             'reviewed_by' => $this->reviewed_by,
             'reviewed_at' => $this->reviewed_at,
             'created_at' => $this->created_at,

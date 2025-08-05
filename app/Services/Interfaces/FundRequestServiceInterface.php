@@ -101,8 +101,8 @@ interface FundRequestServiceInterface
      *
      * @param int $requestTypeId
      * @param float $amount
-     * @param string $program
+     * @param string|null $degreeLevel
      * @return array|null Returns error array if validation fails, null if passes
      */
-    public function validateFundRequestAmount(int $requestTypeId, float $amount, string $program): ?array;
+    public function validateFundRequestAmount(int $requestTypeId, float $amount, ?string $degreeLevel): ?array;
 }

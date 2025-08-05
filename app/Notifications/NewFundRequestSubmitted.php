@@ -41,7 +41,7 @@ class NewFundRequestSubmitted extends Notification
                     "Scholar {$scholar->name} has submitted a new fund request for {$this->fundRequest->purpose} amounting to ₱" . number_format($this->fundRequest->amount, 2),
                     'NewFundRequestSubmitted',
                     route('admin.fund-requests.show', $this->fundRequest->id),
-                    true // Send email notification
+                    false // Do not send email notification
                 );
             }
         }

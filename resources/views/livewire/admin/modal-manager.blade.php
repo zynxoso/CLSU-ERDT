@@ -6,8 +6,8 @@
 
             <!-- Modal panel -->
             <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full mx-auto z-50">
-                @if($component === 'delete-confirmation-modal')
-                    <livewire:admin.delete-confirmation-modal :id="$arguments['id'] ?? null" :name="$arguments['name'] ?? ''" :key="'delete-modal-' . ($arguments['id'] ?? 'new')" />
+                @if($component === 'delete-confirmation-modal' && isset($arguments['id']) && $arguments['id'])
+                    <livewire:admin.delete-confirmation-modal :id="$arguments['id']" :name="$arguments['name'] ?? ''" :key="'delete-modal-' . $arguments['id']" />
                 @endif
             </div>
         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class RejectFundRequestRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class RejectFundRequestRequest extends FormRequest
             return false;
         }
 
-        $fundRequestId = $this->route('id');
+        $fundRequestId = Route::current()->parameter('id');
         $fundRequest = \App\Models\FundRequest::findOrFail($fundRequestId);
 
         // Only submitted or under review requests can be rejected
@@ -32,7 +33,7 @@ class RejectFundRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'admin_notes' => 'required|string|max:1000',
+            'rejection_reason' => 'required|string|max:1000',
         ];
     }
 
@@ -44,8 +45,8 @@ class RejectFundRequestRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'admin_notes.required' => 'Please provide a reason for rejecting this request.',
-            'admin_notes.max' => 'The rejection reason may not be greater than 1000 characters.'
+            'rejection_reason.required' => 'Please provide a reason for rejecting this request.',
+            'rejection_reason.max' => 'The rejection reason may not be greater than 1000 characters.'
         ];
     }
 
@@ -60,7 +61,7 @@ class RejectFundRequestRequest extends FormRequest
             abort(403, 'Unauthorized access. Only administrators can reject fund requests.');
         }
 
-        $fundRequestId = $this->route('id');
+        $fundRequestId = Route::current()->parameter('id');
         $fundRequest = \App\Models\FundRequest::findOrFail($fundRequestId);
 
         if (!in_array($fundRequest->status, ['Submitted', 'Under Review'])) {

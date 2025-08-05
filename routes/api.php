@@ -20,18 +20,7 @@ Route::get('/health', function () {
     return ApiResponse::success(['status' => 'ok'], 'API is operational');
 })->middleware('api.rate.limit:public');
 
-// Analytics API endpoints (strict rate limiting for sensitive data)
-Route::prefix('admin')->middleware(['auth:sanctum', 'api.rate.limit:admin'])->group(function () {
-    Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'apiData'])->name('api.admin.analytics');
-});
-
 // Scholar API endpoints (default rate limiting)
-Route::prefix('scholar')->middleware(['auth:sanctum', 'web', 'api.rate.limit:default'])->group(function () {
-    Route::get('/analytics', function (Request $request) {
-        // Future implementation for scholar analytics
-        return ApiResponse::success(['message' => 'Scholar analytics API - Coming soon']);
-    })->name('api.scholar.analytics');
-
-    // Status updates endpoint - actually used in scholar dashboard
-    Route::get('/status-updates', [\App\Http\Controllers\Scholar\StatusUpdateController::class, 'index']);
+Route::prefix('scholar')->middleware(['auth:web', 'api.rate.limit:default'])->group(function () {
+    // Future API endpoints can be added here
 });

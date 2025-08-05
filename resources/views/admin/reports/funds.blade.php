@@ -8,10 +8,10 @@
         <div class="mb-6 print:hidden">
             <a href="{{ route('admin.reports.index') }}"
                class="transition-colors"
-               style="color: #2E7D32; font-size: 15px;"
-               onmouseover="this.style.color='#1B5E20'"
-               onmouseout="this.style.color='#2E7D32'">
-                <i class="fas fa-arrow-left mr-2"></i> Back to Reports
+               style="color: #4CAF50; font-size: 15px;"
+               onmouseover="this.style.color='#4CAF50'"
+               onmouseout="this.style.color='#4CAF50'">
+                <i class="fas fa-arrow-left mr-2" style="color: #4CAF50;"></i> Back to Reports
             </a>
             <h1 class="text-2xl font-bold mt-2" style="color: #212121; font-size: 24px;">{{ $title }}</h1>
             @if($startDate && $endDate)
@@ -26,9 +26,9 @@
                     <div class="mt-2 md:mt-0 print:hidden">
                         <button onclick="window.print()"
                                 class="px-4 py-2 rounded-lg transition-colors duration-200"
-                                style="background-color: #2E7D32; color: white; font-size: 15px;"
+                                style="background-color: #4CAF50; color: white; font-size: 15px;"
                                 onmouseover="this.style.backgroundColor='#1B5E20'"
-                                onmouseout="this.style.backgroundColor='#2E7D32'">
+                                onmouseout="this.style.backgroundColor='#4CAF50'">
                             <i class="fas fa-print mr-2" style="color: white !important;"></i> Print Report
                         </button>
                     </div>
@@ -51,19 +51,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="p-4 rounded-lg" style="background-color: #E8F5E8;">
                             <div class="text-sm" style="color: #424242;">Total Requests</div>
-                            <div class="text-xl font-bold" style="color: #2E7D32;">{{ count($data) }}</div>
+                            <div class="text-xl font-bold" style="color: #4CAF50;">{{ count($data) }}</div>
                         </div>
                         <div class="p-4 rounded-lg" style="background-color: #E8F5E8;">
                             <div class="text-sm" style="color: #424242;">Approved</div>
-                            <div class="text-xl font-bold" style="color: #2E7D32;">{{ $data->where('status', 'Approved')->count() }}</div>
+                            <div class="text-xl font-bold" style="color: #4CAF50;">{{ $data->where('status', 'Approved')->count() }}</div>
                         </div>
                         <div class="p-4 rounded-lg" style="background-color: #FFF3C4;">
                             <div class="text-sm" style="color: #424242;">Pending</div>
-                            <div class="text-xl font-bold" style="color: #F57F17;">{{ $data->where('status', 'Pending')->count() }}</div>
+                            <div class="text-xl font-bold" style="color: #F57F17;">{{ $data->whereIn('status', ['Submitted', 'Under Review'])->count() }}</div>
                         </div>
                         <div class="p-4 rounded-lg" style="background-color: #E8F5E8;">
                             <div class="text-sm" style="color: #424242;">Total Amount (Approved)</div>
-                            <div class="text-xl font-bold" style="color: #2E7D32;">₱{{ number_format($data->where('status', 'Approved')->sum('amount'), 2) }}</div>
+                            <div class="text-xl font-bold" style="color: #4CAF50;">₱{{ number_format($data->where('status', 'Approved')->sum('amount'), 2) }}</div>
                         </div>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                                                     @if($fund->scholarProfile && $fund->scholarProfile->profile_photo)
                                                         <img src="{{ asset('images/' . $fund->scholarProfile->profile_photo) }}" alt="{{ $fund->scholarProfile->user->name }}" class="h-8 w-8 rounded-full">
                                                     @else
-                                                        <i class="fas fa-user" style="color: #2E7D32;"></i>
+                                                        <i class="fas fa-user" style="color: #4CAF50;"></i>
                                                     @endif
                                                 </div>
                                                 <div class="ml-3 print:ml-0">
@@ -114,7 +114,7 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $fund->created_at->format('M d, Y') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ $fund->status != 'Pending' ? $fund->updated_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #424242;">{{ !in_array($fund->status, ['Submitted', 'Under Review']) ? $fund->updated_at->format('M d, Y') : 'N/A' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

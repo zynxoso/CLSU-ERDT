@@ -10,14 +10,20 @@ return new class extends Migration
     {
         Schema::create('manuscripts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scholar_profile_id')->constrained()->onDelete('cascade');
+            $table->foreignId('scholar_profile_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('reference_number')->nullable()->unique();
             $table->string('title');
             $table->text('abstract');
-            $table->enum('status', ['Outline Submitted', 'Outline Approved', 'Draft Submitted', 'Under Review', 'Revision Requested', 'Accepted', 'Published'])->default('Outline Submitted');
+            $table->enum('manuscript_type', ['Outline', 'Final'])->default('Outline');
+            $table->string('co_authors')->nullable();
+            $table->string('keywords')->nullable();
+            $table->enum('status', ['Draft', 'Submitted', 'Under Review', 'Revision Requested', 'Accepted', 'Published', 'Rejected'])->default('Draft');
+            $table->text('admin_notes')->nullable();
             $table->text('reviewer_comments')->nullable();
-            $table->foreignId('reviewed_by')->nullable()->references('id')->on('users');
+            $table->foreignId('reviewed_by')->nullable()->constrained('users');
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
+            $table->json('security_context')->nullable();
         });
     }
 

@@ -49,8 +49,8 @@ class HomeController extends Controller
         $totalScholars = ScholarProfile::count();
         $pendingRequests = FundRequest::whereIn('status', ['Submitted', 'Under Review'])->count();
         $totalDisbursed = Disbursement::sum('amount');
-        $completionRate = ScholarProfile::where('status', 'Completed')->count() > 0
-            ? round((ScholarProfile::where('status', 'Completed')->count() / $totalScholars) * 100)
+        $completionRate = ScholarProfile::whereStatus('Completed')->count() > 0
+            ? round((ScholarProfile::whereStatus('Completed')->count() / $totalScholars) * 100)
             : 0;
 
         // Get recent fund requests with their relationships
@@ -66,40 +66,18 @@ class HomeController extends Controller
             ->get();
 
         // Additional scholar statistics
-        $activeScholars = ScholarProfile::where('status', 'Active')->count();
+        $activeScholars = ScholarProfile::whereStatus('Active')->count();
 
         // Scholars expected to complete this year
         $currentYear = date('Y');
-        $completingThisYear = ScholarProfile::whereYear('expected_completion_date', $currentYear)->count();
+        // Completing this year calculation removed (expected_completion_date field removed)
+        $completingThisYear = 0;
 
         // New scholars in the last 30 days
         $newScholars = ScholarProfile::whereDate('created_at', '>=', now()->subDays(30))->count();
 
-        // Default empty collections
+        // Program distribution removed (program field removed)
         $programCounts = collect([]);
-
-        try {
-            // Get program distribution
-            if ($totalScholars > 0) {
-                $programCounts = ScholarProfile::select('program')
-                    ->selectRaw('count(*) as count')
-                    ->whereNotNull('program')
-                    ->where('program', '!=', '')
-                    ->groupBy('program')
-                    ->orderByDesc('count')
-                    ->get()
-                    ->map(function ($item) use ($totalScholars) {
-                        $item->percentage = $totalScholars > 0 ? round(($item->count / $totalScholars) * 100) : 0;
-                        return $item;
-                    });
-            }
-        } catch (\Exception $e) {
-            // Log the error
-            Log::error('Error generating dashboard statistics: ' . $e->getMessage());
-
-            // If an error occurs, use empty collections
-            $programCounts = collect([]);
-        }
 
         $data = [
             'totalScholars' => $totalScholars,
@@ -127,7 +105,7 @@ class HomeController extends Controller
         $recentFundRequests = $profile ? $profile->fundRequests()->latest()->limit(5)->get() : collect([]);
 
         // Count requests by status
-        $pendingRequests = $fundRequests->where('status', 'Pending')->count();
+        $pendingRequests = $fundRequests->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count();
         $approvedRequests = $fundRequests->where('status', 'Approved')->count();
         $rejectedRequests = $fundRequests->where('status', 'Rejected')->count();
 

@@ -13,9 +13,9 @@
             <div>
                 <a href="{{ route('admin.audit-logs.export') }}"
                    class="px-4 py-2 rounded-lg transition-colors duration-200"
-                   style="background-color: #2E7D32; color: white; font-size: 15px;"
-                   onmouseover="this.style.backgroundColor='#1B5E20'"
-                   onmouseout="this.style.backgroundColor='#2E7D32'">
+                   style="background-color: #4CAF50; color: white; font-size: 15px;"
+            onmouseover="this.style.backgroundColor='#388E3C'"
+            onmouseout="this.style.backgroundColor='#4CAF50'">
                     <i class="fas fa-download mr-2" style="color: white !important;"></i> Export CSV
                 </a>
             </div>

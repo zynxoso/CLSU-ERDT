@@ -5,514 +5,206 @@
 @section('content')
 <div class="min-h-screen" style="background-color: #FAFAFA;">
     <div class="container mx-auto">
+        <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-bold mt-2" style="color: #424242;">Add New Scholar</h1>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold" style="color: #424242;">Add New Scholar</h1>
+                    <p class="mt-2" style="color: #757575;">Create a new scholar profile with complete information.</p>
+                </div>
+                <a href="{{ route('admin.scholars.index') }}" 
+                   class="inline-flex items-center px-4 py-2 border text-sm font-medium bg-white hover:opacity-90 focus:outline-none focus:ring-2 rounded-md" style="border-color: #E0E0E0; color: #424242; focus:ring-color: #4CAF50;">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to Scholars
+                </a>
+            </div>
         </div>
-        <div class="bg-white rounded-lg p-6 border shadow-sm" style="border-color: #E0E0E0;">
-            <form action="{{ route('admin.scholars.store') }}" method="POST" id="multi-step-scholar-form">
-                @csrf
 
-                <!-- Step 1: Basic Information -->
-                <fieldset id="step-1" class="step-content" aria-labelledby="legend-step-1">
-                    <legend id="legend-step-1" class="text-xl font-semibold mb-4" style="color: #424242;">Basic Information</legend>
+        <!-- Multi-Step Form Component -->
+        <x-multi-step-form 
+            title="Scholar Registration"
+            form-action="{{ route('admin.scholars.store') }}"
+            form-method="POST"
+            submit-button-text="Create Scholar"
+            cancel-url="{{ route('admin.scholars.index') }}"
+            :steps="[
+                ['title' => 'Basic Info', 'fields' => ['first_name', 'last_name', 'email']],
+                ['title' => 'Address', 'fields' => ['province']],
+                ['title' => 'Academic', 'fields' => ['intended_university', 'department']],
+                ['title' => 'Scholarship', 'fields' => []],
+                ['title' => 'Review', 'fields' => []]
+            ]">
+            
+            <!-- Login Information Notice -->
+            <div class="mb-6 p-4 rounded-lg border" style="background-color: rgba(76, 175, 80, 0.1); border-color: #4CAF50;">
+                <h3 class="text-lg font-semibold mb-2" style="color: #4CAF50;">
+                    <i class="fas fa-info-circle mr-2" style="color: #4CAF50;"></i> Scholar Login Information
+                </h3>
+                <p class="text-sm mb-3" style="color: #4CAF50;">When you create a scholar account, the system will generate the following login credentials:</p>
 
-                    <div class="mb-6 p-4 rounded-lg border" style="background-color: #FFF3E0; border-color: #FFCA28;">
-                        <h3 class="text-lg font-semibold mb-2" style="color: #E65100;">
-                            <i class="fas fa-info-circle mr-2" style="color: #FFCA28;"></i> Scholar Login Information
-                        </h3>
-                        <p class="text-sm mb-3" style="color: #BF360C;">When you create a scholar account, the system will generate the following login credentials:</p>
-
-                        <div class="flex flex-col md:flex-row md:items-center mb-2 p-3 bg-white rounded border" style="border-color: #FFE082;">
-                            <div class="font-medium md:w-1/4" style="color: #E65100;">Login Email:</div>
-                            <div class="md:w-3/4" style="color: #424242;">The email address you provide in the form below</div>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row md:items-center p-3 bg-white rounded border" style="border-color: #FFE082;">
-                            <div class="font-medium md:w-1/4" style="color: #E65100;">Default Password:</div>
-                            <div class="md:w-3/4 flex items-center">
-                                <code class="px-2 py-1 rounded font-mono" style="background-color: #F5F5F5; color: #424242;">CLSU-scholar123</code>
-                                <button type="button" class="ml-2 px-2 py-1 rounded text-sm" style="background-color: #FFF3E0; color: #E65100;" onclick="copyPassword()">
-                                    <i class="fas fa-copy mr-1"></i> Copy
-                                </button>
-                            </div>
-                        </div>
-
-                        <p class="text-sm mt-3" style="color: #BF360C;">
-                            <i class="fas fa-exclamation-triangle mr-1" style="color: #FFCA28;"></i> Important: The scholar will receive instructions to set their password after account creation.
-                        </p>
-                    </div>
-
-                    <x-forms.input name="first_name" label="First Name" required :error="$errors->first('first_name')" />
-                    <x-forms.input name="last_name" label="Last Name" required :error="$errors->first('last_name')" />
-                    <x-forms.input name="middle_name" label="Middle Name" :error="$errors->first('middle_name')" />
-                    <x-forms.input name="email" label="Email Address" type="email" required help="The scholar will use this email to login." :error="$errors->first('email')" />
-                    <x-forms.input name="contact_number" label="Phone Number" required :error="$errors->first('contact_number')" />
-
-                    <div class="flex justify-end mt-6">
-                        <button type="button" id="next-step-1" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
-                            Next: Address & Contact <i class="fas fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </fieldset>
-
-                <!-- Step 2: Address & Contact -->
-                <fieldset id="step-2" class="step-content hidden" aria-labelledby="legend-step-2">
-                    <legend id="legend-step-2" class="text-xl font-semibold mb-4" style="color: #424242;">Address & Contact Information</legend>
-                    <x-forms.input name="address" label="Street Address" required placeholder="Street number, building, barangay" :error="$errors->first('address')" />
-                    <x-forms.input name="city" label="City/Municipality" required :error="$errors->first('city')" />
-                    <x-forms.input name="province" label="Province" required :error="$errors->first('province')" />
-                    <x-forms.input name="postal_code" label="Postal Code" required :error="$errors->first('postal_code')" />
-                    <x-forms.select name="country" label="Country" required :options="['Philippines' => 'Philippines', 'Other' => 'Other']" value="{{ old('country', 'Philippines') }}" :error="$errors->first('country')" />
-                    <div class="flex justify-between mt-6">
-                        <button type="button" id="prev-step-2" class="px-6 py-2 text-white rounded-lg" style="background-color: #757575;">
-                            <i class="fas fa-arrow-left mr-2"></i> Previous
-                        </button>
-                        <button type="button" id="next-step-2" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
-                            Next: Scholarship Details <i class="fas fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </fieldset>
-
-                <!-- Step 3: Scholarship Details -->
-                <div id="step-3" class="step-content hidden">
-                    <h2 class="text-xl font-semibold mb-4" style="color: #424242;">Scholarship Details</h2>
-
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4" style="color: #424242;">University Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="university" class="block text-sm font-medium mb-1" style="color: #424242;">University <span style="color: #D32F2F;">*</span></label>
-                                <input type="text" id="university" name="university" value="Central Luzon State University" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly required>
-                                <p class="text-xs mt-1" style="color: #757575;">CLSU - Central Luzon State University</p>
-                                @error('university')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="department" class="block text-sm font-medium mb-1" style="color: #424242;">Department <span style="color: #D32F2F;">*</span></label>
-                                <input type="text" id="department" name="department" value="Department of Agricultural and Biosystems Engineering" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly required>
-                                <p class="text-xs mt-1" style="color: #757575;">ABE Department at CLSU</p>
-                                @error('department')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="program" class="block text-sm font-medium mb-1" style="color: #424242;">Program <span style="color: #D32F2F;">*</span></label>
-                                <input type="text" id="program" name="program" value="Agricultural Engineering" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly required>
-                                <p class="text-xs mt-1" style="color: #757575;">Agricultural Engineering Program</p>
-                                @error('program')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="major" class="block text-sm font-medium mb-1" style="color: #424242;">Major/Specialization <span style="color: #D32F2F;">*</span></label>
-                                <select id="major" name="major" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                    <option value="">Select Major/Specialization</option>
-                                    <option value="AB Machinery and Power Engineering" {{ old('major') == 'AB Machinery and Power Engineering' ? 'selected' : '' }}>AB Machinery and Power Engineering</option>
-                                    <option value="AB Land and Water Resources Engineering" {{ old('major') == 'AB Land and Water Resources Engineering' ? 'selected' : '' }}>AB Land and Water Resources Engineering</option>
-                                    <option value="AB Structures and Environment Engineering" {{ old('major') == 'AB Structures and Environment Engineering' ? 'selected' : '' }}>AB Structures and Environment Engineering</option>
-                                    <option value="AB Process Engineering" {{ old('major') == 'AB Process Engineering' ? 'selected' : '' }}>AB Process Engineering</option>
-                                </select>
-                                <p class="text-xs mt-1" style="color: #757575;">Choose your specific area of specialization within ABE</p>
-                                @error('major')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="degree_level" class="block text-sm font-medium mb-1" style="color: #424242;">Degree Level <span style="color: #D32F2F;">*</span></label>
-                                <select id="degree_level" name="degree_level" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                    <option value="Masteral" {{ old('degree_level') == 'Masteral' ? 'selected' : '' }}>Masteral</option>
-                                    <option value="PhD" {{ old('degree_level') == 'PhD' ? 'selected' : '' }}>PhD</option>
-                                </select>
-                                @error('degree_level')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4" style="color: #424242;">Scholarship Status & Timeline</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="status" class="block text-sm font-medium mb-1" style="color: #424242;">Status <span style="color: #D32F2F;">*</span></label>
-                                <select id="status" name="status" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                    <option value="New" {{ old('status') == 'New' ? 'selected' : '' }}>New</option>
-                                    <option value="Ongoing" {{ old('status') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
-                                    <option value="On Extension" {{ old('status') == 'On Extension' ? 'selected' : '' }}>On Extension</option>
-                                    <option value="Graduated" {{ old('status') == 'Graduated' ? 'selected' : '' }}>Graduated</option>
-                                    <option value="Terminated" {{ old('status') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
-                                </select>
-                                @error('status')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="start_date" class="block text-sm font-medium mb-1" style="color: #424242;">Start Date <span style="color: #D32F2F;">*</span></label>
-                                <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                @error('start_date')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="expected_completion_date" class="block text-sm font-medium mb-1" style="color: #424242;">Expected Completion Date <span style="color: #D32F2F;">*</span></label>
-                                <input type="date" id="expected_completion_date" name="expected_completion_date" value="{{ old('expected_completion_date') }}" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                @error('expected_completion_date')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="scholarship_duration" class="block text-sm font-medium mb-1" style="color: #424242;">Scholarship Duration (months) <span style="color: #D32F2F;">*</span></label>
-                                <input type="number" id="scholarship_duration" name="scholarship_duration" value="{{ old('scholarship_duration') }}" min="1" max="60" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                @error('scholarship_duration')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="enrollment_type" class="block text-sm font-medium mb-1" style="color: #424242;">Enrollment Type <span style="color: #D32F2F;">*</span></label>
-                                <select id="enrollment_type" name="enrollment_type" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                    <option value="New" {{ old('enrollment_type') == 'New' ? 'selected' : '' }}>New</option>
-                                    <option value="Lateral" {{ old('enrollment_type') == 'Lateral' ? 'selected' : '' }}>Lateral</option>
-                                </select>
-                                @error('enrollment_type')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="study_time" class="block text-sm font-medium mb-1" style="color: #424242;">Study Time <span style="color: #D32F2F;">*</span></label>
-                                <select id="study_time" name="study_time" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; --tw-ring-color: #2E7D32;" required>
-                                    <option value="Full-time" {{ old('study_time') == 'Full-time' ? 'selected' : '' }}>Full-time</option>
-                                    <option value="Part-time" {{ old('study_time') == 'Part-time' ? 'selected' : '' }}>Part-time</option>
-                                </select>
-                                @error('study_time')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4" style="color: #424242;">Academic Background</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="bachelor_degree" class="block text-sm font-medium mb-1" style="color: #424242;">Bachelor's Degree</label>
-                                <input type="text" id="bachelor_degree" name="bachelor_degree" value="BS in Agricultural and Biosystems Engineering" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly>
-                                <p class="text-xs mt-1" style="color: #757575;">BSABE is the standard qualification for this program</p>
-                                @error('bachelor_degree')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="bachelor_university" class="block text-sm font-medium mb-1" style="color: #424242;">Bachelor's University</label>
-                                <input type="text" id="bachelor_university" name="bachelor_university" value="Central Luzon State University" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2" style="border-color: #E0E0E0; background-color: #F5F5F5; --tw-ring-color: #2E7D32;" readonly>
-                                <p class="text-xs mt-1" style="color: #757575;">CLSU - Central Luzon State University</p>
-                                @error('bachelor_university')
-                                    <p class="text-xs mt-1" style="color: #D32F2F;">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between mt-6">
-                        <button type="button" id="prev-step-3" class="px-6 py-2 text-white rounded-lg" style="background-color: #757575;">
-                            <i class="fas fa-arrow-left mr-2"></i> Previous
-                        </button>
-                        <button type="button" id="next-step-3" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
-                            Next: Review & Submit <i class="fas fa-arrow-right ml-2"></i>
+                <div class="flex flex-col md:flex-row md:items-center p-3 bg-white rounded border" style="border-color: #4CAF50;">
+                    <div class="font-medium md:w-1/4" style="color: #4CAF50;">Default Password:</div>
+                    <div class="md:w-3/4 flex items-center">
+                        <code class="px-2 py-1 rounded font-mono" style="background-color: #F5F5F5; color: #424242;">CLSU-scholar123</code>
+                        <button type="button" class="ml-2 px-2 py-1 rounded text-sm" style="background-color: #4CAF50; color: white;" onclick="copyPassword()">
+                            <i class="fas fa-copy mr-1"></i> Copy
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 4: Review & Submit -->
-                <fieldset id="step-4" class="step-content hidden" aria-labelledby="legend-step-4" role="region">
-                    <legend id="legend-step-4" class="text-xl font-semibold mb-4" style="color: #424242;">Review & Submit</legend>
-                    <div class="p-6 rounded-lg mb-6 border" style="background-color: #F5F5F5; border-color: #E0E0E0;">
-                        <h3 class="font-semibold mb-4" style="color: #424242;">Review Scholar Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-3">
-                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Basic Information</h4>
-                                <div class="flex justify-between"><span style="color: #616161;">Name:</span><span id="review-name" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Email:</span><span id="review-email" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Phone:</span><span id="review-phone" class="font-medium" style="color: #424242;">-</span></div>
-                            </div>
-                            <div class="space-y-3">
-                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Address</h4>
-                                <div class="flex justify-between"><span style="color: #616161;">Street:</span><span id="review-address" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">City:</span><span id="review-city" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Province:</span><span id="review-province" class="font-medium" style="color: #424242;">-</span></div>
-                            </div>
-                            <div class="space-y-3">
-                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Scholarship Details</h4>
-                                <div class="flex justify-between"><span style="color: #616161;">Degree Level:</span><span id="review-degree" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Major:</span><span id="review-major" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Status:</span><span id="review-status" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Start Date:</span><span id="review-start-date" class="font-medium" style="color: #424242;">-</span></div>
-                            </div>
-                            <div class="space-y-3">
-                                <h4 class="font-medium border-b pb-1" style="color: #424242;">Program Details</h4>
-                                <div class="flex justify-between"><span style="color: #616161;">Duration:</span><span id="review-duration" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Study Time:</span><span id="review-study-time" class="font-medium" style="color: #424242;">-</span></div>
-                                <div class="flex justify-between"><span style="color: #616161;">Enrollment:</span><span id="review-enrollment" class="font-medium" style="color: #424242;">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <button type="button" id="prev-step-4" class="px-6 py-2 text-white rounded-lg" style="background-color: #757575;">
-                            <i class="fas fa-arrow-left mr-2"></i> Previous
-                        </button>
-                        <button type="submit" class="px-6 py-2 text-white rounded-lg" style="background-color: #2E7D32;">
-                            <i class="fas fa-user-plus mr-2"></i> Create Scholar Account
-                        </button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+                <p class="text-sm mt-3" style="color: #4CAF50;">
+                    <i class="fas fa-exclamation-triangle mr-1" style="color: #4CAF50;"></i> Important: The scholar will receive instructions to set their password after account creation.
+                </p>
+            </div>
+
+            <!-- Step 1: Basic Information -->
+            <x-form-section title="Basic Information" step="0" 
+                icon='<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>'
+                description="Enter the scholar's personal information">
+                
+                @include('partials.personal-info-fields', ['scholarProfile' => null, 'includePhoto' => false])
+            </x-form-section>
+
+            <!-- Step 2: Address Information -->
+            <x-form-section title="Address Information" step="1"
+                icon='<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>'
+                description="Enter the scholar's address details">
+                
+                @include('partials.address-info-fields', ['scholarProfile' => null])
+            </x-form-section>
+
+            <!-- Step 3: Academic Information -->
+            <x-form-section title="Academic Information" step="2"
+                icon='<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>'
+                description="Enter academic and educational details">
+                
+                @include('partials.academic-info-fields', [
+                    'scholarProfile' => null, 
+                    'universities' => ['CLSU' => 'Central Luzon State University'], 
+                    'departments' => ['Graduate School' => 'Graduate School'],
+                    'isAdmin' => true
+                ])
+            </x-form-section>
+
+            <!-- Step 4: Scholarship Details -->
+            <x-form-section title="Scholarship Details" step="3"
+                icon='<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>'
+                description="Enter scholarship and program details">
+                
+                @include('partials.scholarship-details-fields', ['scholarProfile' => null, 'isAdmin' => true])
+            </x-form-section>
+
+            <!-- Step 5: Review & Submit -->
+            <x-form-section title="Review & Submit" step="4"
+                icon='<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>'
+                description="Review all information before creating the scholar profile">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-review-section title="Personal Information" :data="[]">
+                        <ul class="space-y-2" style="color: #757575;">
+                            <li><span class="font-semibold">Name:</span> <span id="review-name">-</span></li>
+                            <li><span class="font-semibold">Email:</span> <span id="review-email">-</span></li>
+                            <li><span class="font-semibold">Phone:</span> <span id="review-phone">-</span></li>
+                            <li><span class="font-semibold">Birth Date:</span> <span id="review-birth-date">-</span></li>
+                            <li><span class="font-semibold">Gender:</span> <span id="review-gender">-</span></li>
+                        </ul>
+                    </x-review-section>
+                    
+                    <x-review-section title="Address Information" :data="[]">
+                        <ul class="space-y-2" style="color: #757575;">
+                            <li><span class="font-semibold">Address:</span> <span id="review-address">-</span></li>
+
+                            <li><span class="font-semibold">Province:</span> <span id="review-province">-</span></li>
+                            <li><span class="font-semibold">Country:</span> <span id="review-country">-</span></li>
+                        </ul>
+                    </x-review-section>
+                    
+                    <x-review-section title="Academic Information" :data="[]">
+                        <ul class="space-y-2" style="color: #757575;">
+                            <li><span class="font-semibold">University:</span> <span id="review-university">-</span></li>
+                            <li><span class="font-semibold">Department:</span> <span id="review-department">-</span></li>
+                            <li><span class="font-semibold">Major:</span> <span id="review-major">-</span></li>
+                        </ul>
+                    </x-review-section>
+                    
+                    <x-review-section title="Scholarship Details" :data="[]">
+                        <ul class="space-y-2" style="color: #757575;">
+                            <li><span class="font-semibold">Status:</span> <span id="review-status">-</span></li>
+                            <li><span class="font-semibold">Start Date:</span> <span id="review-start-date">-</span></li>
+                        </ul>
+                    </x-review-section>
+                </div>
+                
+                <div class="flex items-center gap-2 text-sm mt-6" style="color: #757575;">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>The scholar will be created with the default password and can change it after first login.</span>
+                </div>
+            </x-form-section>
+        </x-multi-step-form>
     </div>
 </div>
 
-<!-- Scholar Account Creation Confirmation Modal -->
-<x-modal id="scholar-create-confirm-modal" :closeButton="false">
-    <x-slot name="title">Create Scholar Account?</x-slot>
-    <div>This will create a new scholar account with the provided information.</div>
-    <x-slot name="footer">
-        <x-button type="button" variant="secondary" onclick="closeModal('scholar-create-confirm-modal')">Cancel</x-button>
-        <x-button type="button" variant="success" id="confirm-create-scholar">Yes, create account!</x-button>
-    </x-slot>
-</x-modal>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Copy password function
+function copyPassword() {
+    navigator.clipboard.writeText('CLSU-scholar123').then(function() {
+        // Show success feedback
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+        setTimeout(() => {
+            button.innerHTML = originalText;
+        }, 2000);
+    });
+}
+
+// Update review section when form values change
 document.addEventListener('DOMContentLoaded', function() {
-    // Multi-step form functionality
-    const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
-    let currentStep = 0;
-
-    function showStep(stepIndex) {
-        steps.forEach((stepId, index) => {
-            const stepElement = document.getElementById(stepId);
-            if (index === stepIndex) {
-                stepElement.classList.remove('hidden');
-            } else {
-                stepElement.classList.add('hidden');
-            }
-        });
-        currentStep = stepIndex;
-    }
-
-    function validateStep1() {
-        const firstName = document.getElementById('first_name').value.trim();
-        const lastName = document.getElementById('last_name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const contactNumber = document.getElementById('contact_number').value.trim();
-
-        if (!firstName || !lastName || !email || !contactNumber) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Please fill in all required fields in Step 1.',
-                customClass: {
-                    confirmButton: 'swal-confirm-button'
-                },
-                showConfirmButton: true,
-                timer: undefined
-            });
-            return false;
-        }
-        return true;
-    }
-
-    function validateStep2() {
-        const address = document.getElementById('address').value.trim();
-        const city = document.getElementById('city').value.trim();
-        const province = document.getElementById('province').value.trim();
-        const postalCode = document.getElementById('postal_code').value.trim();
-
-        if (!address || !city || !province || !postalCode) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Please fill in all required fields in Step 2.',
-                customClass: {
-                    confirmButton: 'swal-confirm-button'
-                },
-                showConfirmButton: true,
-                timer: undefined
-            });
-            return false;
-        }
-        return true;
-    }
-
-    function validateStep3() {
-        const degreeLevel = document.getElementById('degree_level').value;
-        const major = document.getElementById('major').value;
-        const status = document.getElementById('status').value;
-        const startDate = document.getElementById('start_date').value;
-        const expectedCompletionDate = document.getElementById('expected_completion_date').value;
-        const scholarshipDuration = document.getElementById('scholarship_duration').value;
-        const enrollmentType = document.getElementById('enrollment_type').value;
-        const studyTime = document.getElementById('study_time').value;
-
-        if (!degreeLevel || !major || !status || !startDate || !expectedCompletionDate || !scholarshipDuration || !enrollmentType || !studyTime) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Please fill in all required fields in Step 3.',
-                customClass: {
-                    confirmButton: 'swal-confirm-button'
-                },
-                showConfirmButton: true,
-                timer: undefined
-            });
-            return false;
-        }
-        return true;
-    }
-
-    function updateReviewSection() {
-        // Basic Information
-        const firstName = document.getElementById('first_name').value;
-        const middleName = document.getElementById('middle_name').value;
-        const lastName = document.getElementById('last_name').value;
-        const fullName = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`;
-
-        document.getElementById('review-name').textContent = fullName;
-        document.getElementById('review-email').textContent = document.getElementById('email').value;
-        document.getElementById('review-phone').textContent = document.getElementById('contact_number').value;
-
-        // Address
-        document.getElementById('review-address').textContent = document.getElementById('address').value;
-        document.getElementById('review-city').textContent = document.getElementById('city').value;
-        document.getElementById('review-province').textContent = document.getElementById('province').value;
-
-        // Scholarship Details
-        document.getElementById('review-degree').textContent = document.getElementById('degree_level').value;
-        document.getElementById('review-major').textContent = document.getElementById('major').value;
-        document.getElementById('review-status').textContent = document.getElementById('status').value;
-        document.getElementById('review-start-date').textContent = document.getElementById('start_date').value;
-        document.getElementById('review-duration').textContent = document.getElementById('scholarship_duration').value + ' months';
-        document.getElementById('review-study-time').textContent = document.getElementById('study_time').value;
-        document.getElementById('review-enrollment').textContent = document.getElementById('enrollment_type').value;
-    }
-
-    // Step navigation
-    document.getElementById('next-step-1').addEventListener('click', function() {
-        if (validateStep1()) {
-            showStep(1);
-        }
-    });
-
-    document.getElementById('prev-step-2').addEventListener('click', function() {
-        showStep(0);
-    });
-
-    document.getElementById('next-step-2').addEventListener('click', function() {
-        if (validateStep2()) {
-            showStep(2);
-        }
-    });
-
-    document.getElementById('prev-step-3').addEventListener('click', function() {
-        showStep(1);
-    });
-
-    document.getElementById('next-step-3').addEventListener('click', function() {
-        if (validateStep3()) {
-            updateReviewSection();
-            showStep(3);
-        }
-    });
-
-    document.getElementById('prev-step-4').addEventListener('click', function() {
-        showStep(2);
-    });
-
-    // Form submission with confirmation
     const form = document.getElementById('multi-step-scholar-form');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        openModal('scholar-create-confirm-modal');
-    });
+    if (!form) return;
+    
+    function updateReview() {
+        // Personal Information
+        const firstName = document.querySelector('[name="first_name"]')?.value || '';
+        const middleName = document.querySelector('[name="middle_name"]')?.value || '';
+        const lastName = document.querySelector('[name="last_name"]')?.value || '';
+        const fullName = [firstName, middleName, lastName].filter(n => n).join(' ');
+        
+        document.getElementById('review-name').textContent = fullName || '-';
+        document.getElementById('review-email').textContent = document.querySelector('[name="email"]')?.value || '-';
+        document.getElementById('review-phone').textContent = document.querySelector('[name="contact_number"]')?.value || '-';
+        document.getElementById('review-birth-date').textContent = document.querySelector('[name="birth_date"]')?.value || '-';
+        document.getElementById('review-gender').textContent = document.querySelector('[name="gender"]')?.selectedOptions[0]?.text || '-';
+        
+        // Address Information
+        const street = document.querySelector('[name="street"]')?.value || '';
+        const village = document.querySelector('[name="village"]')?.value || '';
+        const fullAddress = [street, village].filter(a => a).join(', ');
+        document.getElementById('review-address').textContent = fullAddress || '-';
 
-    document.getElementById('confirm-create-scholar').addEventListener('click', function() {
-        // Create a hidden field with timestamp
-        const timestampField = document.createElement('input');
-        timestampField.type = 'hidden';
-        timestampField.name = 'submission_time';
-        timestampField.value = new Date().toISOString();
-        form.appendChild(timestampField);
-        closeModal('scholar-create-confirm-modal');
-        form.submit();
-    });
-
-    // Function to copy the default password to clipboard
-    window.copyPassword = function() {
-        const password = 'CLSU-scholar123';
-        // Create a temporary element
-        const tempElement = document.createElement('textarea');
-        tempElement.value = password;
-        document.body.appendChild(tempElement);
-        // Select and copy the text
-        tempElement.select();
-        document.execCommand('copy');
-        // Remove the temporary element
-        document.body.removeChild(tempElement);
-        // Show a tooltip or notification
-        Swal.fire({
-            icon: 'success',
-            title: 'Copied!',
-            text: 'Password copied to clipboard: ' + password,
-            timer: undefined,
-            showConfirmButton: true,
-            customClass: {
-                popup: 'swal-popup'
-            }
-        });
+        document.getElementById('review-province').textContent = document.querySelector('[name="province"]')?.value || '-';
+        document.getElementById('review-country').textContent = document.querySelector('[name="country"]')?.value || '-';
+        
+        // Academic Information
+        document.getElementById('review-university').textContent = document.querySelector('[name="intended_university"]')?.value || '-';
+        document.getElementById('review-department').textContent = document.querySelector('[name="department"]')?.value || '-';
+        document.getElementById('review-major').textContent = document.querySelector('[name="major"]')?.value || '-';
+        
+        // Scholarship Details
+        document.getElementById('review-status').textContent = document.querySelector('[name="status"]')?.selectedOptions[0]?.text || '-';
+        document.getElementById('review-start-date').textContent = document.querySelector('[name="start_date"]')?.value || '-';
     }
+    
+    // Update review when inputs change
+    form.addEventListener('input', updateReview);
+    form.addEventListener('change', updateReview);
+    
+    // Initial update
+    updateReview();
 });
 </script>
-
-<style>
-/* Global Typography Improvements */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    color: #424242;
-}
-
-/* SweetAlert Custom Styling */
-.swal-confirm-button {
-    background-color: #2E7D32 !important;
-    border: none !important;
-    border-radius: 0.375rem !important;
-    font-weight: 600 !important;
-    padding: 0.6em 2em !important;
-}
-
-.swal-popup {
-    border-radius: 0.75rem !important;
-    box-shadow: 0 4px 24px 0 rgba(46, 125, 50, 0.08);
-}
-
-/* Enhanced Button Styling */
-button, a {
-    transition: none !important;
-}
-
-/* Professional Shadow Effects */
-.shadow-sm {
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-}
-</style>
 @endsection

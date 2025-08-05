@@ -8,7 +8,7 @@
     <title>@yield('title', 'CLSU-ERDT')</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('images/erdt_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/CLSU-FAVICON.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -17,9 +17,7 @@
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @if(Auth::check() && Auth::user()->isScholar())
-        @vite(['resources/css/analytics.css'])
-    @else
+    @if(Auth::check() && Auth::user()->role !== 'scholar')
         @vite(['resources/css/admin-analytics.css'])
     @endif
     @yield('styles')
@@ -34,29 +32,29 @@
 
         /* Results info section */
         .pagination nav > div:first-child {
-            color: #4b5563 !important;
+            color: white !important;
         }
         .pagination nav > div:first-child > p {
             color: #6b7280 !important;
         }
         .pagination nav > div:first-child span {
-            color: #4f46e5 !important;
+            color: #16a34a !important;
             font-weight: 600 !important;
         }
 
         /* Pagination buttons */
         .pagination nav > div:last-child > * {
             background-color: #ffffff !important;
-            color: #4f46e5 !important;
-            border-color: #e0e7ff !important;
+            color: #16a34a !important;
+            border-color: #dcfce7 !important;
             font-weight: 500 !important;
         }
 
         /* Active page */
         .pagination nav > div:last-child > span[aria-current="page"] {
-            background-color: #4f46e5 !important;
+            background-color: #16a34a !important;
             color: #ffffff !important;
-            border-color: #4f46e5 !important;
+            border-color: #16a34a !important;
         }
 
         /* Disabled buttons */
@@ -93,7 +91,6 @@
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #1f2937;
             color: white;
             padding: 8px 12px;
             border-radius: 6px;
@@ -113,7 +110,7 @@
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid transparent;
-            border-top-color: #1f2937;
+    
             z-index: 1000;
         }
 
@@ -165,12 +162,34 @@
     <script>
         // Check if SweetAlert is loaded, if not load from CDN
         if (typeof window.Swal === 'undefined') {
-            console.log('Loading SweetAlert2 from CDN as fallback...');
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js';
             script.onload = function() {
                 window.Swal = Swal;
-                console.log('SweetAlert2 loaded from CDN');
+                // Initialize toast functions if not already available
+                if (typeof window.toast === 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    
+                    window.toast = {
+                        success: (message) => Toast.fire({ icon: 'success', title: message }),
+                        error: (message) => Toast.fire({ icon: 'error', title: message }),
+                        warning: (message) => Toast.fire({ icon: 'warning', title: message }),
+                        info: (message) => Toast.fire({ icon: 'info', title: message })
+                    };
+                }
+            };
+            script.onerror = function() {
+                console.warn('Failed to load SweetAlert2 from CDN');
             };
             document.head.appendChild(script);
         }
@@ -181,7 +200,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Wait for SweetAlert to be available
             function waitForSwal(callback) {
-                if (typeof window.toast !== 'undefined') {
+                if (typeof window.toast !== 'undefined' && typeof window.Swal !== 'undefined') {
                     callback();
                 } else {
                     setTimeout(() => waitForSwal(callback), 100);

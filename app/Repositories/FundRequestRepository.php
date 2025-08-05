@@ -57,7 +57,7 @@ class FundRequestRepository extends BaseRepository
      */
     public function getPendingRequests(): Collection
     {
-        return $this->model->where('status', 'pending')->get();
+        return $this->model->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->get();
     }
 
     /**
@@ -67,7 +67,7 @@ class FundRequestRepository extends BaseRepository
      */
     public function getApprovedRequests(): Collection
     {
-        return $this->model->where('status', 'approved')->get();
+        return $this->model->where('status', FundRequest::STATUS_APPROVED)->get();
     }
 
     /**
@@ -77,6 +77,6 @@ class FundRequestRepository extends BaseRepository
      */
     public function getRejectedRequests(): Collection
     {
-        return $this->model->where('status', 'rejected')->get();
+        return $this->model->where('status', FundRequest::STATUS_REJECTED)->get();
     }
 }

@@ -3,8 +3,12 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+/**
+ * @extends FormRequest
+ */
 class ScholarCreateRequest extends FormRequest
 {
     /**
@@ -22,19 +26,20 @@ class ScholarCreateRequest extends FormRequest
         }
 
         // Check if there's a logged-in user
-        if (!$this->user()) {
+        $user = Auth::user();
+        if (!$user) {
             $logMessage .= "UNAUTHORIZED: No authenticated user\n";
             file_put_contents($logPath, $logMessage, FILE_APPEND);
             return false;
         }
 
         // Log user info
-        $logMessage .= "User ID: " . $this->user()->id . "\n";
-        $logMessage .= "User Email: " . $this->user()->email . "\n";
-        $logMessage .= "User Role: " . $this->user()->role . "\n";
+        $logMessage .= "User ID: " . $user->id . "\n";
+        $logMessage .= "User Email: " . $user->email . "\n";
+        $logMessage .= "User Role: " . $user->role . "\n";
 
         // Only admin users can create scholars
-        $isAuthorized = $this->user() && $this->user()->role === 'admin';
+        $isAuthorized = $user && $user->role === 'admin';
         $logMessage .= "Authorization result: " . ($isAuthorized ? "AUTHORIZED" : "UNAUTHORIZED") . "\n";
         file_put_contents($logPath, $logMessage, FILE_APPEND);
 
@@ -71,7 +76,7 @@ class ScholarCreateRequest extends FormRequest
                 'max:20',
                 'regex:/^(\+?\d{1,3}[\s-]?)?(\(?\d{1,4}\)?[\s-]?)?\d{5,11}$/'
             ],
-            'address' => ['required', 'string', 'min:5', 'max:500'],
+
             'gender' => ['nullable', 'string', 'in:Male,Female,Other,Prefer not to say'],
             'birth_date' => [
                 'nullable',
@@ -81,59 +86,40 @@ class ScholarCreateRequest extends FormRequest
             ],
 
             // Academic information
-            'university' => ['required', 'string', 'max:255'],
+            'intended_university' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
-            'program' => ['required', 'string', 'max:255'],
-            'major' => ['required', 'string', 'max:255'],
-            'degree_level' => ['required', 'string', 'in:Masteral,PhD'],
+
+
             'enrollment_type' => ['required', 'string', 'in:New,Lateral'],
             'study_time' => ['required', 'string', 'in:Full-time,Part-time'],
             'scholarship_duration' => ['required', 'integer', 'min:1', 'max:60'],
             'status' => [
                 'required',
                 'string',
-                'in:New,Ongoing,On Extension,Graduated,Terminated,Deferred Repayment'
+                'in:Active,Graduated,Deferred,Dropped,Inactive'
             ],
             'start_date' => [
                 'required',
                 'date',
-                'after:'.Carbon::now()->subYears(10)->format('Y-m-d'), // Reasonable start date
-                'before:'.Carbon::now()->addYears(1)->format('Y-m-d'), // Can't be too far in the future
-            ],
-            'expected_completion_date' => [
-                'required',
-                'date',
-                'after:start_date',
-                'before:'.Carbon::now()->addYears(10)->format('Y-m-d'), // Reasonable completion date limit
+                'after:' . Carbon::now()->subYears(10)->format('Y-m-d'),
+                'before:' . Carbon::now()->addYear()->format('Y-m-d')
             ],
             'actual_completion_date' => [
                 'nullable',
                 'date',
-                'after:start_date',
-                'before:'.Carbon::now()->addYears(1)->format('Y-m-d'),
+                'before:'.Carbon::now()->addYears(8)->format('Y-m-d'),
             ],
 
-            // Previous education
-            'bachelor_degree' => ['nullable', 'string', 'max:255'],
-            'bachelor_university' => ['nullable', 'string', 'max:255'],
-
-            // Research information
-            'research_area' => ['nullable', 'string', 'max:255'],
-            'research_title' => ['nullable', 'string', 'max:255'],
-            'research_abstract' => ['nullable', 'string', 'max:5000'],
             'notes' => ['nullable', 'string', 'max:1000'],
 
             // Location information (optional)
+            'street' => ['nullable', 'string', 'max:255'],
+            'village' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'district' => ['nullable', 'string', 'max:255'],
+            'region' => ['nullable', 'string', 'max:255'],
             'province' => ['nullable', 'string', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
             'country' => ['nullable', 'string', 'max:255'],
-
-            // Additional information
-            'scholar_id' => ['nullable', 'string', 'max:50', 'unique:scholar_profiles,scholar_id'],
-            'degree_program' => ['nullable', 'string', 'max:255'],
-            'year_level' => ['nullable', 'integer', 'min:1', 'max:10'],
-            'admin_notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -145,9 +131,7 @@ class ScholarCreateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'contact_number' => 'phone number',
-            'bachelor_degree' => 'bachelor\'s degree',
-            'bachelor_university' => 'bachelor\'s university',
+            'contact_number' => 'phone number'
         ];
     }
 
@@ -168,10 +152,9 @@ class ScholarCreateRequest extends FormRequest
             'birth_date.after' => 'The birth date must be within the last 100 years.',
             'start_date.after' => 'The start date cannot be more than 10 years in the past.',
             'start_date.before' => 'The start date cannot be more than 1 year in the future.',
-            'expected_completion_date.after' => 'The expected completion date must be after the start date.',
-            'expected_completion_date.before' => 'The expected completion date cannot be more than 10 years in the future.',
+
             'actual_completion_date.after' => 'The actual completion date must be after the start date.',
-            'actual_completion_date.before' => 'The actual completion date cannot be more than 1 year in the future.',
+            'actual_completion_date.before' => 'The actual completion date cannot be more than 8 years in the future.',
         ];
     }
 
@@ -195,10 +178,11 @@ class ScholarCreateRequest extends FormRequest
         }
 
         // Log user info if authenticated
-        if ($this->user()) {
-            $logMessage .= "User ID: " . $this->user()->id . "\n";
-            $logMessage .= "User Email: " . $this->user()->email . "\n";
-            $logMessage .= "User Role: " . $this->user()->role . "\n";
+        $user = Auth::user();
+        if ($user) {
+            $logMessage .= "User ID: " . $user->id . "\n";
+            $logMessage .= "User Email: " . $user->email . "\n";
+            $logMessage .= "User Role: " . $user->role . "\n";
         } else {
             $logMessage .= "User: Not authenticated\n";
         }
@@ -207,7 +191,9 @@ class ScholarCreateRequest extends FormRequest
         $logMessage .= "Validation Errors: " . json_encode($validator->errors()->toArray()) . "\n";
 
         // Log the submitted data
-        $logMessage .= "Submitted Data: " . json_encode($this->except(['password', '_token'])) . "\n";
+        $submittedData = request()->all();
+        unset($submittedData['password'], $submittedData['_token']);
+        $logMessage .= "Submitted Data: " . json_encode($submittedData) . "\n";
 
         file_put_contents($logPath, $logMessage, FILE_APPEND);
 

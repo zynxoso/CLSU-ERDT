@@ -70,12 +70,16 @@
     </div>
 </div>
 @endif
-
-<!-- Top Navigation Bar -->
-<div class="bg-white  mb-6 -mt-8 -mx-8 px-4 py-4">
-    <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-800 ml-1">Dashboard</h1>
-        <div class="flex items-center space-x-4">
+    
+<!-- Header Section -->
+<div class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-600 mt-1">Welcome back, {{ Auth::user()->name }}</p>
+            </div>
+            <div class="flex items-center space-x-4">
             <!-- Unified Notification Dropdown -->
             <div class="relative" x-data="{ open: false, notificationCount: {{ count($notifications->where('is_read', false)) }} }">
                 <button @click="open = !open" class="relative p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -246,7 +250,7 @@
     </div>
 </div>
 
-<h1 class="text-2xl font-bold text-gray-800 mb-6">Welcome, {{ Auth::user()->name }}</h1>
+<div class="container mx-auto px-4 py-8">
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
     <!-- Quick Actions -->
@@ -343,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     async function fetchStatusUpdates() {
         try {
-            const response = await fetch('/api/scholar/status-updates', {
+            const response = await fetch('/scholar/status-updates', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -469,4 +473,6 @@ document.addEventListener('DOMContentLoaded', function() {
     background-color: #f8fafc;
 }
 </style>
+
+</div> <!-- End container -->
 @endsection

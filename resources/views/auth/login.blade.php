@@ -6,10 +6,10 @@
 
 
     <!-- Main Content -->
-    <div class="flex-grow flex flex-col md:flex-row  md:p-8 container mx-auto">
+    <div class="flex-grow flex flex-center justify-center min-h-screen  md:p-8 container mx-auto">
         <!-- Login Form Section -->
-        <div class="w-full md:mb-0 flex justify-center">
-            <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md mt-6">
+        <div class="w-full md:mb-0 flex justify-center items-center">
+            <div class="bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full max-w-md">
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     @if (session('status'))
                         <div class="mb-4 p-3 bg-clsu-green text-white rounded-md text-sm">
@@ -154,15 +154,6 @@
                                class="h-4 w-4 text-clsu-green focus:ring-clsu-green border-gray-300 rounded">
                         <span class="ml-2 text-sm text-gray-700">Remember me</span>
                     </label>
-
-                    @if (Route::has('password.request'))
-                    <div class="text-sm">
-                        <a href="{{ route('password.request') }}"
-                           class="font-medium text-clsu-green hover:text-green-700 transition-colors duration-200">
-                            Forgot password?
-                        </a>
-                    </div>
-                    @endif
                 </div>
 
                 <div>
