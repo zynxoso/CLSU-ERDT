@@ -206,18 +206,6 @@ The project follows an Agile methodology with:
    php artisan serve
    ```
 
-### Default Credentials
-
-After seeding, you can log in with these default accounts:
-
-**Admin:**
-- Email: admin@clsu-erdt.edu.ph
-- Password: password
-
-**Scholar (test account):**
-- Email: scholar@example.com
-- Password: password
-
 ## Additional Resources
 
 - Laravel Documentation: [https://laravel.com/docs](https://laravel.com/docs)
