@@ -128,7 +128,7 @@ class FundRequestManagement extends Component
 
     public function getFilteredFundRequestsProperty()
     {
-        $query = FundRequest::with(['scholarProfile.user', 'documents']);
+        $query = FundRequest::withBasicRelations();
 
         // Filter by status
         if ($this->status) {

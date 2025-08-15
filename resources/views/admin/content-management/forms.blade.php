@@ -3,7 +3,7 @@
 @section('title', 'Downloadable Forms Management')
 
 @section('content')
-<div style="background-color: #FAFAFA; min-height: 100vh; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+<div class="bg-gray-50 min-h-screen font-sans">
     <div class="container mx-auto px-6 py-8">
         <!-- Breadcrumb Navigation -->
         <nav class="mb-6">
@@ -19,12 +19,12 @@
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold mb-2" style="color: #212121;">Downloadable Forms Management</h1>
-                <p class="text-lg" style="color: #424242;">Upload and manage forms available for download by scholars and applicants</p>
+                <h1 class="text-3xl font-bold mb-2" style="color: rgb(23 23 23);">Downloadable Forms Management</h1>
+                <p class="text-lg" style="color: rgb(64 64 64);">Upload and manage forms available for download by scholars and applicants</p>
             </div>
             <button onclick="openAddFormModal()" 
                     class="btn btn-primary inline-flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-md"
-                    style="background-color: #7B1FA2; color: white;">
+                    style="background-color: #7B1FA2; color: rgb(255 255 255);">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -32,65 +32,6 @@
             </button>
         </div>
 
-        <!-- Search and Filter Section -->
-        <div class="bg-white rounded-lg shadow-md mb-6">
-            <div class="p-6">
-                <form method="GET" action="{{ route('admin.content-management.index', ['tab' => 'forms']) }}" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Search Input -->
-                        <div>
-                            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Forms</label>
-                            <input type="text" 
-                                   id="search" 
-                                   name="search" 
-                                   value="{{ $searchTerm }}" 
-                                   placeholder="Search by title or description..." 
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        </div>
-                        
-                        <!-- Category Filter -->
-                        <div>
-                            <label for="filter_category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                            <select id="filter_category" 
-                                    name="filter_category" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                <option value="">All Categories</option>
-                                @if(isset($formCategories))
-                                    @foreach($formCategories as $category)
-                                        <option value="{{ $category }}" {{ $filterCategory === $category ? 'selected' : '' }}>
-                                            {{ ucfirst($category) }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        
-                        <!-- Status Filter -->
-                        <div>
-                            <label for="filter_status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select id="filter_status" 
-                                    name="filter_status" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                <option value="">All Status</option>
-                                <option value="active" {{ $filterStatus === 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ $filterStatus === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-3">
-                        <a href="{{ route('admin.content-management.index', ['tab' => 'forms']) }}" 
-                           class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                            Clear
-                        </a>
-                        <button type="submit" 
-                                class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                            Search
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         <!-- Forms Table -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -211,31 +152,12 @@ nav ol li a:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Card styling */
-.bg-white {
-    transition: all 0.3s ease;
-}
 
-/* Modal styling */
-.modal-overlay {
-    backdrop-filter: blur(4px);
-}
-
-/* Form styling */
-.form-input:focus {
-    border-color: #7B1FA2;
-    box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
-}
-
-/* Toggle switch styling */
-.toggle-switch {
-    transition: all 0.3s ease;
-}
 
 /* File upload styling */
 input[type="file"]::-webkit-file-upload-button {
     background: #7B1FA2;
-    color: white;
+    color: rgb(255 255 255);
     border: none;
     padding: 8px 16px;
     border-radius: 4px;
@@ -489,49 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Search functionality
-    const searchInput = document.getElementById('search');
-    const categoryFilter = document.getElementById('filter_category');
-    const statusFilter = document.getElementById('filter_status');
-    
-    function filterForms() {
-        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-        const categoryValue = categoryFilter ? categoryFilter.value : '';
-        const statusValue = statusFilter ? statusFilter.value : '';
-        const formRows = document.querySelectorAll('tbody tr');
-        
-        formRows.forEach(row => {
-            if (row.querySelector('td[colspan]')) return; // Skip empty state row
-            
-            const titleElement = row.querySelector('.text-sm.font-medium');
-            const descriptionElement = row.querySelector('.text-sm.text-gray-500');
-            const categoryElement = row.querySelector('.inline-flex.items-center');
-            const statusElement = row.querySelector('input[type="checkbox"]');
-            
-            if (!titleElement) return;
-            
-            const title = titleElement.textContent.toLowerCase();
-            const description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
-            const category = categoryElement ? categoryElement.textContent.toLowerCase().trim() : '';
-            const isActive = statusElement ? statusElement.checked : false;
-            
-            const matchesSearch = searchTerm === '' || title.includes(searchTerm) || description.includes(searchTerm);
-            const matchesCategory = categoryValue === '' || category.includes(categoryValue.toLowerCase());
-            const matchesStatus = statusValue === '' || 
-                (statusValue === 'active' && isActive) ||
-                (statusValue === 'inactive' && !isActive);
-            
-            if (matchesSearch && matchesCategory && matchesStatus) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
-    
-    if (searchInput) searchInput.addEventListener('input', filterForms);
-    if (categoryFilter) categoryFilter.addEventListener('change', filterForms);
-    if (statusFilter) statusFilter.addEventListener('change', filterForms);
+
     
     // File validation
     const fileInput = document.getElementById('file');

@@ -114,7 +114,8 @@ class ManuscriptController extends Controller
         $normalizedAbstract = strtolower(trim($validated['abstract']));
 
         // Check for recent similar manuscripts by the same scholar within last 30 days
-        $recentSimilar = Manuscript::where('scholar_profile_id', $scholarProfile->id)
+        $recentSimilar = Manuscript::withBasicRelations()
+            ->where('scholar_profile_id', $scholarProfile->id)
             ->where(function ($query) use ($normalizedTitle, $normalizedAbstract) {
                 $query->whereRaw('LOWER(TRIM(title)) = ?', [$normalizedTitle])
                     ->orWhereRaw('LOWER(abstract) LIKE ?', ['%' . $normalizedAbstract . '%']);
@@ -135,7 +136,7 @@ class ManuscriptController extends Controller
         $manuscript->manuscript_type = $validated['manuscript_type'];
         $manuscript->co_authors = $validated['co_authors'];
         $manuscript->keywords = $validated['keywords'] ?? null;
-        $manuscript->status = 'Draft';
+        $manuscript->status = 'Submitted';
         $manuscript->save();
 
         // Generate reference number after saving
@@ -183,7 +184,7 @@ class ManuscriptController extends Controller
     public function scholarShow($id)
     {
         $user = Auth::user();
-        $manuscript = Manuscript::findOrFail($id);
+        $manuscript = Manuscript::withFullRelations()->findOrFail($id);
 
         // Check if user is a scholar
         if ($user->role !== 'scholar') {
@@ -208,7 +209,7 @@ class ManuscriptController extends Controller
     public function scholarEdit($id)
     {
         $user = Auth::user();
-        $manuscript = Manuscript::findOrFail($id);
+        $manuscript = Manuscript::withFullRelations()->findOrFail($id);
 
         // Check if user is a scholar
         if ($user->role !== 'scholar') {
@@ -221,10 +222,10 @@ class ManuscriptController extends Controller
                 ->with('error', 'You are not authorized to edit this manuscript');
         }
 
-        // Only Draft or Revision Requested manuscripts can be edited
-        if (!in_array(strtolower($manuscript->status), ['draft', 'revision requested'])) {
+        // Only Revision Requested manuscripts can be edited
+        if (strtolower($manuscript->status) !== 'revision requested') {
             return redirect()->route('scholar.manuscripts.show', $manuscript->id)
-                ->with('error', 'Only draft or manuscripts requiring revision can be edited');
+                ->with('error', 'Only manuscripts requiring revision can be edited');
         }
 
         return view('scholar.manuscripts.edit', compact('manuscript'));
@@ -247,7 +248,7 @@ class ManuscriptController extends Controller
             ]);
 
             $user = Auth::user();
-            $manuscript = Manuscript::findOrFail($id);
+            $manuscript = Manuscript::withFullRelations()->findOrFail($id);
 
             // Check if user is a scholar
             if ($user->role !== 'scholar') {
@@ -266,14 +267,14 @@ class ManuscriptController extends Controller
                     ->with('error', 'You are not authorized to update this manuscript');
             }
 
-            // Only draft or revision_required manuscripts can be updated
-            if (!in_array(strtolower($manuscript->status), ['draft', 'revision requested'])) {
+            // Only revision_required manuscripts can be updated
+            if (strtolower($manuscript->status) !== 'revision requested') {
                 \Illuminate\Support\Facades\Log::warning('Unauthorized update attempt - wrong status', [
                     'manuscript_id' => $id,
                     'current_status' => $manuscript->status
                 ]);
                 return redirect()->route('scholar.manuscripts.show', $manuscript->id)
-                    ->with('error', 'Only draft or manuscripts requiring revision can be updated');
+                    ->with('error', 'Only manuscripts requiring revision can be updated');
             }
 
             $validated = $request->validate([
@@ -392,10 +393,10 @@ class ManuscriptController extends Controller
                 ->with('error', 'You are not authorized to delete this manuscript');
         }
 
-        // Only draft manuscripts can be deleted
-        if ($manuscript->status !== 'Draft') {
+        // Manuscripts cannot be deleted once submitted
+        if ($manuscript->status === 'Submitted') {
             return redirect()->route('scholar.manuscripts.show', $manuscript->id)
-                ->with('error', 'Only draft manuscripts can be deleted');
+                ->with('error', 'Submitted manuscripts cannot be deleted');
         }
 
         $oldValues = $manuscript->toArray();

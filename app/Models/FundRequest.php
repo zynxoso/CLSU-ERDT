@@ -14,7 +14,6 @@ class FundRequest extends Model
     use HasFactory, Auditable;
 
     // Status constants
-    public const STATUS_DRAFT = 'Draft';
     public const STATUS_SUBMITTED = 'Submitted';
     public const STATUS_UNDER_REVIEW = 'Under Review';
     public const STATUS_APPROVED = 'Approved';
@@ -23,7 +22,6 @@ class FundRequest extends Model
 
     // Valid statuses array
     public const VALID_STATUSES = [
-        self::STATUS_DRAFT,
         self::STATUS_SUBMITTED,
         self::STATUS_UNDER_REVIEW,
         self::STATUS_APPROVED,
@@ -33,7 +31,6 @@ class FundRequest extends Model
 
     // Status progression mapping
     public const STATUS_PROGRESSION = [
-        self::STATUS_DRAFT => [self::STATUS_SUBMITTED],
         self::STATUS_SUBMITTED => [self::STATUS_UNDER_REVIEW, self::STATUS_APPROVED, self::STATUS_REJECTED],
         self::STATUS_UNDER_REVIEW => [self::STATUS_APPROVED, self::STATUS_REJECTED],
         self::STATUS_APPROVED => [self::STATUS_COMPLETED],
@@ -52,18 +49,12 @@ class FundRequest extends Model
         'reference_number',
         'amount',
         'purpose',
-        'details',
         'status',
         'status_history',
-        'rejection_reason',
+        'admin_remarks',
         'reviewed_by',
         'reviewed_at',
-        'bank_account_number',
-        'bank_name',
-        'account_holder_name',
-        'routing_number',
-        'tax_identification_number',
-        'amount_breakdown',
+        'rejection_reason',
     ];
 
     /**
@@ -234,6 +225,40 @@ class FundRequest extends Model
     public function documents()
     {
         return $this->hasMany(Document::class);
+    }
+
+    /**
+     * Get the manuscript created from this fund request.
+     */
+    public function manuscript()
+    {
+        return $this->hasOne(Manuscript::class);
+    }
+
+    /**
+     * Scope to eager load all common relationships
+     */
+    public function scopeWithFullRelations($query)
+    {
+        return $query->with([
+            'scholarProfile.user',
+            'requestType',
+            'documents',
+            'disbursements',
+            'reviewedBy'
+        ]);
+    }
+
+    /**
+     * Scope to eager load basic relationships
+     */
+    public function scopeWithBasicRelations($query)
+    {
+        return $query->with([
+            'scholarProfile.user',
+            'requestType',
+            'documents'
+        ]);
     }
 
     /**

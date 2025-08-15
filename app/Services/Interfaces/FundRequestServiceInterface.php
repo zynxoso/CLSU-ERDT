@@ -105,4 +105,13 @@ interface FundRequestServiceInterface
      * @return array|null Returns error array if validation fails, null if passes
      */
     public function validateFundRequestAmount(int $requestTypeId, float $amount, ?string $degreeLevel): ?array;
+
+    /**
+     * Check for active duplicate fund requests
+     *
+     * @param int $scholarProfileId
+     * @param int $requestTypeId
+     * @return array|null Returns error array if duplicate found, null if no duplicates
+     */
+    public function checkForActiveDuplicateRequest(int $scholarProfileId, int $requestTypeId): ?array;
 }

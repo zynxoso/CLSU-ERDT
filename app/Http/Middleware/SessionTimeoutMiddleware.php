@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Services\SessionManagementService;
 use Symfony\Component\HttpFoundation\Response;
 
 class SessionTimeoutMiddleware
@@ -17,47 +18,31 @@ class SessionTimeoutMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $sessionService = app(SessionManagementService::class);
         $isWebAuthenticated = Auth::guard('web')->check();
         $isScholarAuthenticated = Auth::guard('scholar')->check();
         
         // Check if any user is authenticated
         if ($isWebAuthenticated || $isScholarAuthenticated) {
-            $lastActivity = Session::get('last_activity');
-            $sessionLifetime = config('session.lifetime') * 60; // Convert minutes to seconds
-            
-            // If last activity exists and session has expired
-            if ($lastActivity && (time() - $lastActivity) > $sessionLifetime) {
-                // Determine user type before logout
-                $isScholar = false;
-                $isAdmin = false;
+            // Check if session is still valid
+            if (!$sessionService->isSessionValid()) {
+                // Handle session timeout using the service
+                $timeoutResult = $sessionService->handleSessionTimeout($request);
                 
-                if ($isWebAuthenticated) {
-                    $user = Auth::guard('web')->user();
-                    $isAdmin = $user && in_array($user->role, ['admin', 'super_admin']);
-                } elseif ($isScholarAuthenticated) {
-                    $user = Auth::guard('scholar')->user();
-                    $isScholar = true; // User was authenticated via scholar guard
-                }
-                
-                // Clear all authentication sessions and session data
-                Auth::guard('web')->logout();
-                Auth::guard('scholar')->logout();
-                Session::invalidate();
-                Session::regenerateToken();
-                Session::flush();
-                
-                // Redirect to login with timeout message
+                // Return appropriate response based on request type
                 if ($request->expectsJson()) {
-                    return response()->json(['message' => 'Session expired'], 401);
+                    return response()->json([
+                        'message' => $timeoutResult['message'],
+                        'redirect' => route($timeoutResult['route'])
+                    ], 401);
                 }
                 
-                // Redirect to appropriate login page based on user type
-                $loginRoute = $isScholar ? 'scholar-login' : 'login';
-                return redirect()->route($loginRoute)->with('error', 'Your session has expired. Please login again.');
+                return redirect()->route($timeoutResult['route'])
+                    ->with('error', $timeoutResult['message']);
             }
             
             // Update last activity timestamp
-            Session::put('last_activity', time());
+            $sessionService->updateLastActivity();
         }
         
         return $next($request);

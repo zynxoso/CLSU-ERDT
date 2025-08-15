@@ -17,8 +17,8 @@ class DownloadableFormController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('role:super_admin')->except(['index', 'download']);
+        // Route-level middleware handles auth/authorization.
+        // Super admin routes are protected in routes/web.php by the SuperAdminMiddleware.
     }
 
     /**

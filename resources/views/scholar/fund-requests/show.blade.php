@@ -11,7 +11,7 @@
             </div>
 
             <!-- Request Progress -->
-            @if ($fundRequest->status != 'Draft' && $fundRequest->status != 'Rejected')
+            @if ($fundRequest->status != 'Submitted' && $fundRequest->status != 'Rejected')
                 <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-6 p-6">
                     <!-- Progress Header -->
                     <div class="mb-6">
@@ -44,12 +44,12 @@
                             <div class="flex flex-col items-center">
                                 <div
                                     class="w-6 h-6 rounded-full border-2 flex items-center justify-center bg-white
-                            {{ in_array($fundRequest->status, ['Submitted', 'Under Review', 'Approved']) ? 'border-[#4CAF50] bg-[#4CAF50]' : 'border-gray-300' }}">
+                            {{ in_array($fundRequest->status, ['Submitted', 'Under Review', 'Approved']) ? 'border-primary-500 bg-primary-500' : 'border-gray-300' }}">
                                     <i
                                         class="fas fa-paper-plane text-xs {{ in_array($fundRequest->status, ['Submitted', 'Under Review', 'Approved']) ? 'text-white' : 'text-gray-400' }}"></i>
                                 </div>
                                 <span
-                                    class="text-xs mt-2 font-medium {{ in_array($fundRequest->status, ['Submitted', 'Under Review', 'Approved']) ? 'text-[#4CAF50]' : 'text-gray-400' }}">
+                                    class="text-xs mt-2 font-medium {{ in_array($fundRequest->status, ['Submitted', 'Under Review', 'Approved']) ? 'text-primary-500' : 'text-gray-400' }}">
                                     Submitted
                                 </span>
                             </div>
@@ -59,9 +59,9 @@
                                 <div
                                     class="w-6 h-6 rounded-full border-2 flex items-center justify-center bg-white
                             {{ $fundRequest->status == 'Under Review'
-                                ? 'border-[#FFCA28] bg-[#FFCA28]'
+                                ? 'border-warning-400 bg-warning-400'
                                 : ($fundRequest->status == 'Approved'
-                                    ? 'border-[#4CAF50] bg-[#4CAF50]'
+                                    ? 'border-primary-500 bg-primary-500'
                                     : 'border-gray-300') }}">
                                     <i
                                         class="fas fa-search text-xs {{ $fundRequest->status == 'Under Review'
@@ -72,9 +72,9 @@
                                 </div>
                                 <span
                                     class="text-xs mt-2 font-medium {{ $fundRequest->status == 'Under Review'
-                                        ? 'text-[#FFCA28]'
+                                        ? 'text-warning-400'
                                         : ($fundRequest->status == 'Approved'
-                                            ? 'text-[#4CAF50]'
+                                            ? 'text-primary-500'
                                             : 'text-gray-400') }}">
                                     Under Review
                                 </span>
@@ -84,12 +84,12 @@
                             <div class="flex flex-col items-center">
                                 <div
                                     class="w-6 h-6 rounded-full border-2 flex items-center justify-center bg-white
-                            {{ $fundRequest->status == 'Approved' ? 'border-[#4CAF50] bg-[#4CAF50]' : 'border-gray-300' }}">
+                            {{ $fundRequest->status == 'Approved' ? 'border-primary-500 bg-primary-500' : 'border-gray-300' }}">
                                     <i
                                         class="fas fa-check text-xs {{ $fundRequest->status == 'Approved' ? 'text-white' : 'text-gray-400' }}"></i>
                                 </div>
                                 <span
-                                    class="text-xs mt-2 font-medium {{ $fundRequest->status == 'Approved' ? 'text-[#4CAF50]' : 'text-gray-400' }}">
+                                    class="text-xs mt-2 font-medium {{ $fundRequest->status == 'Approved' ? 'text-primary-500' : 'text-gray-400' }}">
                                     Approved
                                 </span>
                             </div>
@@ -100,13 +100,13 @@
                     {{-- <div class="bg-gray-50 rounded-lg p-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="w-3 h-3 rounded-full {{ $fundRequest->status == 'Approved' ? 'bg-[#4CAF50]' : 'bg-[#FFCA28]' }}"></div>
+                            <div class="w-3 h-3 rounded-full {{ $fundRequest->status == 'Approved' ? 'bg-primary-500' : 'bg-warning-400' }}"></div>
                             <div>
                                 <span class="text-sm text-gray-600">Current Status: </span>
                                 <span class="font-semibold px-3 py-1 rounded-full text-sm
-                                    {{ $fundRequest->status == 'Approved' ? 'bg-[#4CAF50]/20 text-[#2E7D32]' :
-                                    ($fundRequest->status == 'Under Review' ? 'bg-[#FFCA28]/25 text-[#975A16]' :
-                                    'bg-[#4A90E2]/10 text-[#4A90E2]') }}">
+                                    {{ $fundRequest->status == 'Approved' ? 'bg-primary-500/20 text-primary-800' :
+                                    ($fundRequest->status == 'Under Review' ? 'bg-warning-400/25 text-warning-700' :
+                                    'bg-secondary-500/10 text-secondary-500') }}">
                                     {{ $fundRequest->status }}
                                 </span>
                             </div>
@@ -136,7 +136,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-lg flex items-center justify-center"
-                                style="background-color: #4CAF50;">
+                                style="background-color: rgb(34 197 94);">
                                 <i class="fas fa-file-invoice-dollar text-lg text-white"></i>
                             </div>
                             <div>
@@ -153,10 +153,10 @@
                                 <span x-text="showDetails ? 'Hide Details' : 'Show Details'"></span>
                             </button>
 
-                            @if ($fundRequest->status == 'Draft')
+                            @if ($fundRequest->status == 'Submitted')
                                 <button @click="editMode = !editMode"
                                     class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 border"
-                                    style="background-color: #FFCA28; color: white; border-color: #FFB300;"
+                                    style="background-color: rgb(251 191 36); color: rgb(255 255 255); border-color: rgb(245 158 11);"
                                     onmouseover="this.style.backgroundColor='#FFB300'"
                                     onmouseout="this.style.backgroundColor='#FFCA28'">
                                     <i class="fas fa-edit mr-2 text-white"></i>
@@ -174,23 +174,23 @@
                         <span
                             class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                         {{ $fundRequest->status == 'Approved'
-                            ? 'bg-[#4CAF50]/10 text-[#4CAF50] border border-[#4CAF50]/20'
+                            ? 'bg-primary-500/10 text-primary-500 border border-primary-500/20'
                             : ($fundRequest->status == 'Under Review'
-                                ? 'bg-[#FFCA28]/10 text-[#FFCA28] border border-[#FFCA28]/20'
+                                ? 'bg-warning-400/10 text-warning-400 border border-warning-400/20'
                                 : ($fundRequest->status == 'Submitted'
-                                    ? 'bg-[#4A90E2]/10 text-[#4A90E2] border border-[#4A90E2]/20'
-                                    : ($fundRequest->status == 'Draft'
+                                    ? 'bg-secondary-500/10 text-secondary-500 border border-secondary-500/20'
+                                    : ($fundRequest->status == 'Submitted'
                                         ? 'bg-gray-100 text-gray-800 border border-gray-200'
                                         : 'bg-red-100 text-red-800 border border-red-200'))) }}">
                             <div
                                 class="w-2 h-2 rounded-full mr-2
                             {{ $fundRequest->status == 'Approved'
-                                ? 'bg-[#4CAF50]'
+                                ? 'bg-primary-500'
                                 : ($fundRequest->status == 'Under Review'
-                                    ? 'bg-[#FFCA28]'
+                                    ? 'bg-warning-400'
                                     : ($fundRequest->status == 'Submitted'
-                                        ? 'bg-[#4A90E2]'
-                                        : ($fundRequest->status == 'Draft'
+                                        ? 'bg-secondary-500'
+                                        : ($fundRequest->status == 'Submitted'
                                             ? 'bg-gray-600'
                                             : 'bg-red-600'))) }}">
                             </div>
@@ -213,11 +213,11 @@
 
                             <!-- Date Requested Card -->
                             <div class="rounded-lg p-4 border"
-                                style="background-color: #4CAF50; background-color: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.2);">
+                                style="background-color: rgb(34 197 94); background-color: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.2);">
                                 <div class="flex items-center justify-between mb-2">
                                     <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Date Requested
                                     </h3>
-                                    <i class="fas fa-calendar-alt" style="color: #4CAF50;"></i>
+                                    <i class="fas fa-calendar-alt" style="color: rgb(34 197 94);"></i>
                                 </div>
                                 <p class="text-xl font-bold text-gray-800">
                                     {{ $fundRequest->created_at->format('M d, Y'), $fundRequest->created_at->diffForHumans() }}
@@ -234,16 +234,16 @@
                                 <div class="flex items-center justify-between mb-2">
                                     <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Requested Amount
                                     </h3>
-                                    <i class="fas fa-peso-sign" style="color: #4CAF50;"></i>
+                                    <i class="fas fa-peso-sign" style="color: rgb(34 197 94);"></i>
                                 </div>
                                 <div x-show="!editMode">
-                                    <p class="text-3xl font-bold" style="color: #4CAF50;">
+                                    <p class="text-3xl font-bold" style="color: rgb(34 197 94);">
                                         ₱{{ number_format($fundRequest->amount, 2) }}</p>
                                 </div>
                                 <div x-show="editMode" x-transition>
                                     <input type="number" x-model="requestData.amount"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-gray-300"
-                                        style="focus:ring-color: #4CAF50; focus:border-color: #4CAF50;" step="0.01">
+                                        style="focus:ring-color: rgb(34 197 94); focus:border-color: rgb(34 197 94);" step="0.01">
                                 </div>
                             </div>
 
@@ -252,7 +252,7 @@
                                 style="background-color: rgba(255, 202, 40, 0.1); border-color: rgba(255, 179, 0, 0.2);">
                                 <div class="flex items-center justify-between mb-2">
                                     <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Purpose</h3>
-                                    <i class="fas fa-bullseye" style="color: #FFCA28;"></i>
+                                    <i class="fas fa-bullseye" style="color: rgb(251 191 36);"></i>
                                 </div>
                                 <div x-show="!editMode">
                                     <p class="text-lg font-semibold text-gray-800">{{ $fundRequest->purpose }}</p>
@@ -260,7 +260,7 @@
                                 <div x-show="editMode" x-transition>
                                     <input type="text" x-model="requestData.purpose"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-gray-300"
-                                        style="focus:ring-color: #4CAF50; focus:border-color: #4CAF50;">
+                                        style="focus:ring-color: rgb(34 197 94); focus:border-color: rgb(34 197 94);">
                                 </div>
                             </div>
                         </div>
@@ -281,7 +281,7 @@
                             <div x-show="editMode" x-transition>
                                 <textarea x-model="requestData.details" rows="4"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-gray-300 resize-none"
-                                    style="focus:ring-color: #4CAF50; focus:border-color: #4CAF50;"
+                                    style="focus:ring-color: rgb(34 197 94); focus:border-color: rgb(34 197 94);"
                                     placeholder="Provide additional details about your request..."></textarea>
                             </div>
                         </div>
@@ -294,7 +294,7 @@
                             Cancel
                         </button>
                         <button class="px-6 py-2 text-white rounded-lg transition-colors duration-200"
-                            style="background-color: #4CAF50;" onmouseover="this.style.backgroundColor='#388E3C'"
+                            style="background-color: rgb(34 197 94);" onmouseover="this.style.backgroundColor='#388E3C'"
                             onmouseout="this.style.backgroundColor='#4CAF50'">
                             <i class="fas fa-save mr-2"></i>
                             Save Changes
@@ -335,7 +335,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-lg flex items-center justify-center"
-                                style="background-color: #4CAF50;">
+                                style="background-color: rgb(34 197 94);">
                                 <i class="fas fa-file-alt text-lg text-white"></i>
                             </div>
                             <div>
@@ -359,10 +359,10 @@
                                 <span x-text="showDocuments ? 'Hide Documents' : 'Show Documents'"></span>
                             </button>
 
-                            @if ($fundRequest->status == 'Draft')
+                            @if ($fundRequest->status == 'Submitted')
                                 <button @click="uploadMode = !uploadMode"
                                     class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 border text-white"
-                                    style="background-color: #4CAF50; border-color: #388E3C;"
+                                    style="background-color: rgb(34 197 94); border-color: rgb(21 128 61);"
                                     onmouseover="this.style.backgroundColor='#388E3C'"
                                     onmouseout="this.style.backgroundColor='#4CAF50'">
                                     <i class="fas fa-upload mr-2 text-white"></i>
@@ -377,18 +377,18 @@
                 <div x-show="uploadMode" x-transition class="border-b border-gray-200 bg-gray-50">
                     <div class="p-6">
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center transition-colors duration-200"
-                            style="hover:border-color: #4CAF50;" onmouseover="this.style.borderColor='#4CAF50'"
+                            style="hover:border-color: rgb(34 197 94);" onmouseover="this.style.borderColor='#4CAF50'"
                             onmouseout="this.style.borderColor='#d1d5db'">
                             <div class="flex flex-col items-center">
                                 <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                                    style="background-color: #4CAF50;">
+                                    style="background-color: rgb(34 197 94);">
                                     <i class="fas fa-cloud-upload-alt text-white text-2xl"></i>
                                 </div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Upload Supporting Documents</h3>
                                 <p class="text-gray-600 mb-4">Drag and drop files here, or click to browse</p>
                                 <div class="flex items-center space-x-4">
                                     <button class="px-6 py-2 text-white rounded-lg transition-colors duration-200"
-                                        style="background-color: #4CAF50;"
+                                        style="background-color: rgb(34 197 94);"
                                         onmouseover="this.style.backgroundColor='#388E3C'"
                                         onmouseout="this.style.backgroundColor='#4CAF50'">
                                         <i class="fas fa-folder-open mr-2"></i>
@@ -438,7 +438,7 @@
                                         <div class="flex items-center space-x-2">
                                             <button @click="selectedDocument = {{ $index }}"
                                                 class="p-2 text-white rounded-lg transition-colors duration-200"
-                                                style="background-color: #4CAF50;"
+                                                style="background-color: rgb(34 197 94);"
                                                 onmouseover="this.style.backgroundColor='#388E3C'"
                                                 onmouseout="this.style.backgroundColor='#4CAF50'" title="Preview">
                                                 <i class="fas fa-eye"></i>
@@ -446,7 +446,7 @@
                                             <a href="{{ route('scholar.documents.view', $document->id) }}"
                                                 target="_blank"
                                                 class="px-3 py-2 text-white rounded-lg text-sm transition-colors duration-200"
-                                                style="background-color: #4CAF50;"
+                                                style="background-color: rgb(34 197 94);"
                                                 onmouseover="this.style.backgroundColor='#388E3C'"
                                                 onmouseout="this.style.backgroundColor='#4CAF50'" title="Open in new tab">
                                                 <i class="fas fa-external-link-alt mr-1"></i>
@@ -465,10 +465,10 @@
                             </div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">No Documents Uploaded</h3>
                             <p class="text-gray-600 mb-6">Upload supporting documents to strengthen your fund request</p>
-                            @if ($fundRequest->status == 'Draft')
+                            @if ($fundRequest->status == 'Submitted')
                                 <button @click="uploadMode = true"
                                     class="px-6 py-3 text-white rounded-lg font-medium transition-colors duration-200"
-                                    style="background-color: #4CAF50;" onmouseover="this.style.backgroundColor='#388E3C'"
+                                    style="background-color: rgb(34 197 94);" onmouseover="this.style.backgroundColor='#388E3C'"
                                     onmouseout="this.style.backgroundColor='#4CAF50'">
                                     <i class="fas fa-upload mr-2"></i>
                                     Upload Your First Document
@@ -517,7 +517,7 @@
                                             <a href="{{ route('scholar.documents.view', $document->id) }}"
                                                 target="_blank"
                                                 class="px-4 py-2 text-white rounded-lg transition-colors duration-200"
-                                                style="background-color: #4CAF50;"
+                                                style="background-color: rgb(34 197 94);"
                                                 onmouseover="this.style.backgroundColor='#388E3C'"
                                                 onmouseout="this.style.backgroundColor='#4CAF50'">
                                                 <i class="fas fa-external-link-alt mr-2"></i>
@@ -531,6 +531,164 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Linked Manuscript Section -->
+            @if($fundRequest->manuscript || in_array($fundRequest->requestType->name, ['Research Dissemination Grant', 'Research Equipment Grant']))
+                <div x-data="{ showManuscript: true }" class="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
+                    <!-- Section Header -->
+                    <div class="bg-gray-50 px-6 py-4 rounded-t-lg border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                    style="background-color: #9C27B0;">
+                                    <i class="fas fa-scroll text-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-900">Linked Manuscript</h2>
+                                    <p class="text-gray-600 text-sm">
+                                        @if($fundRequest->manuscript)
+                                            Manuscript automatically created from this fund request
+                                        @else
+                                            Manuscript will be created when this request is approved
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center space-x-3">
+                                <button @click="showManuscript = !showManuscript"
+                                    class="px-4 py-2 bg-white text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors duration-200 border border-gray-300">
+                                    <i class="fas fa-eye mr-2 text-purple-600" :class="{ 'fa-eye-slash': !showManuscript }"></i>
+                                    <span x-text="showManuscript ? 'Hide Manuscript' : 'Show Manuscript'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manuscript Content -->
+                    <div x-show="showManuscript" x-transition class="p-6">
+                        @if($fundRequest->manuscript)
+                            <!-- Manuscript Details -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <!-- Left Column -->
+                                <div class="space-y-4">
+                                    <!-- Manuscript ID Card -->
+                                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Manuscript ID</h3>
+                                            <i class="fas fa-hashtag text-purple-500"></i>
+                                        </div>
+                                        <p class="text-2xl font-bold text-gray-800">{{ $fundRequest->manuscript->reference_number }}</p>
+                                    </div>
+
+                                    <!-- Manuscript Type Card -->
+                                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Type</h3>
+                                            <i class="fas fa-tag text-purple-500"></i>
+                                        </div>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                            {{ $fundRequest->manuscript->manuscript_type == 'Final' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-green-50 text-green-700 border border-green-200' }}">
+                                            <div class="w-2 h-2 rounded-full mr-2 {{ $fundRequest->manuscript->manuscript_type == 'Final' ? 'bg-green-500' : 'bg-green-400' }}"></div>
+                                            {{ $fundRequest->manuscript->manuscript_type }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column -->
+                                <div class="space-y-4">
+                                    <!-- Status Card -->
+                                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Status</h3>
+                                            <i class="fas fa-info-circle text-purple-500"></i>
+                                        </div>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                            {{ $fundRequest->manuscript->status == 'Published' ? 'bg-green-100 text-green-800 border border-green-200' :
+                                               ($fundRequest->manuscript->status == 'Accepted' ? 'bg-green-100 text-green-800 border border-green-200' :
+                                               ($fundRequest->manuscript->status == 'Under Review' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                                               ($fundRequest->manuscript->status == 'Rejected' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-gray-100 text-gray-800 border border-gray-200'))) }}">
+                                            {{ $fundRequest->manuscript->status }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Created Date Card -->
+                                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Created</h3>
+                                            <i class="fas fa-calendar-alt text-purple-500"></i>
+                                        </div>
+                                        <p class="text-lg font-bold text-gray-800">
+                                            {{ $fundRequest->manuscript->created_at->format('M d, Y') }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">{{ $fundRequest->manuscript->created_at->diffForHumans() }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Manuscript Title and Abstract -->
+                            <div class="mt-6 space-y-4">
+                                <!-- Title -->
+                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div class="flex items-center mb-3">
+                                        <i class="fas fa-heading text-purple-500 mr-3"></i>
+                                        <h3 class="text-lg font-semibold text-gray-800">Title</h3>
+                                    </div>
+                                    <p class="text-gray-700 font-medium">{{ $fundRequest->manuscript->title }}</p>
+                                </div>
+
+                                <!-- Abstract -->
+                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div class="flex items-center mb-3">
+                                        <i class="fas fa-align-left text-purple-500 mr-3"></i>
+                                        <h3 class="text-lg font-semibold text-gray-800">Abstract</h3>
+                                    </div>
+                                    <p class="text-gray-700 leading-relaxed">{{ $fundRequest->manuscript->abstract }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <a href="{{ route('scholar.manuscripts.show', $fundRequest->manuscript->id) }}"
+                                   class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    View Full Manuscript
+                                </a>
+                                @if($fundRequest->manuscript->status == 'Submitted')
+                                    <a href="{{ route('scholar.manuscripts.edit', $fundRequest->manuscript->id) }}"
+                                       class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-edit mr-2"></i>
+                                        Edit Manuscript
+                                    </a>
+                                @endif
+                            </div>
+                        @else
+                            <!-- Manuscript Not Yet Created -->
+                            <div class="text-center py-12">
+                                <div class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-scroll text-purple-500 text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Manuscript Pending</h3>
+                                <p class="text-gray-600 mb-4">
+                                    A {{ $fundRequest->requestType->name === 'Research Dissemination Grant' ? 'Final' : 'Outline' }} manuscript will be automatically created when this fund request is approved.
+                                </p>
+                                <div class="bg-purple-50 rounded-lg p-4 border border-purple-200 max-w-md mx-auto">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle text-purple-500 mr-3"></i>
+                                        <div class="text-left">
+                                            <p class="text-sm font-medium text-purple-800">What happens next?</p>
+                                            <p class="text-xs text-purple-600 mt-1">
+                                                Once approved, a {{ $fundRequest->requestType->name === 'Research Dissemination Grant' ? 'Final' : 'Outline' }} manuscript will be created using your fund request details.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -539,5 +697,32 @@
             Alpine.store('openModal', null);
         });
     </script>
+
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                try {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Fund Request Created',
+                            text: {!! json_encode(session('success')) !!},
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: 'rgb(34 197 94)',
+                            customClass: {
+                                popup: 'clsu-erdt-swal-clean',
+                                confirmButton: 'clsu-erdt-confirm-clean'
+                            }
+                        });
+                    } else {
+                        // Fallback if SweetAlert2 is not available
+                        alert({!! json_encode(session('success')) !!});
+                    }
+                } catch (e) {
+                    // Silently handle SweetAlert errors
+                }
+            });
+        </script>
+    @endif
 
 @endsection

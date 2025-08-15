@@ -17,6 +17,7 @@ class Manuscript extends Model
      */
     protected $fillable = [
         'scholar_profile_id',
+        'fund_request_id',
         'reference_number',
         'title',
         'abstract',
@@ -63,6 +64,14 @@ class Manuscript extends Model
     }
 
     /**
+     * Get the fund request that created this manuscript.
+     */
+    public function fundRequest()
+    {
+        return $this->belongsTo(FundRequest::class);
+    }
+
+    /**
      * Get the admin who reviewed the manuscript.
      */
     public function reviewedBy()
@@ -83,5 +92,30 @@ class Manuscript extends Model
             'scholar_profile_id', // Local key on manuscripts table
             'user_id' // Local key on scholar_profiles table
         );
+    }
+
+    /**
+     * Scope to eager load all common relationships
+     */
+    public function scopeWithFullRelations($query)
+    {
+        return $query->with([
+            'scholarProfile.user',
+            'documents',
+            'reviewComments.user',
+            'fundRequest',
+            'reviewedBy'
+        ]);
+    }
+
+    /**
+     * Scope to eager load basic relationships
+     */
+    public function scopeWithBasicRelations($query)
+    {
+        return $query->with([
+            'scholarProfile.user',
+            'documents'
+        ]);
     }
 }

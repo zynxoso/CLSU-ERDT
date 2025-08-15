@@ -18,9 +18,9 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <x-form-field 
-        label="City"
-        name="city"
-        :value="$scholarProfile->city ?? ''"
+        label="Town/City"
+        name="town"
+        :value="$scholarProfile->town ?? ''"
         placeholder="e.g., Science City of Muñoz" />
     
     <x-form-field 

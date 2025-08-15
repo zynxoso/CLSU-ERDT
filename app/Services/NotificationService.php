@@ -140,6 +140,41 @@ class NotificationService
     }
 
     /**
+     * Get unread notifications count for a user.
+     *
+     * @param  int  $userId
+     * @return int
+     */
+    public function getUnreadCount($userId)
+    {
+        $user = User::find($userId);
+        
+        if (!$user) {
+            return 0;
+        }
+        
+        // For scholars, filter by relevant notification types
+        if ($user->role === 'scholar') {
+            return CustomNotification::where('user_id', $userId)
+                ->where('is_read', false)
+                ->whereIn('type', [
+                    'fund_request',
+                    'manuscript',
+                    'stipend_notification',
+                    'stipend_disbursement',
+                    'profile_update',
+                    'document'
+                ])
+                ->count();
+        }
+        
+        // For other users, count all unread notifications
+        return CustomNotification::where('user_id', $userId)
+            ->where('is_read', false)
+            ->count();
+    }
+
+    /**
      * Get recent notifications for a user.
      *
      * @param  int  $userId

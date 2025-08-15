@@ -26,6 +26,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Update capacity metrics every minute
+        $schedule->command('capacity:update')
+                 ->everyMinute()
+                 ->withoutOverlapping()
+                 ->runInBackground();
+        
         // $schedule->command('inspire:daily')->hourly();
     }
 

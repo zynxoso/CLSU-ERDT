@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             ApplicationTimelineSeeder::class,
             AnnouncementSeeder::class,
             ImportantNoteSeeder::class,
-
+            DownloadableFormSeeder::class,
         ]);    
     }
 

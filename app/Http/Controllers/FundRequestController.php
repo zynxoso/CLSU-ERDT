@@ -61,9 +61,9 @@ class FundRequestController extends Controller
             $query->where('scholar_profile_id', $profile->id);
         }
 
-        $fundRequests = $query->with(['requestType', 'scholarProfile'])
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(10);
+        $fundRequests = $query->withBasicRelations()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         $requestTypes = RequestType::where('is_active', true)->get();
 
@@ -209,7 +209,7 @@ class FundRequestController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $fundRequest = FundRequest::with('documents')->findOrFail($id);
+        $fundRequest = FundRequest::withFullRelations()->findOrFail($id);
 
         // Check if user is authorized to view this request
         if ($user->role === 'scholar' && $user->scholarProfile->id !== $fundRequest->scholar_profile_id) {
@@ -242,8 +242,8 @@ class FundRequestController extends Controller
                 ->with('error', 'You are not authorized to edit this request');
         }
 
-        // Only draft requests can be edited
-        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
+        // Only submitted requests can be edited by scholars
+        if ($fundRequest->status !== 'submitted') {
             if ($user->role === 'scholar') {
                 return redirect()->route('scholar.fund-requests.show', $fundRequest->id)
                     ->with('error', 'Only draft requests can be edited');
@@ -296,8 +296,8 @@ class FundRequestController extends Controller
             }
         }
 
-        // Only draft requests can be submitted
-        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
+        // Only submitted requests can be resubmitted
+        if ($fundRequest->status !== 'submitted') {
             if ($user->role === 'scholar') {
                 return redirect()->route('scholar.fund-requests.show', $fundRequest->id)
                     ->with('error', 'Only draft requests can be submitted');
@@ -453,7 +453,8 @@ class FundRequestController extends Controller
         }
 
         // Get active request types for this scholar
-        $activeRequestTypes = FundRequest::where('scholar_profile_id', $scholarProfile->id)
+        $activeRequestTypes = FundRequest::withBasicRelations()
+            ->where('scholar_profile_id', $scholarProfile->id)
             ->whereIn('status', [
                 FundRequest::STATUS_SUBMITTED,
                 FundRequest::STATUS_UNDER_REVIEW,
@@ -676,11 +677,10 @@ class FundRequestController extends Controller
 
         $fundRequest = FundRequest::with(['requestType', 'scholarProfile', 'documents'])->findOrFail($id);
 
-        // Admins can edit requests in Draft, Submitted, or Under Review status
+        // Admins can edit requests in Submitted or Under Review status
         if (!in_array($fundRequest->status, [
-            FundRequest::STATUS_DRAFT,
-            FundRequest::STATUS_SUBMITTED,
-            FundRequest::STATUS_UNDER_REVIEW
+            'submitted',
+            'under_review'
         ])) {
             return redirect()->route('admin.fund-requests.show', $fundRequest->id)
                 ->with('error', 'Only draft, submitted, or under review requests can be edited');
@@ -735,16 +735,17 @@ class FundRequestController extends Controller
             ]);
 
             // Log the update
-            $this->auditService->log(
-                'fund_request_updated',
-                'FundRequest',
-                $fundRequest->id,
-                [
-                    'updated_by' => Auth::id(),
-                    'updated_fields' => array_keys($validated),
-                    'previous_values' => $fundRequest->getOriginal()
-                ]
-            );
+        $this->auditService->log(
+            'fund_request_updated',
+            'FundRequest',
+            $fundRequest->id,
+            'Fund request updated by admin',
+            [
+                'updated_by' => Auth::id(),
+                'updated_fields' => array_keys($validated),
+                'previous_values' => $fundRequest->getOriginal()
+            ]
+        );
 
             DB::commit();
 

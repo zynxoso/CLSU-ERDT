@@ -3,7 +3,7 @@
 @section('title', 'Announcements Management')
 
 @section('content')
-<div style="background-color: #FAFAFA; min-height: 100vh; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+<div class="bg-gray-50 min-h-screen font-sans">
     <div class="container mx-auto px-6 py-8">
         <!-- Breadcrumb Navigation -->
         <nav class="mb-6">
@@ -19,12 +19,12 @@
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold mb-2" style="color: #212121;">Announcements Management</h1>
-                <p class="text-lg" style="color: #424242;">Create and manage announcements for scholars and visitors</p>
+                <h1 class="text-3xl font-bold mb-2" style="color: rgb(23 23 23);">Announcements Management</h1>
+                <p class="text-lg" style="color: rgb(64 64 64);">Create and manage announcements for scholars and visitors</p>
             </div>
             <button onclick="openAnnouncementModal()" 
                     class="btn btn-primary inline-flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-md"
-                    style="background-color: #2E7D32; color: white;">
+                    style="background-color: rgb(21 128 61); color: rgb(255 255 255);">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -44,47 +44,6 @@
                 <span class="block sm:inline">{{ session('error') }}</span>
             </div>
         @endif
-
-        <!-- Search and Filter Section -->
-        <div class="bg-white rounded-lg shadow-md mb-6">
-            <div class="p-6">
-                <form method="GET" action="{{ route('admin.content-management.index', ['tab' => 'announcements']) }}" class="flex flex-wrap gap-4 items-end">
-                    <div class="flex-1 min-w-64">
-                        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Announcements</label>
-                        <input type="text" id="search" name="search" value="{{ request('search') }}"
-                               placeholder="Search by title or content..."
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-                    <div class="min-w-48">
-                        <label for="filter_type" class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                        <select id="filter_type" name="filter_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">All Types</option>
-                            <option value="general" {{ request('filter_type') == 'general' ? 'selected' : '' }}>General</option>
-                            <option value="application" {{ request('filter_type') == 'application' ? 'selected' : '' }}>Application</option>
-                            <option value="scholarship" {{ request('filter_type') == 'scholarship' ? 'selected' : '' }}>Scholarship</option>
-                            <option value="event" {{ request('filter_type') == 'event' ? 'selected' : '' }}>Event</option>
-                            <option value="urgent" {{ request('filter_type') == 'urgent' ? 'selected' : '' }}>Urgent</option>
-                        </select>
-                    </div>
-                    <div class="min-w-48">
-                        <label for="filter_status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select id="filter_status" name="filter_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">All Status</option>
-                            <option value="1" {{ request('filter_status') == '1' ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ request('filter_status') == '0' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-search mr-2"></i>Search
-                        </button>
-                        <a href="{{ route('admin.content-management.index', ['tab' => 'announcements']) }}" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                            <i class="fas fa-times mr-2"></i>Clear
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         <!-- Announcements Table -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -110,7 +69,7 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white"
-                                              style="background-color: {{ getTypeColor($announcement->type) }}">
+                                              style="background-color: {{ $announcement->type === 'urgent' ? '#dc2626' : ($announcement->type === 'important' ? '#ea580c' : ($announcement->type === 'general' ? '#059669' : '#6366f1')) }}">
                                             {{ ucfirst($announcement->type) }}
                                         </span>
                                     </td>
@@ -256,10 +215,7 @@ nav ol li a:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Card styling */
-.bg-white {
-    transition: all 0.3s ease;
-}
+
 </style>
 
 <script>
@@ -354,16 +310,6 @@ function deleteAnnouncement(id) {
     }
 }
 
-// Helper function for type colors (you may need to define this in your controller or as a global function)
-function getTypeColor(type) {
-    const colors = {
-        'general': '#6B7280',
-        'application': '#3B82F6',
-        'scholarship': '#10B981',
-        'event': '#F59E0B',
-        'urgent': '#EF4444'
-    };
-    return colors[type] || '#6B7280';
-}
+
 </script>
 @endsection

@@ -59,6 +59,13 @@
                 </svg>
                 Security Settings
             </button>
+            <button wire:click="setActiveTab('password')"
+                    class="py-2 px-1 border-b-2 font-medium text-sm {{ $activeTab === 'password' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                Change Password
+            </button>
         </nav>
     </div>
 
@@ -165,6 +172,89 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    @endif
+
+    <!-- Change Password Tab -->
+    @if($activeTab === 'password')
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z" />
+                    </svg>
+                    Change Password
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">Update your account password for enhanced security</p>
+            </div>
+            <div class="p-6">
+                <form wire:submit.prevent="changePassword" class="space-y-4">
+                    <div class="max-w-md">
+                        <div class="mb-4">
+                            <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">Current Password *</label>
+                            <input type="password" id="current_password" wire:model.defer="current_password" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter your current password">
+                            @error('current_password')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="new_password" class="block text-sm font-medium text-gray-700 mb-1">New Password *</label>
+                            <input type="password" id="new_password" wire:model.defer="new_password" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter your new password">
+                            <p class="mt-1 text-xs text-gray-500">Password must be at least 8 characters long</p>
+                            @error('new_password')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="new_password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password *</label>
+                            <input type="password" id="new_password_confirmation" wire:model.defer="new_password_confirmation" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Confirm your new password">
+                            @error('new_password_confirmation')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="flex justify-start">
+                            <button type="submit"
+                                    wire:loading.attr="disabled"
+                                    wire:target="changePassword"
+                                    class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-medium py-2 px-6 rounded text-sm inline-flex items-center">
+                                <span wire:loading.remove wire:target="changePassword">Change Password</span>
+                                <span wire:loading wire:target="changePassword" class="flex items-center">
+                                    <svg class="-ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Changing Password...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Password Security Tips -->
+                <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 class="text-sm font-medium text-blue-800 mb-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Password Security Tips
+                    </h3>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Use at least 8 characters with a mix of letters, numbers, and symbols</li>
+                        <li>• Avoid using personal information or common words</li>
+                        <li>• Don't reuse passwords from other accounts</li>
+                        <li>• Consider using a password manager for better security</li>
+                    </ul>
+                </div>
             </div>
         </div>
     @endif

@@ -27,8 +27,32 @@ class PublicPageController extends Controller
         // Fetch active important notes ordered by sort_order
         $importantNotes = ImportantNote::active()->ordered()->get();
 
-        // Fetch active downloadable forms grouped by category
-        $downloadableForms = DownloadableForm::active()->ordered()->get()->groupBy('category');
+        // Fetch active downloadable forms and group them by display headings expected by the view
+        $forms = DownloadableForm::active()->ordered()->get();
+
+        // Map internal category keys to display groups used in the view
+        $categoryDisplayMap = [
+            'application'   => 'Essential Application Forms',
+            'scholarship'   => 'Essential Application Forms',
+            'research'      => 'Research & Grant Forms',
+            'academic'      => 'Research & Grant Forms',
+            'administrative'=> 'Administrative & Monitoring Forms',
+            'other'         => 'Administrative & Monitoring Forms',
+        ];
+
+        $grouped = $forms->groupBy(function ($form) use ($categoryDisplayMap) {
+            return $categoryDisplayMap[$form->category] ?? 'Administrative & Monitoring Forms';
+        });
+
+        // Ensure all expected keys exist even if empty
+        $expectedGroups = [
+            'Essential Application Forms',
+            'Research & Grant Forms',
+            'Administrative & Monitoring Forms',
+        ];
+
+        $downloadableForms = collect($expectedGroups)
+            ->mapWithKeys(fn ($g) => [$g => $grouped->get($g, collect())]);
 
         return view('how-to-apply', compact('timelines', 'importantNotes', 'downloadableForms'));
     }

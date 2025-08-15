@@ -1,10 +1,6 @@
 @extends('layouts.app')
-
 @section('title', 'Login - CLSU-ERDT')
-
 @section('content')
-
-
     <!-- Main Content -->
     <div class="flex-grow flex flex-center justify-center min-h-screen  md:p-8 container mx-auto">
         <!-- Login Form Section -->
@@ -16,47 +12,7 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    <form x-data="{
-                        loading: false,
-                        email: '{{ old('email') }}',
-                        password: '',
-                        showPassword: false,
-                        remember: {{ old('remember') ? 'true' : 'false' }},
-                        emailError: '',
-                        passwordError: '',
-                        focusedInput: null,
-                        validateEmail() {
-                            if (!this.email) {
-                                this.emailError = 'Email is required';
-                                return false;
-                            } else if (!/^\S+@\S+\.\S+$/.test(this.email)) {
-                                this.emailError = 'Invalid email format';
-                                return false;
-                            }
-                            this.emailError = '';
-                            return true;
-                        },
-                        validatePassword() {
-                            if (!this.password) {
-                                this.passwordError = 'Password is required';
-                                return false;
-                            }
-                            this.passwordError = '';
-                            return true;
-                        },
-                        submit() {
-                            if (this.validateEmail() && this.validatePassword()) {
-                                this.loading = true;
-                                $el.submit();
-                            } else {
-                                // Shake animation on error
-                                $el.classList.add('animate-shake');
-                                setTimeout(() => {
-                                    $el.classList.remove('animate-shake');
-                                }, 500);
-                            }
-                        }
-                    }" class="space-y-6 login-form" method="POST" action="{{ route('login') }}" @submit.prevent="submit">
+                   <form x-data="{loading:false,email:'{{ old('email') }}',password:'',showPassword:false,remember:{{ old('remember') ? 'true' : 'false' }},emailError:'',passwordError:'',validateEmail(){if(!this.email){this.emailError='Email is required';return false;}if(!/^\S+@\S+\.\S+$/.test(this.email)){this.emailError='Invalid email format';return false;}this.emailError='';return true;},validatePassword(){if(!this.password){this.passwordError='Password is required';return false;}this.passwordError='';return true;},submit(){if(this.validateEmail()&&this.validatePassword()){this.loading=true;$el.submit();}else{$el.classList.add('animate-shake');setTimeout(()=>$el.classList.remove('animate-shake'),500);}}}" class="space-y-6 login-form" method="POST" action="{{ route('login') }}" @submit.prevent="submit">
                 @csrf
 
                 <div class="text-center mb-6">
@@ -72,8 +28,7 @@
                     <div class="mt-1 relative">
                         <input id="email" name="email" type="email" autocomplete="email" required
                                x-model="email"
-                               @focus="focusedInput = 'email'"
-                               @blur="focusedInput = null; validateEmail()"
+                               @blur="validateEmail()"
                                class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-clsu-green focus:ring-2 focus:ring-green-200 transition duration-200 text-sm"
                                :class="{
                                    'border-red-500 bg-red-50': emailError || {{ $errors->has('email') ? 'true' : 'false' }},
@@ -103,8 +58,7 @@
                                :type="showPassword ? 'text' : 'password'"
                                autocomplete="current-password" required
                                x-model="password"
-                               @focus="focusedInput = 'password'"
-                               @blur="focusedInput = null; validatePassword()"
+                               @blur="validatePassword()"
                                class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-clsu-green focus:ring-2 focus:ring-green-200 transition duration-200 pr-10 text-sm"
                                :class="{
                                    'border-red-500 bg-red-50': passwordError || {{ $errors->has('password') ? 'true' : 'false' }},
@@ -183,7 +137,9 @@
             </div>
             </div>
         </div>
-
     </div>
+@endsection
 
+@section('scripts')
+    <script src="{{ asset('js/selective-loading-service.js') }}" defer></script>
 @endsection

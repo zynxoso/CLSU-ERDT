@@ -31,7 +31,7 @@
     <!-- Add New Button -->
     <div class="row mb-3">
         <div class="col-md-12">
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFormModal">
+            <button type="button" class="btn btn-success" onclick="openModal('addFormModal')">
                 <i class="fas fa-plus"></i> Add New Form
             </button>
         </div>
@@ -88,8 +88,7 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="editForm({{ $form->id }})" 
-                                            data-bs-toggle="modal" data-bs-target="#editFormModal">
+                                            onclick="editForm({{ $form->id }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-{{ $form->is_active ? 'warning' : 'success' }}" 
@@ -125,105 +124,99 @@
 </div>
 
 <!-- Add Form Modal -->
-<div class="modal fade" id="addFormModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('admin.content-management.forms.store') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Form</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="addFormModal" maxWidth="lg">
+    <x-slot name="title">
+        Add New Form
+    </x-slot>
+    
+    <form method="POST" action="{{ route('admin.content-management.forms.store') }}" enctype="multipart/form-data">
+        @csrf
+        <div class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="title" name="title" required>
+            </div>
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="application">Application</option>
+                        <option value="report">Report</option>
+                        <option value="request">Request</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="category" class="form-label">Category *</label>
-                            <select class="form-select" id="category" name="category" required>
-                                <option value="">Select Category</option>
-                                <option value="application">Application</option>
-                                <option value="report">Report</option>
-                                <option value="request">Request</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control" id="sort_order" name="sort_order" min="0">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="file" class="form-label">File *</label>
-                            <input type="file" class="form-control" id="file" name="file" required>
-                            <small class="form-text text-muted">Supported formats: PDF, DOC, DOCX, XLS, XLSX</small>
-                        </div>
-                    </div>
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="sort_order" name="sort_order" min="0">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Create Form</button>
-                </div>
-            </form>
+            </div>
+            <div>
+                <label for="file" class="block text-sm font-medium text-gray-700 mb-1">File *</label>
+                <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="file" name="file" required>
+                <small class="text-sm text-gray-500">Supported formats: PDF, DOC, DOCX, XLS, XLSX</small>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('addFormModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Create Form</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <!-- Edit Form Modal -->
-<div class="modal fade" id="editFormModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" id="editFormForm" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Form</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="editFormModal" maxWidth="lg">
+    <x-slot name="title">
+        Edit Form
+    </x-slot>
+    
+    <form method="POST" id="editFormForm" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="space-y-4">
+            <div>
+                <label for="edit_title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_title" name="title" required>
+            </div>
+            <div>
+                <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_description" name="description" rows="3"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_category" class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_category" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="application">Application</option>
+                        <option value="report">Report</option>
+                        <option value="request">Request</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="edit_title" name="title" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_category" class="form-label">Category *</label>
-                            <select class="form-select" id="edit_category" name="category" required>
-                                <option value="">Select Category</option>
-                                <option value="application">Application</option>
-                                <option value="report">Report</option>
-                                <option value="request">Request</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control" id="edit_sort_order" name="sort_order" min="0">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_description" class="form-label">Description</label>
-                            <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_file" class="form-label">File</label>
-                            <input type="file" class="form-control" id="edit_file" name="file">
-                            <small class="form-text text-muted">Leave empty to keep current file</small>
-                        </div>
-                    </div>
+                <div>
+                    <label for="edit_sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_sort_order" name="sort_order" min="0">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Form</button>
-                </div>
-            </form>
+            </div>
+            <div>
+                <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">File (Optional - leave empty to keep current file)</label>
+                <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_file" name="file">
+                <small class="text-sm text-gray-500">Supported formats: PDF, DOC, DOCX, XLS, XLSX</small>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('editFormModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Update Form</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <script>
 function editForm(id) {
@@ -236,7 +229,12 @@ function editForm(id) {
     //     .then(data => {
     //         document.getElementById('edit_title').value = data.title;
     //         document.getElementById('edit_category').value = data.category;
+    //         document.getElementById('edit_description').value = data.description;
+    //         document.getElementById('edit_sort_order').value = data.sort_order;
     //         // ... populate other fields
     //     });
+    
+    // Open the modal
+    openModal('editFormModal');
 }
 </script>

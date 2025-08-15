@@ -80,7 +80,7 @@ class FundRequestsList extends Component
         }
 
         // Only draft requests can be deleted
-        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
+        if ($fundRequest->status !== 'Submitted') {
             session()->flash('error', 'Only draft requests can be cancelled');
             return;
         }
@@ -166,7 +166,7 @@ class FundRequestsList extends Component
         }
 
         $query = FundRequest::where('scholar_profile_id', $scholarProfile->id)
-            ->with(['requestType']);
+            ->withFullRelations();
 
         // Apply filters
         if ($this->status) {

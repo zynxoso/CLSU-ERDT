@@ -78,7 +78,7 @@
 
                 <div class="flex justify-end">
                     <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300">
-                        <i class="fas fa-upload mr-2" style="color: white !important;"></i> Upload Document
+                        <i class="fas fa-upload mr-2" style="color: rgb(255 255 255) !important;"></i> Upload Document
                     </button>
                 </div>
             </form>

@@ -3,7 +3,7 @@
 @section('title', 'Faculty & Expertise Management')
 
 @section('content')
-<div style="background-color: #FAFAFA; min-height: 100vh; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+<div class="bg-gray-50 min-h-screen font-sans">
     <div class="container mx-auto px-6 py-8">
         <!-- Breadcrumb Navigation -->
         <nav class="mb-6">
@@ -19,12 +19,12 @@
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold mb-2" style="color: #212121;">Faculty & Expertise Management</h1>
-                <p class="text-lg" style="color: #424242;">Manage faculty profiles and expertise information displayed on the about page</p>
+                <h1 class="text-3xl font-bold mb-2" style="color: rgb(23 23 23);">Faculty & Expertise Management</h1>
+                <p class="text-lg" style="color: rgb(64 64 64);">Manage faculty profiles and expertise information displayed on the about page</p>
             </div>
             <button onclick="openFacultyModal()" 
                     class="btn btn-primary inline-flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-md"
-                    style="background-color: #1976D2; color: white;">
+                    style="background-color: rgb(29 78 216); color: rgb(255 255 255);">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -142,137 +142,124 @@ nav ol li a:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
-/* Card styling */
-.bg-white {
-    transition: all 0.3s ease;
-}
 </style>
 
 <!-- Faculty Modal -->
-<div id="facultyModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center pb-4 border-b">
-                <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Add Faculty Member</h3>
-                <button onclick="closeFacultyModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+<x-modal id="facultyModal" maxWidth="lg">
+    <x-slot name="title">
+        <span id="modalTitle">Add Faculty Member</span>
+    </x-slot>
+    
+    <form id="facultyForm" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" id="facultyId" name="faculty_id">
+        <input type="hidden" id="formMethod" name="_method">
+
+        <div class="space-y-4">
+            <!-- Name -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                <input type="text" id="name" name="name" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
             </div>
 
-            <!-- Modal Body -->
-            <form id="facultyForm" method="POST" enctype="multipart/form-data" class="mt-6">
-                @csrf
-                <input type="hidden" id="facultyId" name="faculty_id">
-                <input type="hidden" id="formMethod" name="_method">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Name -->
-                    <div class="md:col-span-2">
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                        <input type="text" id="name" name="name" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Position -->
-                    <div>
-                        <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Position *</label>
-                        <input type="text" id="position" name="position" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Department -->
-                    <div>
-                        <label for="department" class="block text-sm font-medium text-gray-700 mb-2">Department *</label>
-                        <input type="text" id="department" name="department" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Specialization -->
-                    <div>
-                        <label for="specialization" class="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
-                        <input type="text" id="specialization" name="specialization"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="email" name="email"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Phone -->
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                        <input type="text" id="phone" name="phone"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Sort Order -->
-                    <div>
-                        <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
-                        <input type="number" id="sort_order" name="sort_order" min="0"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-
-                    <!-- Photo -->
-                    <div class="md:col-span-2">
-                        <label for="photo" class="block text-sm font-medium text-gray-700 mb-2">Photo</label>
-                        <input type="file" id="photo" name="photo" accept="image/*"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <p class="text-sm text-gray-500 mt-1">Accepted formats: JPEG, PNG, JPG, GIF. Max size: 2MB</p>
-                    </div>
-
-                    <!-- Bio -->
-                    <div class="md:col-span-2">
-                        <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Biography</label>
-                        <textarea id="bio" name="bio" rows="4"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Position -->
+                <div>
+                    <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position *</label>
+                    <input type="text" id="position" name="position" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
                 </div>
 
-                <!-- Modal Footer -->
-                <div class="flex justify-end space-x-3 pt-6 border-t mt-6">
-                    <button type="button" onclick="closeFacultyModal()" 
-                            class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit" 
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        <span id="submitText">Add Faculty Member</span>
-                    </button>
+                <!-- Department -->
+                <div>
+                    <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+                    <input type="text" id="department" name="department" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
                 </div>
-            </form>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Specialization -->
+                <div>
+                    <label for="specialization" class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                    <input type="text" id="specialization" name="specialization"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" name="email"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Phone -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input type="text" id="phone" name="phone"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
+                </div>
+
+                <!-- Sort Order -->
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" id="sort_order" name="sort_order" min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Photo -->
+            <div>
+                <label for="photo" class="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                <input type="file" id="photo" name="photo" accept="image/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent">
+                <p class="text-sm text-gray-500 mt-1">Accepted formats: JPEG, PNG, JPG, GIF. Max size: 2MB</p>
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Biography</label>
+                <textarea id="bio" name="bio" rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent"></textarea>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" onclick="closeModal('facultyModal')" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Cancel
+            </button>
+            <button type="submit" 
+                    class="ml-3 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <span id="submitText">Add Faculty Member</span>
+            </button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <script>
 function openFacultyModal() {
-    document.getElementById('facultyModal').classList.remove('hidden');
     document.getElementById('modalTitle').textContent = 'Add Faculty Member';
     document.getElementById('submitText').textContent = 'Add Faculty Member';
     document.getElementById('facultyForm').action = '/admin/content-management/faculty';
     document.getElementById('formMethod').value = '';
     document.getElementById('facultyId').value = '';
     document.getElementById('facultyForm').reset();
-}
-
-function closeFacultyModal() {
-    document.getElementById('facultyModal').classList.add('hidden');
+    openModal('facultyModal');
 }
 
 function editFaculty(id) {
     // You would typically fetch faculty data via AJAX here
     // For now, we'll just open the modal in edit mode
-    document.getElementById('facultyModal').classList.remove('hidden');
     document.getElementById('modalTitle').textContent = 'Edit Faculty Member';
     document.getElementById('submitText').textContent = 'Update Faculty Member';
     document.getElementById('facultyForm').action = `/admin/content-management/faculty/${id}`;
     document.getElementById('formMethod').value = 'PUT';
     document.getElementById('facultyId').value = id;
+    openModal('facultyModal');
 }
 
 function toggleFacultyStatus(id) {
@@ -322,11 +309,6 @@ function deleteFaculty(id) {
     }
 }
 
-// Close modal when clicking outside
-document.getElementById('facultyModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeFacultyModal();
-    }
-});
+// Modal functionality
 </script>
 @endsection

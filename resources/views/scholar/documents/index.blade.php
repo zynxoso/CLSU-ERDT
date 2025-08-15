@@ -4,14 +4,7 @@
 
 @section('content')
 <div class="min-h-screen">
-    <div class="container mx-auto px-4 py-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">My Documents</h1>
-            <a href="{{ route('scholar.documents.create') }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300">
-                <i class="fas fa-plus mr-2" style="color: white !important;"></i> Upload New Document
-            </a>
-        </div>
-
+    <div class="container mx-auto">
         <!-- Document List -->
         <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
@@ -26,7 +19,6 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Uploaded</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -35,7 +27,7 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-gray-100 rounded-lg">
+                                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-blue-500 rounded-lg">
                                                 @if(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['pdf']))
                                                     <i class="fas fa-file-pdf text-red-500 text-lg"></i>
                                                 @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
@@ -43,7 +35,7 @@
                                                 @elseif(in_array(pathinfo($document->file_name, PATHINFO_EXTENSION), ['doc', 'docx']))
                                                     <i class="fas fa-file-word text-blue-700 text-lg"></i>
                                                 @else
-                                                    <i class="fas fa-file text-gray-500 text-lg"></i>
+                                                    <i class="fas fa-file text-blue-600 text-lg"></i>
                                                 @endif
                                             </div>
                                             <div class="ml-4">
@@ -58,17 +50,6 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $document->created_at->format('M d, Y') }}</div>
                                         <div class="text-sm text-gray-500">{{ $document->created_at->format('h:i A') }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($document->is_verified)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Verified
-                                            </span>
-                                        @else
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                Pending
-                                            </span>
-                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <div class="flex space-x-2">
@@ -93,7 +74,7 @@
                 <div class="p-6 text-center">
                     <p class="text-gray-500">You haven't uploaded any documents yet.</p>
                     <a href="{{ route('scholar.documents.create') }}" class="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300">
-                        <i class="fas fa-plus mr-2" style="color: white !important;"></i> Upload Your First Document
+                        <i class="fas fa-plus mr-2" style="color: rgb(255 255 255) !important;"></i> Upload Your First Document
                     </a>
                 </div>
             @endif

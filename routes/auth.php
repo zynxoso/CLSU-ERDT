@@ -2,8 +2,6 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ScholarAuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\PasswordController;
 use Illuminate\Support\Facades\Route;
 
 // Admin/SuperAdmin Login routes
@@ -16,7 +14,7 @@ Route::middleware('guest:web')->group(function () {
 // Scholar Login routes
 Route::middleware('guest:scholar')->group(function () {
     Route::get('CLSU-ERDT-SCHOLARSHIP', [ScholarAuthenticatedSessionController::class, 'create'])
-        ->name('scholar-login');
+        ->name('scholar.login');
     Route::post('CLSU-ERDT-SCHOLARSHIP', [ScholarAuthenticatedSessionController::class, 'store']);
 });
 
@@ -28,6 +26,6 @@ Route::middleware('auth:web')->group(function () {
 
 // Scholar logout
 Route::middleware('auth:scholar')->group(function () {
-    Route::post('scholar-logout', [ScholarAuthenticatedSessionController::class, 'destroy'])
+    Route::post('scholar/logout', [ScholarAuthenticatedSessionController::class, 'destroy'])
         ->name('scholar-logout');
 });

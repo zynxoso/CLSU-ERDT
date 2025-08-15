@@ -67,7 +67,7 @@ class ScholarManuscriptsTest extends TestCase
             'manuscript_type' => 'journal',
             'co_authors' => $this->faker->name,
             'keywords' => $this->faker->words(3, true),
-            'status' => 'draft'
+            'status' => 'Submitted'
         ];
 
         $response = $this->actingAs($user)
@@ -152,7 +152,7 @@ class ScholarManuscriptsTest extends TestCase
 
         // Get a draft manuscript belonging to this scholar
         $manuscript = Manuscript::where('scholar_profile_id', $user->scholarProfile->id)
-                      ->where('status', 'draft')
+                      ->where('status', 'Submitted')
                       ->first();
 
         if (!$manuscript) {

@@ -252,7 +252,7 @@ class ManuscriptManagement extends Component
 
     public function getFilteredManuscriptsProperty()
     {
-        $query = Manuscript::with(['scholarProfile.user', 'documents']);
+        $query = Manuscript::withFullRelations();
 
         // Filter by status
         if ($this->status) {

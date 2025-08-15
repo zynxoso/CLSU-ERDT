@@ -6,14 +6,14 @@
 <style>
     /* Global Typography Improvements */
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: theme(fontFamily.sans);
         font-size: 15px;
         line-height: 1.6;
-        color: #424242;
+        color: rgb(64 64 64);
     }
 
     .form-control:focus {
-        border-color: #4CAF50;
+        border-color: rgb(34 197 94);
         box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
     }
 
@@ -33,20 +33,20 @@
     <div class="container mx-auto px-4 py-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
             <div>
-                <h1 class="text-2xl font-bold" style="color: #424242;">Change Scholar Password</h1>
-                <p style="color: #757575;">Update password for {{ $scholar->first_name }} {{ $scholar->last_name }}</p>
+                <h1 class="text-2xl font-bold" style="color: rgb(64 64 64);">Change Scholar Password</h1>
+                <p style="color: rgb(115 115 115);">Update password for {{ $scholar->first_name }} {{ $scholar->last_name }}</p>
             </div>
             <div class="flex space-x-4">
-                <a href="{{ route('admin.scholars.show', $scholar->id) }}" class="px-4 py-2 text-white rounded-lg hover:opacity-90 text-center transition-all duration-300" style="background-color: #4A90E2;">
+                <a href="{{ route('admin.scholars.show', $scholar->id) }}" class="px-4 py-2 text-white rounded-lg hover:opacity-90 text-center transition-all duration-300" style="background-color: rgb(59 130 246);">
                     <i class="fas fa-arrow-left mr-2"></i> Back to Scholar
                 </a>
             </div>
         </div>
 
         <div class="max-w-2xl mx-auto">
-            <div class="bg-white shadow-md rounded-lg overflow-hidden border" style="border-color: #E0E0E0;">
+            <div class="bg-white shadow-md rounded-lg overflow-hidden border" style="border-color: rgb(224 224 224);">
                 <!-- Header with Scholar Info -->
-                <div class="p-6 border-b" style="border-color: #E0E0E0; background-color: #F8F9FA;">
+                <div class="p-6 border-b" style="border-color: rgb(224 224 224); background-color: #F8F9FA;">
                     <div class="flex items-center">
                         <div class="h-16 w-16 rounded-full flex items-center justify-center mr-4 border" style="background-color: #F8BBD0; border-color: #F48FB1;">
                             @if($scholar->profile_photo)
@@ -56,18 +56,18 @@
                             @endif
                         </div>
                         <div>
-                            <h2 class="text-xl font-bold" style="color: #424242;">{{ $scholar->first_name }} {{ $scholar->middle_name }} {{ $scholar->last_name }}</h2>
-                            <p style="color: #757575;">{{ $scholar->user->email }}</p>
+                            <h2 class="text-xl font-bold" style="color: rgb(64 64 64);">{{ $scholar->first_name }} {{ $scholar->middle_name }} {{ $scholar->last_name }}</h2>
+                            <p style="color: rgb(115 115 115);">{{ $scholar->user->email }}</p>
                             <span class="px-2 py-1 text-xs rounded-full mt-1 inline-block
                                 @if($scholar->status == 'Active') text-white
                                 @elseif($scholar->status == 'Inactive') text-white
                                 @elseif($scholar->status == 'Completed') text-white
                                 @else text-white @endif"
                                 style="
-                                @if($scholar->status == 'Active') background-color: #4CAF50; color: white;
-                                @elseif($scholar->status == 'Inactive') background-color: #D32F2F; color: white;
-                                @elseif($scholar->status == 'Completed') background-color: #4CAF50; color: white;
-                                @else background-color: #FFCA28; color: #975A16; @endif">
+                                @if($scholar->status == 'Active') background-color: rgb(34 197 94); color: rgb(255 255 255);
+                                @elseif($scholar->status == 'Inactive') background-color: #D32F2F; color: rgb(255 255 255);
+                                @elseif($scholar->status == 'Completed') background-color: rgb(34 197 94); color: rgb(255 255 255);
+                                @else background-color: rgb(251 191 36); color: #975A16; @endif">
                                 {{ $scholar->status }}
                             </span>
                         </div>
@@ -77,7 +77,7 @@
                 <!-- Change Password Form -->
                 <div class="p-6">
                     @if(session('success'))
-                        <div class="mb-4 p-4 rounded-lg border" style="background-color: #E8F5E9; border-color: #4CAF50; color: #4CAF50;">
+                        <div class="mb-4 p-4 rounded-lg border" style="background-color: #E8F5E9; border-color: rgb(34 197 94); color: rgb(34 197 94);">
                             <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
                         </div>
                     @endif
@@ -111,14 +111,14 @@
 
                             <!-- New Password -->
                             <div>
-                                <label for="password" class="block text-sm font-medium mb-2" style="color: #424242;">
+                                <label for="password" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64);">
                                     <i class="fas fa-key mr-2"></i>New Password
                                 </label>
                                 <input type="password" 
                                        id="password" 
                                        name="password" 
                                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 @error('password') border-red-500 @enderror" 
-                                       style="border-color: #E0E0E0; focus:border-color: #4CAF50;"
+                                       style="border-color: rgb(224 224 224); focus:border-color: rgb(34 197 94);"
                                        placeholder="Enter new password (minimum 8 characters)"
                                        required>
                                 @error('password')
@@ -130,14 +130,14 @@
 
                             <!-- Confirm Password -->
                             <div>
-                                <label for="password_confirmation" class="block text-sm font-medium mb-2" style="color: #424242;">
+                                <label for="password_confirmation" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64);">
                                     <i class="fas fa-key mr-2"></i>Confirm New Password
                                 </label>
                                 <input type="password" 
                                        id="password_confirmation" 
                                        name="password_confirmation" 
                                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50" 
-                                       style="border-color: #E0E0E0; focus:border-color: #4CAF50;"
+                                       style="border-color: rgb(224 224 224); focus:border-color: rgb(34 197 94);"
                                        placeholder="Confirm new password"
                                        required>
                             </div>
@@ -159,14 +159,14 @@
                             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
                                 <button type="submit" 
                                         class="px-6 py-3 text-white rounded-lg hover:opacity-90 transition-all duration-300 btn-transition flex items-center justify-center" 
-                                        style="background-color: #4CAF50;">
+                                        style="background-color: rgb(34 197 94);">
                                     <i class="fas fa-save mr-2"></i>
                                     Change Password
                                 </button>
                                 
                                 <a href="{{ route('admin.scholars.show', $scholar->id) }}" 
                                    class="px-6 py-3 text-center rounded-lg border hover:opacity-90 transition-all duration-300 btn-transition" 
-                                   style="border-color: #E0E0E0; color: #424242; background-color: #F5F5F5;">
+                                   style="border-color: rgb(224 224 224); color: rgb(64 64 64); background-color: #F5F5F5;">
                                     <i class="fas fa-times mr-2"></i>
                                     Cancel
                                 </a>

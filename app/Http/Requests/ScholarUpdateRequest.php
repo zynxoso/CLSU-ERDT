@@ -82,7 +82,7 @@ class ScholarUpdateRequest extends FormRequest
             'units_earned_prior' => ['nullable', 'integer', 'min:0', 'max:200'],
 
 
-            'enrollment_type' => ['required', 'string', 'in:New,Lateral'],
+
             'study_time' => ['required', 'string', 'in:Full-time,Part-time'],
             'scholarship_duration' => ['required', 'integer', 'min:1', 'max:60'],
             'status' => [

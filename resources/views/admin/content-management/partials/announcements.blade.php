@@ -34,7 +34,7 @@
     <!-- Add New Button -->
     <div class="row mb-3">
         <div class="col-md-12">
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+            <button type="button" class="btn btn-success" onclick="openModal('addAnnouncementModal')">
                 <i class="fas fa-plus"></i> Add New Announcement
             </button>
         </div>
@@ -81,8 +81,7 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="editAnnouncement({{ $announcement->id }})" 
-                                            data-bs-toggle="modal" data-bs-target="#editAnnouncementModal">
+                                            onclick="editAnnouncement({{ $announcement->id }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-{{ $announcement->is_active ? 'warning' : 'success' }}" 
@@ -118,133 +117,134 @@
 </div>
 
 <!-- Add Announcement Modal -->
-<div class="modal fade" id="addAnnouncementModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('admin.content-management.announcements.store') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Announcement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="addAnnouncementModal" maxWidth="lg">
+    <x-slot name="title">
+        Add New Announcement
+    </x-slot>
+    
+    <form method="POST" action="{{ route('admin.content-management.announcements.store') }}">
+        @csrf
+        <div class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="title" name="title" required>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="type" name="type" required>
+                        <option value="">Select Type</option>
+                        <option value="general">General</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="event">Event</option>
+                        <option value="academic">Academic</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="type" class="form-label">Type *</label>
-                            <select class="form-select" id="type" name="type" required>
-                                <option value="">Select Type</option>
-                                <option value="general">General</option>
-                                <option value="urgent">Urgent</option>
-                                <option value="event">Event</option>
-                                <option value="academic">Academic</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="priority" class="form-label">Priority *</label>
-                            <select class="form-select" id="priority" name="priority" required>
-                                <option value="">Select Priority</option>
-                                <option value="low">Low</option>
-                                <option value="normal">Normal</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="content" class="form-label">Content *</label>
-                            <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="published_at" class="form-label">Published Date</label>
-                            <input type="datetime-local" class="form-control" id="published_at" name="published_at">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="expires_at" class="form-label">Expires Date</label>
-                            <input type="datetime-local" class="form-control" id="expires_at" name="expires_at">
-                        </div>
-                    </div>
+                <div>
+                    <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Priority *</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="priority" name="priority" required>
+                        <option value="">Select Priority</option>
+                        <option value="low">Low</option>
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Create Announcement</button>
+            </div>
+            <div>
+                <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Content *</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="content" name="content" rows="5" required></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="published_at" class="block text-sm font-medium text-gray-700 mb-1">Published Date</label>
+                    <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="published_at" name="published_at">
                 </div>
-            </form>
+                <div>
+                    <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-1">Expires Date</label>
+                    <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="expires_at" name="expires_at">
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('addAnnouncementModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Create Announcement</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <!-- Edit Announcement Modal -->
-<div class="modal fade" id="editAnnouncementModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" id="editAnnouncementForm">
-                @csrf
-                @method('PUT')
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Announcement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="editAnnouncementModal" maxWidth="lg">
+    <x-slot name="title">
+        Edit Announcement
+    </x-slot>
+    
+    <form method="POST" action="" id="editAnnouncementForm">
+        @csrf
+        @method('PUT')
+        <div class="space-y-4">
+            <div>
+                <label for="edit_title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_title" name="title" required>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_type" class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_type" name="type" required>
+                        <option value="">Select Type</option>
+                        <option value="general">General</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="event">Event</option>
+                        <option value="academic">Academic</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="edit_title" name="title" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_type" class="form-label">Type *</label>
-                            <select class="form-select" id="edit_type" name="type" required>
-                                <option value="general">General</option>
-                                <option value="urgent">Urgent</option>
-                                <option value="event">Event</option>
-                                <option value="academic">Academic</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_priority" class="form-label">Priority *</label>
-                            <select class="form-select" id="edit_priority" name="priority" required>
-                                <option value="low">Low</option>
-                                <option value="normal">Normal</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_content" class="form-label">Content *</label>
-                            <textarea class="form-control" id="edit_content" name="content" rows="5" required></textarea>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_published_at" class="form-label">Published Date</label>
-                            <input type="datetime-local" class="form-control" id="edit_published_at" name="published_at">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_expires_at" class="form-label">Expires Date</label>
-                            <input type="datetime-local" class="form-control" id="edit_expires_at" name="expires_at">
-                        </div>
-                    </div>
+                <div>
+                    <label for="edit_priority" class="block text-sm font-medium text-gray-700 mb-1">Priority *</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_priority" name="priority" required>
+                        <option value="">Select Priority</option>
+                        <option value="low">Low</option>
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Announcement</button>
+            </div>
+            <div>
+                <label for="edit_content" class="block text-sm font-medium text-gray-700 mb-1">Content *</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_content" name="content" rows="5" required></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_published_at" class="block text-sm font-medium text-gray-700 mb-1">Published Date</label>
+                    <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_published_at" name="published_at">
                 </div>
-            </form>
+                <div>
+                    <label for="edit_expires_at" class="block text-sm font-medium text-gray-700 mb-1">Expires Date</label>
+                    <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_expires_at" name="expires_at">
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('editAnnouncementModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Update Announcement</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <script>
 function editAnnouncement(id) {
-    // This would typically fetch announcement data via AJAX
-    // For now, we'll set the form action
-    document.getElementById('editAnnouncementForm').action = `/admin/content-management/announcements/${id}`;
-    
-    // In a real implementation, you'd fetch the announcement data and populate the form
-    // fetch(`/admin/content-management/announcements/${id}/edit`)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         document.getElementById('edit_title').value = data.title;
-    //         document.getElementById('edit_type').value = data.type;
-    //         // ... populate other fields
-    //     });
+    fetch(`/admin/content-management/announcements/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit_title').value = data.title;
+            document.getElementById('edit_type').value = data.type;
+            document.getElementById('edit_priority').value = data.priority;
+            document.getElementById('edit_content').value = data.content;
+            document.getElementById('edit_published_at').value = data.published_at ? data.published_at.slice(0, 16) : '';
+            document.getElementById('edit_expires_at').value = data.expires_at ? data.expires_at.slice(0, 16) : '';
+            document.getElementById('editAnnouncementForm').action = `/admin/content-management/announcements/${id}`;
+            openModal('editAnnouncementModal');
+        })
+        .catch(error => console.error('Error:', error));
 }
 </script>

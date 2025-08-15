@@ -21,24 +21,12 @@
     <div class="bg-white rounded-lg p-4 border border-gray-200 shadow mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div class="flex items-center mb-4 md:mb-0">
-                <div class="w-12 h-12 rounded-full
-                    @if($document->status == 'Verified') bg-green-100
-                    @elseif($document->status == 'Rejected') bg-red-100
-                    @else bg-yellow-100 @endif
-                    flex items-center justify-center mr-4">
-                    <i class="fas
-                        @if($document->status == 'Verified') fa-check text-green-600
-                        @elseif($document->status == 'Rejected') fa-times text-red-600
-                        @else fa-clock text-yellow-600 @endif"></i>
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-file text-blue-600"></i>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500">Status</p>
-                    <p class="text-lg font-bold
-                        @if($document->status == 'Verified') text-green-600
-                        @elseif($document->status == 'Rejected') text-red-600
-                        @else text-yellow-600 @endif">
-                        {{ $document->status }}
-                    </p>
+                    <p class="text-lg font-bold text-blue-600">Available</p>
                 </div>
             </div>
 
@@ -47,42 +35,8 @@
                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
                     <i class="fas fa-download mr-1"></i> Download
                 </a>
-
-                @if(Auth::user()->role === 'admin' && ($document->status == 'Pending' || $document->status == 'Uploaded'))
-                    <form action="{{ route('admin.documents.verify', $document->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                            <i class="fas fa-check mr-1"></i> Verify
-                        </button>
-                    </form>
-
-                    <button type="button"
-                            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                            onclick="document.getElementById('reject-form').classList.toggle('hidden')">
-                        <i class="fas fa-times mr-1"></i> Reject
-                    </button>
-                @endif
             </div>
         </div>
-
-        @if(Auth::user()->role === 'admin' && ($document->status == 'Pending' || $document->status == 'Uploaded'))
-            <div id="reject-form" class="mt-4 hidden">
-                <form action="{{ route('admin.documents.reject', $document->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-3">
-                        <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
-                        <textarea id="rejection_reason" name="rejection_reason" rows="3"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required></textarea>
-                    </div>
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-                        Submit Rejection
-                    </button>
-                </form>
-            </div>
-        @endif
     </div>
 
     <!-- Document Details -->
@@ -127,32 +81,6 @@
         </div>
     </div>
 
-    <!-- Admin Feedback (if any and if rejected) -->
-    @if($document->status == 'Rejected' && $document->rejection_reason)
-    <div class="mt-6 bg-white rounded-lg shadow overflow-hidden">
-        <div class="bg-red-50 border-b border-red-100 px-6 py-4">
-            <h2 class="text-lg font-medium text-red-800">Rejection Reason</h2>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-900">{{ $document->rejection_reason }}</p>
-            @if($document->verified_at)
-            <p class="text-sm text-gray-500 mt-4">Rejected on {{ $document->verified_at->format('M d, Y H:i') }}</p>
-            @endif
-        </div>
-    </div>
-    @endif
 
-    <!-- Verification Information (if verified) -->
-    @if($document->status == 'Verified' && $document->verified_at)
-    <div class="mt-6 bg-white rounded-lg shadow overflow-hidden">
-        <div class="bg-green-50 border-b border-green-100 px-6 py-4">
-            <h2 class="text-lg font-medium text-green-800">Verification Information</h2>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-900">This document has been verified and is valid.</p>
-            <p class="text-sm text-gray-500 mt-4">Verified on {{ $document->verified_at->format('M d, Y H:i') }}</p>
-        </div>
-    </div>
-    @endif
 </div>
 @endsection

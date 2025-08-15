@@ -24,7 +24,7 @@
     <!-- Add New Button -->
     <div class="row mb-3">
         <div class="col-md-12">
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTimelineModal">
+            <button type="button" class="btn btn-success" onclick="openModal('addTimelineModal')">
                 <i class="fas fa-plus"></i> Add New Timeline Event
             </button>
         </div>
@@ -90,8 +90,7 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="editTimeline({{ $timeline->id }})" 
-                                            data-bs-toggle="modal" data-bs-target="#editTimelineModal">
+                                            onclick="editTimeline({{ $timeline->id }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-{{ $timeline->is_active ? 'warning' : 'success' }}" 
@@ -127,149 +126,155 @@
 </div>
 
 <!-- Add Timeline Modal -->
-<div class="modal fade" id="addTimelineModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('admin.content-management.timeline.store') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Timeline Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="addTimelineModal" maxWidth="lg">
+    <x-slot name="title">
+        Add New Timeline Event
+    </x-slot>
+    
+    <form method="POST" action="{{ route('admin.content-management.timeline.store') }}">
+        @csrf
+        <div class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="title" name="title" required>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="type" name="type">
+                        <option value="event">Event</option>
+                        <option value="deadline">Deadline</option>
+                        <option value="milestone">Milestone</option>
+                        <option value="announcement">Announcement</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="type" class="form-label">Type</label>
-                            <select class="form-select" id="type" name="type">
-                                <option value="event">Event</option>
-                                <option value="deadline">Deadline</option>
-                                <option value="milestone">Milestone</option>
-                                <option value="announcement">Announcement</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="priority" class="form-label">Priority</label>
-                            <select class="form-select" id="priority" name="priority">
-                                <option value="low">Low</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="start_date" class="form-label">Start Date *</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="start_time" class="form-label">Start Time</label>
-                            <input type="time" class="form-control" id="start_time" name="start_time">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="end_date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="end_time" class="form-label">End Time</label>
-                            <input type="time" class="form-control" id="end_time" name="end_time">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control" id="sort_order" name="sort_order" min="0">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="location" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="location" name="location">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="4"></textarea>
-                        </div>
-                    </div>
+                <div>
+                    <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="priority" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Create Timeline Event</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="start_date" name="start_date" required>
                 </div>
-            </form>
+                <div>
+                    <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                    <input type="time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="start_time" name="start_time">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="end_date" name="end_date">
+                </div>
+                <div>
+                    <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                    <input type="time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="end_time" name="end_time">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="sort_order" name="sort_order" min="0">
+                </div>
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="location" name="location">
+                </div>
+            </div>
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="description" name="description" rows="4"></textarea>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('addTimelineModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Create Timeline Event</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <!-- Edit Timeline Modal -->
-<div class="modal fade" id="editTimelineModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" id="editTimelineForm">
-                @csrf
-                @method('PUT')
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Timeline Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="editTimelineModal" maxWidth="lg">
+    <x-slot name="title">
+        Edit Timeline Event
+    </x-slot>
+    
+    <form method="POST" id="editTimelineForm">
+        @csrf
+        @method('PUT')
+        <div class="space-y-4">
+            <div>
+                <label for="edit_title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_title" name="title" required>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_type" name="type">
+                        <option value="event">Event</option>
+                        <option value="deadline">Deadline</option>
+                        <option value="milestone">Milestone</option>
+                        <option value="announcement">Announcement</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="edit_title" name="title" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_type" class="form-label">Type</label>
-                            <select class="form-select" id="edit_type" name="type">
-                                <option value="event">Event</option>
-                                <option value="deadline">Deadline</option>
-                                <option value="milestone">Milestone</option>
-                                <option value="announcement">Announcement</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_priority" class="form-label">Priority</label>
-                            <select class="form-select" id="edit_priority" name="priority">
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_start_date" class="form-label">Start Date *</label>
-                            <input type="date" class="form-control" id="edit_start_date" name="start_date" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_start_time" class="form-label">Start Time</label>
-                            <input type="time" class="form-control" id="edit_start_time" name="start_time">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_end_date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="edit_end_date" name="end_date">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_end_time" class="form-label">End Time</label>
-                            <input type="time" class="form-control" id="edit_end_time" name="end_time">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control" id="edit_sort_order" name="sort_order" min="0">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_location" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="edit_location" name="location">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_description" class="form-label">Description</label>
-                            <textarea class="form-control" id="edit_description" name="description" rows="4"></textarea>
-                        </div>
-                    </div>
+                <div>
+                    <label for="edit_priority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_priority" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Timeline Event</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_start_date" name="start_date" required>
                 </div>
-            </form>
+                <div>
+                    <label for="edit_start_time" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                    <input type="time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_start_time" name="start_time">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_end_date" name="end_date">
+                </div>
+                <div>
+                    <label for="edit_end_time" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                    <input type="time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_end_time" name="end_time">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_sort_order" name="sort_order" min="0">
+                </div>
+                <div>
+                    <label for="edit_location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_location" name="location">
+                </div>
+            </div>
+            <div>
+                <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_description" name="description" rows="4"></textarea>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('editTimelineModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Update Timeline Event</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <script>
 function editTimeline(id) {
@@ -284,5 +289,7 @@ function editTimeline(id) {
     //         document.getElementById('edit_type').value = data.type;
     //         // ... populate other fields
     //     });
+    
+    openModal('editTimelineModal');
 }
 </script>

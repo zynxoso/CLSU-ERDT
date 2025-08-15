@@ -88,11 +88,27 @@ class DownloadableForm extends Model
     }
 
     /**
+     * Get file size (alias for formatted_file_size attribute)
+     */
+    public function getFileSize()
+    {
+        return $this->formatted_file_size;
+    }
+
+    /**
      * Get file extension
      */
     public function getFileExtensionAttribute()
     {
         return pathinfo($this->filename, PATHINFO_EXTENSION);
+    }
+
+    /**
+     * Get file extension (method alias for file_extension attribute)
+     */
+    public function getFileExtension()
+    {
+        return $this->file_extension;
     }
 
     /**

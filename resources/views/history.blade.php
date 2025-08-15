@@ -1,9 +1,6 @@
 @extends('layouts.app')
-
 @section('content')
-<!-- Include the navigation component -->
 <x-navigation />
-
 <!-- Hero Section -->
 <div class="relative w-full" style="aspect-ratio: 16/9; background-image: url('{{ asset('images/historyBG.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
     <!-- Dark overlay for better text contrast -->
@@ -665,104 +662,25 @@
     </div>
 </div>
 
-<!-- Enhanced JavaScript -->
-<script>
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-
-    // Reading progress bar
-    window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        const progressBar = document.getElementById('reading-progress');
-        if (progressBar) {
-            progressBar.style.width = scrolled + '%';
-        }
-    });
-
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-
-    // Add animation on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in-up');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.transform').forEach(el => {
-        observer.observe(el);
-    });
-
-    // Back to top functionality
-    const backToTopButton = document.getElementById('back-to-top');
-
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            backToTopButton.classList.remove('opacity-0', 'invisible');
-            backToTopButton.classList.add('opacity-100', 'visible');
-        } else {
-            backToTopButton.classList.add('opacity-0', 'invisible');
-            backToTopButton.classList.remove('opacity-100', 'visible');
-        }
-    });
-
-    if (backToTopButton) {
-        backToTopButton.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    }
-</script>
-
-<style>
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .fade-in-up {
-        animation: fadeInUp 0.6s ease forwards;
-    }
-</style>
-
 <!-- Back to Top Button -->
 <button id="back-to-top" class="fixed bottom-8 right-8 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible z-50 bg-green-600 text-white hover:bg-green-700">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
     </svg>
 </button>
+
+<script>
+    const mobileMenuButton=document.getElementById('mobile-menu-button'),mobileMenu=document.getElementById('mobile-menu');mobileMenuButton.addEventListener('click',()=>{mobileMenu.classList.toggle('hidden');});
+    window.addEventListener('scroll',()=>{const winScroll=document.body.scrollTop||document.documentElement.scrollTop,height=document.documentElement.scrollHeight-document.documentElement.clientHeight,scrolled=(winScroll/height)*100,progressBar=document.getElementById('reading-progress');if(progressBar){progressBar.style.width=scrolled+'%';}});
+    document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener('click',function(e){e.preventDefault();const target=document.querySelector(this.getAttribute('href'));if(target){target.scrollIntoView({behavior:'smooth',block:'start'});}});});
+    const observerOptions={threshold:0.1,rootMargin:'0px 0px -50px 0px'},observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('fade-in-up');}});},observerOptions);document.querySelectorAll('.transform').forEach(el=>{observer.observe(el);});
+    const backToTopButton=document.getElementById('back-to-top');window.addEventListener('scroll',()=>{if(window.pageYOffset>300){backToTopButton.classList.remove('opacity-0','invisible');backToTopButton.classList.add('opacity-100','visible');}else{backToTopButton.classList.add('opacity-0','invisible');backToTopButton.classList.remove('opacity-100','visible');}});if(backToTopButton){backToTopButton.addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});});}
+</script>
+<style>
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in-up{animation:fadeInUp 0.6s ease forwards;}
+</style>
+
 
 <x-footer />
 @endsection

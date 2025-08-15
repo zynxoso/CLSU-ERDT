@@ -3,8 +3,8 @@
     <div class="rounded-xl shadow-xl w-full max-w-md mx-4" style="background-color: #FAFAFA;">
         <div class="p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold" style="color: #212121;">Mark as Under Review</h3>
-                <button onclick="document.getElementById('under-review-modal').classList.add('hidden')" class="transition-colors duration-150" style="color: #757575;" onmouseover="this.style.color='#D32F2F'" onmouseout="this.style.color='#757575'">
+                <h3 class="text-lg font-semibold" style="color: rgb(23 23 23);">Mark as Under Review</h3>
+                <button onclick="document.getElementById('under-review-modal').classList.add('hidden')" class="transition-colors duration-150" style="color: rgb(115 115 115);" onmouseover="this.style.color='#D32F2F'" onmouseout="this.style.color='#757575'">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -26,15 +26,15 @@
                 @method('PUT')
 
                 <div class="mb-4">
-                    <label for="review-notes" class="block text-sm font-medium mb-1" style="color: #424242;">Internal Notes (Optional)</label>
-                    <textarea id="review-notes" name="admin_notes" rows="3" class="w-full px-3 py-2 rounded-md shadow-sm focus:outline-none transition-colors duration-200" style="border: 1px solid #E0E0E0; background-color: white; color: #424242;" placeholder="Add any internal notes here..." onfocus="this.style.borderColor='#FFCA28'" onblur="this.style.borderColor='#E0E0E0'">{{ old('admin_notes') }}</textarea>
+                    <label for="review-notes" class="block text-sm font-medium mb-1" style="color: rgb(64 64 64);">Internal Notes (Optional)</label>
+                    <textarea id="review-notes" name="admin_notes" rows="3" class="w-full px-3 py-2 rounded-md shadow-sm focus:outline-none transition-colors duration-200" style="border: 1px solid #E0E0E0; background-color: rgb(255 255 255); color: rgb(64 64 64);" placeholder="Add any internal notes here..." onfocus="this.style.borderColor='#FFCA28'" onblur="this.style.borderColor='#E0E0E0'">{{ old('admin_notes') }}</textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="document.getElementById('under-review-modal').classList.add('hidden')" class="px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200" style="color: white; background-color: #757575; border: 1px solid #757575;" onmouseover="this.style.backgroundColor='#616161'" onmouseout="this.style.backgroundColor='#757575'">
+                    <button type="button" onclick="document.getElementById('under-review-modal').classList.add('hidden')" class="px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200" style="color: rgb(255 255 255); background-color: rgb(115 115 115); border: 1px solid #757575;" onmouseover="this.style.backgroundColor='#616161'" onmouseout="this.style.backgroundColor='#757575'">
                         Cancel
                     </button>
-                    <button type="submit" id="review-submit-btn" class="px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" style="background-color: #FFCA28; color: #424242;" onmouseover="this.style.backgroundColor='#FFB300'" onmouseout="this.style.backgroundColor='#FFCA28'">
+                    <button type="submit" id="review-submit-btn" class="px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" style="background-color: rgb(251 191 36); color: rgb(64 64 64);" onmouseover="this.style.backgroundColor='#FFB300'" onmouseout="this.style.backgroundColor='#FFCA28'">
                         <i class="fas fa-search mr-1"></i> Mark as Under Review
                     </button>
                 </div>

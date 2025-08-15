@@ -59,7 +59,7 @@ class ProfileController extends Controller
         session()->regenerateToken();
 
         // Redirect to appropriate login page based on user role
-        $loginRoute = $isAdmin ? 'login' : 'scholar-login';
+        $loginRoute = $isAdmin ? 'login' : 'scholar.login';
         return redirect()->route($loginRoute);
     }
 }

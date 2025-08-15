@@ -35,7 +35,7 @@ class BaseException extends Exception
      * @param array $context Additional context data
      * @return void
      */
-    public function __construct(string $message = "", int $code = 0, \Throwable $previous = null, array $context = [])
+    public function __construct(string $message = "", int $code = 0, ?\Throwable $previous = null, array $context = [])
     {
         parent::__construct($message, $code, $previous);
         $this->context = $context;
@@ -83,5 +83,15 @@ class BaseException extends Exception
     {
         $this->context = array_merge($this->context, $context);
         return $this;
+    }
+
+    /**
+     * Kunin ang HTTP status code para sa exception na ito.
+     *
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return 500; // Default to internal server error
     }
 }

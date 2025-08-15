@@ -43,7 +43,13 @@ class FundRequestValidationService
         }
 
         // 4. Document validation
-        if (isset($data['document'])) {
+        if (isset($data['documents'])) {
+            $documentValidation = $this->validateDocuments($data['documents']);
+            if (!$documentValidation['valid']) {
+                $errors = array_merge($errors, $documentValidation['errors']);
+            }
+        } elseif (isset($data['document'])) {
+            // Backward compatibility for single document
             $documentValidation = $this->validateDocument($data['document']);
             if (!$documentValidation['valid']) {
                 $errors = array_merge($errors, $documentValidation['errors']);
@@ -207,14 +213,53 @@ class FundRequestValidationService
     }
 
     /**
-     * Validate document upload
+     * Validate multiple document uploads
      *
-     * @param mixed $document
+     * @param array $documents
      * @return array
      */
-    private function validateDocument($document): array
+    private function validateDocuments(array $documents): array
     {
         $errors = [];
+
+        if (empty($documents)) {
+            return ['valid' => true, 'errors' => []]; // Documents are optional
+        }
+
+        // Limit to maximum 5 documents
+        if (count($documents) > 5) {
+            $errors[] = 'You can upload a maximum of 5 documents.';
+            return ['valid' => false, 'errors' => $errors];
+        }
+
+        foreach ($documents as $index => $document) {
+            if (!$document) {
+                continue;
+            }
+
+            $documentValidation = $this->validateSingleDocument($document, $index + 1);
+            if (!$documentValidation['valid']) {
+                $errors = array_merge($errors, $documentValidation['errors']);
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    /**
+     * Validate single document upload
+     *
+     * @param mixed $document
+     * @param int $documentNumber
+     * @return array
+     */
+    private function validateSingleDocument($document, int $documentNumber = 1): array
+    {
+        $errors = [];
+        $prefix = $documentNumber > 1 ? "Document {$documentNumber}: " : '';
 
         if (!$document) {
             return ['valid' => true, 'errors' => []]; // Document is optional
@@ -222,7 +267,7 @@ class FundRequestValidationService
 
         // Check if it's a valid uploaded file
         if (!$document->isValid()) {
-            $errors[] = 'The uploaded file is corrupted or invalid. Please try uploading again.';
+            $errors[] = $prefix . 'The uploaded file is corrupted or invalid. Please try uploading again.';
             return ['valid' => false, 'errors' => $errors];
         }
 
@@ -231,28 +276,28 @@ class FundRequestValidationService
         $mimeType = $document->getMimeType();
 
         if ($extension !== 'pdf' || $mimeType !== 'application/pdf') {
-            $errors[] = 'Only PDF files are allowed for document uploads.';
+            $errors[] = $prefix . 'Only PDF files are allowed for document uploads.';
         }
 
         // File size validation (5MB)
         if ($document->getSize() > 5242880) {
-            $errors[] = 'The document file size must not exceed 5MB.';
+            $errors[] = $prefix . 'The document file size must not exceed 5MB.';
         }
 
         // Minimum file size (1KB)
         if ($document->getSize() < 1024) {
-            $errors[] = 'The document file appears to be too small or corrupted.';
+            $errors[] = $prefix . 'The document file appears to be too small or corrupted.';
         }
 
         // File name validation
         $fileName = $document->getClientOriginalName();
         if (strlen($fileName) > 255) {
-            $errors[] = 'The file name is too long. Please rename the file and try again.';
+            $errors[] = $prefix . 'The file name is too long. Please rename the file and try again.';
         }
 
         // Check for suspicious characters
         if (preg_match('/[<>:"|?*]/', $fileName)) {
-            $errors[] = 'The file name contains invalid characters. Please rename the file.';
+            $errors[] = $prefix . 'The file name contains invalid characters. Please rename the file.';
         }
 
         return [
@@ -260,6 +305,19 @@ class FundRequestValidationService
             'errors' => $errors
         ];
     }
+
+    /**
+     * Validate document upload (backward compatibility)
+     *
+     * @param mixed $document
+     * @return array
+     */
+    private function validateDocument($document): array
+    {
+        return $this->validateSingleDocument($document, 1);
+    }
+
+
 
     /**
      * Validate role-specific rules

@@ -1,0 +1,150 @@
+VIEW USAGE ANALYSIS - CLSU ERDT Laravel Application
+=================================================
+
+Based on comprehensive codebase analysis, here are the USED view files:
+
+## LAYOUTS (All Used)
+- layouts/app.blade.php (main layout, referenced everywhere)
+- layouts/admin-navigation.blade.php (admin navigation)
+- layouts/scholar-navigation.blade.php (scholar navigation)
+- layouts/admin-simple.blade.php (simple admin layout)
+
+## AUTHENTICATION VIEWS (All Used)
+- auth/login.blade.php (login page)
+- auth/register.blade.php (registration page)
+- auth/verify-email.blade.php (email verification)
+- auth/confirm-password.blade.php (password confirmation)
+- auth/two-factor-challenge.blade.php (2FA challenge)
+
+## ERROR PAGES (All Used)
+- errors/403.blade.php (forbidden error)
+- errors/404.blade.php (not found error)
+- errors/419.blade.php (CSRF token error)
+- errors/429.blade.php (rate limit error)
+- errors/500.blade.php (server error)
+- errors/503.blade.php (service unavailable)
+
+## ADMIN VIEWS (Used)
+- admin/dashboard.blade.php (admin dashboard)
+- admin/profile.blade.php (admin profile)
+- admin/scholars/index.blade.php (scholars list)
+- admin/scholars/create.blade.php (create scholar)
+- admin/scholars/edit.blade.php (edit scholar)
+- admin/scholars/show.blade.php (view scholar)
+- admin/fund-requests/index.blade.php (fund requests list)
+- admin/fund-requests/show.blade.php (view fund request)
+- admin/fund-requests/modals/approve.blade.php (approval modal)
+- admin/fund-requests/modals/reject.blade.php (rejection modal)
+- admin/fund-requests/modals/under-review.blade.php (review modal)
+- admin/manuscripts/index.blade.php (manuscripts list)
+- admin/manuscripts/show.blade.php (view manuscript)
+- admin/manuscripts/_manuscript_list.blade.php (manuscript list partial)
+- admin/documents/index.blade.php (documents list)
+- admin/documents/show.blade.php (view document)
+- admin/audit-logs/index.blade.php (audit logs)
+- admin/notifications/index.blade.php (notifications list)
+- admin/notifications/index-livewire.blade.php (livewire notifications)
+- admin/stipends/index.blade.php (stipend notifications)
+- admin/stipends/bulk-notify.blade.php (bulk stipend notifications)
+- admin/announcements/index.blade.php (announcements)
+- admin/announcements/create.blade.php (create announcement)
+- admin/announcements/edit.blade.php (edit announcement)
+- admin/faculty/index.blade.php (faculty list)
+- admin/faculty/create.blade.php (create faculty)
+- admin/faculty/edit.blade.php (edit faculty)
+- admin/downloadable-forms/index.blade.php (forms list)
+- admin/downloadable-forms/create.blade.php (create form)
+- admin/downloadable-forms/edit.blade.php (edit form)
+- admin/timeline/index.blade.php (timeline)
+- admin/timeline/create.blade.php (create timeline)
+- admin/timeline/edit.blade.php (edit timeline)
+- admin/important-notes/index.blade.php (important notes)
+- admin/important-notes/create.blade.php (create note)
+- admin/important-notes/edit.blade.php (edit note)
+- admin/history-achievements/index.blade.php (history achievements)
+- admin/history-achievements/create.blade.php (create achievement)
+- admin/history-achievements/edit.blade.php (edit achievement)
+- admin/history-contents/index.blade.php (history contents)
+- admin/history-contents/create.blade.php (create content)
+- admin/history-contents/edit.blade.php (edit content)
+- admin/reports/index.blade.php (reports)
+
+## SCHOLAR VIEWS (Used)
+- scholar/dashboard.blade.php (scholar dashboard)
+- scholar/profile.blade.php (scholar profile)
+- scholar/notifications.blade.php (scholar notifications)
+- scholar/fund-requests/index.blade.php (fund requests list)
+- scholar/fund-requests/create.blade.php (create fund request)
+- scholar/fund-requests/edit.blade.php (edit fund request)
+- scholar/fund-requests/show.blade.php (view fund request)
+- scholar/manuscripts/index.blade.php (manuscripts list)
+- scholar/manuscripts/create.blade.php (create manuscript)
+- scholar/manuscripts/edit.blade.php (edit manuscript)
+- scholar/manuscripts/show.blade.php (view manuscript)
+- scholar/documents/index.blade.php (documents list)
+- scholar/documents/create.blade.php (create document)
+- scholar/documents/edit.blade.php (edit document)
+- scholar/documents/show.blade.php (view document)
+
+## LIVEWIRE COMPONENTS (All Used)
+- livewire/admin/modal-manager.blade.php
+- livewire/admin/super-admin-dashboard.blade.php
+- livewire/admin/fund-request-management.blade.php
+- livewire/admin/delete-confirmation-modal.blade.php
+- livewire/admin/manage-scholars.blade.php
+- livewire/admin/manuscript-management.blade.php
+- livewire/admin/notifications-management.blade.php
+- livewire/admin/announcement-management.blade.php
+- livewire/components/current-semester-chip.blade.php
+- livewire/scholar/fund-requests-list.blade.php
+- livewire/scholar/notifications.blade.php
+- livewire/scholar/manuscripts-list.blade.php
+- livewire/scholar/scholar-dashboard.blade.php
+
+## COMPONENTS (Used)
+- components/global-loading.blade.php (global loading component)
+- components/fund-request-validation-modal.blade.php (validation modal)
+
+## PARTIALS (Used)
+- partials/personal-info-fields.blade.php (personal info fields)
+- partials/address-info-fields.blade.php (address info fields)
+- partials/academic-info-fields.blade.php (academic info fields)
+- partials/scholarship-details-fields.blade.php (scholarship details)
+
+## PUBLIC PAGES (Used)
+- pages/index.blade.php (public homepage)
+- pages/about.blade.php (about page)
+- pages/announcements.blade.php (public announcements)
+- pages/faculty.blade.php (faculty page)
+- pages/downloadable-forms.blade.php (downloadable forms)
+- pages/timeline.blade.php (timeline page)
+- pages/history.blade.php (history page)
+
+## SUPER ADMIN VIEWS (Used)
+- super_admin/notifications/index.blade.php (super admin notifications)
+
+## ROOT LEVEL VIEWS (Used)
+- index.blade.php (main index page)
+
+## DOWNLOADABLE FORMS (Used)
+- downloadable-forms/index.blade.php (forms index)
+- downloadable-forms/create.blade.php (create form)
+- downloadable-forms/edit.blade.php (edit form)
+
+## DOCUMENTS (Used)
+- documents/index.blade.php (documents index)
+- documents/create.blade.php (create document)
+- documents/edit.blade.php (edit document)
+- documents/show.blade.php (view document)
+
+=================================================
+CONCLUSION: All view files found in the directory listing appear to be used based on the comprehensive search results. No unused view files were identified.
+
+The Laravel application follows standard conventions and all views are properly referenced through:
+1. Controller methods returning views
+2. Route definitions
+3. Livewire component views
+4. Blade directives (@extends, @include, @component)
+5. Dynamic view loading patterns
+
+No files should be removed as they are all actively used in the application.

@@ -17,7 +17,7 @@ class CreateFundRequest extends Component
     // Form fields
     public $request_type_id = '';
     public $amount = '';
-    public $document;
+    public $documents = [];
     public $admin_remarks = '';
 
     // Validation states
@@ -40,7 +40,7 @@ class CreateFundRequest extends Component
     protected $rules = [
         'request_type_id' => 'required|exists:request_types,id',
         'amount' => 'required|numeric|min:0.01|max:10000000',
-        'document' => 'nullable|file|mimes:pdf|max:5120',
+        'documents.*' => 'nullable|file|mimes:pdf|max:5120',
         'admin_remarks' => 'nullable|string|max:1000',
     ];
 
@@ -51,8 +51,8 @@ class CreateFundRequest extends Component
         'amount.numeric' => 'The amount must be a valid number.',
         'amount.min' => 'The minimum request amount is ₱1.00.',
         'amount.max' => 'The amount exceeds the maximum allowable limit.',
-        'document.mimes' => 'Only PDF files are allowed for document uploads.',
-        'document.max' => 'The document file size must not exceed 5MB.',
+        'documents.*.mimes' => 'Only PDF files are allowed for document uploads.',
+        'documents.*.max' => 'Each document file size must not exceed 5MB.',
     ];
 
     public function mount()
@@ -93,9 +93,11 @@ class CreateFundRequest extends Component
         $this->validateAmount();
     }
 
-    public function updatedDocument($value)
+    public function updatedDocuments($value)
     {
-        $this->validateDocument();
+        $this->validateDocuments();
+        // Reset the file input to allow new uploads
+        $this->dispatch('reset-file-input');
     }
 
     public function validateRequestType()
@@ -170,34 +172,62 @@ class CreateFundRequest extends Component
         return true;
     }
 
-    public function validateDocument()
+    public function validateDocuments()
     {
-        $this->clearFieldValidation('document');
+        $this->clearFieldValidation('documents');
 
-        if (!$this->document) {
-            return true; // Document is optional
+        if (empty($this->documents)) {
+            return true; // Documents are optional
         }
 
-        // File type validation
-        if ($this->document->getMimeType() !== 'application/pdf') {
-            $this->setFieldError('document', 'Only PDF files are allowed for document uploads.');
+        // Limit to maximum 5 documents
+        if (count($this->documents) > 5) {
+            $this->setFieldError('documents', 'You can upload a maximum of 5 documents.');
             return false;
         }
 
-        // File size validation (5MB)
-        if ($this->document->getSize() > 5242880) {
-            $this->setFieldError('document', 'The document file size must not exceed 5MB.');
-            return false;
+        foreach ($this->documents as $index => $document) {
+            if (!$document) {
+                continue;
+            }
+
+            // File type validation
+            if ($document->getMimeType() !== 'application/pdf') {
+                $this->setFieldError('documents', 'Only PDF files are allowed for document uploads.');
+                return false;
+            }
+
+            // File size validation (5MB)
+            if ($document->getSize() > 5242880) {
+                $this->setFieldError('documents', 'Each document file size must not exceed 5MB.');
+                return false;
+            }
+
+            // Minimum file size (1KB)
+            if ($document->getSize() < 1024) {
+                $this->setFieldError('documents', 'One or more document files appear to be too small or corrupted.');
+                return false;
+            }
         }
 
-        // Minimum file size (1KB)
-        if ($this->document->getSize() < 1024) {
-            $this->setFieldError('document', 'The document file appears to be too small or corrupted.');
-            return false;
-        }
-
-        $this->setFieldSuccess('document');
+        $this->setFieldSuccess('documents');
         return true;
+    }
+
+    public function removeDocument($index)
+    {
+        if (isset($this->documents[$index])) {
+            unset($this->documents[$index]);
+            $this->documents = array_values($this->documents); // Re-index array
+            $this->validateDocuments();
+        }
+    }
+
+    public function clearAllDocuments()
+    {
+        $this->documents = [];
+        $this->clearFieldValidation('documents');
+        $this->dispatch('reset-file-input');
     }
 
     public function validateAllFields()
@@ -212,7 +242,7 @@ class CreateFundRequest extends Component
             $isValid = false;
         }
 
-        if (!$this->validateDocument()) {
+        if (!$this->validateDocuments()) {
             $isValid = false;
         }
 
@@ -227,7 +257,7 @@ class CreateFundRequest extends Component
                 $this->currentStep = 2;
             }
         } elseif ($this->currentStep === 2) {
-            if ($this->validateDocument()) {
+            if ($this->validateDocuments()) {
                 $this->currentStep = 3;
             }
         }
@@ -262,13 +292,20 @@ class CreateFundRequest extends Component
             $validationResult = $validationService->validateFundRequestCreation([
                 'request_type_id' => $this->request_type_id,
                 'amount' => $this->amount,
-                'document' => $this->document,
+                'documents' => $this->documents,
                 'admin_remarks' => $this->admin_remarks,
             ], $user->scholarProfile->id);
 
             if (!$validationResult['valid']) {
                 $this->showError('Validation Error', $validationService->formatErrorMessages($validationResult['errors']));
                 return;
+            }
+
+            // Create a custom request with documents
+            $customRequest = request();
+            if (!empty($this->documents)) {
+                // Convert Livewire uploaded files to request files
+                $customRequest->files->set('documents', $this->documents);
             }
 
             // Create the fund request
@@ -278,15 +315,13 @@ class CreateFundRequest extends Component
                 'amount' => str_replace([',', '₱', ' '], '', $this->amount),
                 'admin_remarks' => $this->admin_remarks,
                 'status' => FundRequest::STATUS_SUBMITTED,
-            ], $user->scholarProfile->id, request());
+            ], $user->scholarProfile->id, $customRequest);
 
-            // Handle document upload if provided
-            if ($this->document) {
-                // Document handling is done in the service
-            }
+            // Clear the documents after successful submission
+            $this->documents = [];
 
             session()->flash('success', 'Fund request submitted successfully. Your request will be reviewed by an administrator.');
-            return redirect()->route('scholar.fund-requests.show', $fundRequest->id);
+            return redirect()->route('scholar.fund-requests.index');
 
         } catch (\Exception $e) {
             $this->showError('Submission Error', 'Failed to submit fund request: ' . $e->getMessage());

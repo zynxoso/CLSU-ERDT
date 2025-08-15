@@ -75,7 +75,7 @@
     </div>
     @endif
 
-    <div class="space-y-6">
+    <div class="space-y-6" @if($autoRefreshEnabled) wire:poll.{{ $refreshInterval }}s="refreshData" @endif>
         <!-- Welcome Section -->
         <div class="mb-6 bg-white rounded-lg p-6 shadow-sm hover:shadow-md">
             <div class="flex items-center justify-between">
@@ -83,20 +83,133 @@
                     <h1 class="text-2xl font-bold text-gray-900">Welcome, Super Admin {{ $user->name }}!</h1>
                     <p class="text-sm text-gray-500">{{ now()->format('l, F j, Y') }}</p>
                 </div>
+                <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-2">
                     <span class="text-xs text-gray-500">Last updated: {{ $lastRefresh }}</span>
-                    <button wire:click="refreshData"
-                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg wire:loading.remove wire:target="refreshData" class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <div class="flex items-center space-x-1">
+                        <button wire:click="toggleAutoRefresh"
+                                class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md {{ $autoRefreshEnabled ? 'text-green-700 bg-green-100 hover:bg-green-200' : 'text-gray-700 bg-gray-100 hover:bg-gray-200' }}">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ $autoRefreshEnabled ? 'Auto: ON' : 'Auto: OFF' }}
+                        </button>
+                        <button wire:click="refreshData"
+                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg wire:loading.remove wire:target="refreshData" class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <svg wire:loading wire:target="refreshData" class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span wire:loading.remove wire:target="refreshData">Refresh</span>
+                            <span wire:loading wire:target="refreshData">Updating...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- System Health Status -->
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">System Health</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                @foreach($systemHealth as $service => $health)
+                    <div class="flex items-center space-x-3 p-3 rounded-lg border {{ $health['status'] === 'healthy' ? 'border-green-200 bg-green-50' : ($health['status'] === 'warning' ? 'border-yellow-200 bg-yellow-50' : 'border-red-200 bg-red-50') }}">
+                        <div class="flex-shrink-0">
+                            @if($health['status'] === 'healthy')
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            @elseif($health['status'] === 'warning')
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            @else
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            @endif
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 capitalize">{{ str_replace('_', ' ', $service) }}</p>
+                            <p class="text-xs text-gray-500">{{ $health['message'] }}</p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Capacity Monitoring -->
+        @php
+            $capacityMetrics = $this->getCapacityMetrics();
+        @endphp
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">System Capacity</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- CPU Usage -->
+                <div class="text-center">
+                    <div class="relative w-20 h-20 mx-auto mb-2">
+                        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-200" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="{{ $capacityMetrics['cpu_usage'] > 80 ? 'text-red-500' : ($capacityMetrics['cpu_usage'] > 60 ? 'text-yellow-500' : 'text-green-500') }}" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="{{ $capacityMetrics['cpu_usage'] }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         </svg>
-                        <svg wire:loading wire:target="refreshData" class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-sm font-semibold">{{ $capacityMetrics['cpu_usage'] }}%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600">CPU Usage</p>
+                </div>
+
+                <!-- Memory Usage -->
+                <div class="text-center">
+                    <div class="relative w-20 h-20 mx-auto mb-2">
+                        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-200" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="{{ $capacityMetrics['memory_usage'] > 80 ? 'text-red-500' : ($capacityMetrics['memory_usage'] > 60 ? 'text-yellow-500' : 'text-green-500') }}" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="{{ $capacityMetrics['memory_usage'] }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         </svg>
-                        <span wire:loading.remove wire:target="refreshData">Refresh</span>
-                        <span wire:loading wire:target="refreshData">Updating...</span>
-                    </button>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-sm font-semibold">{{ $capacityMetrics['memory_usage'] }}%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600">Memory</p>
+                </div>
+
+                <!-- Disk Usage -->
+                <div class="text-center">
+                    <div class="relative w-20 h-20 mx-auto mb-2">
+                        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-200" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="{{ $capacityMetrics['disk_usage'] > 80 ? 'text-red-500' : ($capacityMetrics['disk_usage'] > 60 ? 'text-yellow-500' : 'text-green-500') }}" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="{{ $capacityMetrics['disk_usage'] }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-sm font-semibold">{{ $capacityMetrics['disk_usage'] }}%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600">Storage</p>
+                </div>
+
+                <!-- Active Users -->
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center bg-blue-100 rounded-full">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-blue-600">{{ $capacityMetrics['active_users'] }}</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600">Active Users</p>
+                </div>
+
+                <!-- Request Rate -->
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center bg-purple-100 rounded-full">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-purple-600">{{ $capacityMetrics['request_rate'] }}</div>
+                            <div class="text-xs text-purple-500">req/min</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600">Requests</p>
                 </div>
             </div>
         </div>
@@ -274,7 +387,7 @@
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(51, 65, 85, 0.95);
-            color: white;
+            color: rgb(255 255 255);
             text-align: center;
             padding: 5px 10px;
             border-radius: 6px;
@@ -305,7 +418,7 @@
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(51, 65, 85, 0.95);
-            color: white;
+            color: rgb(255 255 255);
             text-align: center;
             padding: 5px 10px;
             border-radius: 6px;

@@ -42,7 +42,8 @@ class FundRequestFilters extends Component
     {
         $scholarId = Auth::user()->scholarProfile->id;
 
-        $fundRequests = FundRequest::where('scholar_profile_id', $scholarId)
+        $fundRequests = FundRequest::withFullRelations()
+            ->where('scholar_profile_id', $scholarId)
             ->when($this->status, function ($query) {
                 $query->where('status', $this->status);
             })

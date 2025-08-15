@@ -68,13 +68,10 @@ class UserManagement extends Component
 
     public function toggleUserStatus($userId)
     {
-        $this->dispatch('show-loading');
-        
         $user = User::findOrFail($userId);
 
         // Prevent deactivating the current user
         if (Auth::user()->id === $user->id) {
-            $this->dispatch('hide-loading');
             session()->flash('error', 'You cannot deactivate your own account');
             return;
         }
@@ -91,7 +88,6 @@ class UserManagement extends Component
         );
 
         $status = $user->is_active ? 'activated' : 'deactivated';
-        $this->dispatch('hide-loading');
         session()->flash('success', "User {$user->name} has been {$status} successfully");
     }
 
@@ -112,14 +108,11 @@ class UserManagement extends Component
             session()->flash('error', 'Please type DELETE to confirm');
             return;
         }
-
-        $this->dispatch('show-loading');
         
         $user = $this->userToDelete;
 
         // Prevent deletion of the current user
         if (Auth::user()->id === $user->id) {
-            $this->dispatch('hide-loading');
             session()->flash('error', 'You cannot delete your own account');
             $this->closeDeleteModal();
             return;
@@ -127,7 +120,6 @@ class UserManagement extends Component
 
         // Prevent deletion of super admin users by non-super admin users
         if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
-            $this->dispatch('hide-loading');
             session()->flash('error', 'You cannot delete super admin accounts');
             $this->closeDeleteModal();
             return;
@@ -145,7 +137,6 @@ class UserManagement extends Component
         $userName = $user->name;
         $user->delete();
 
-        $this->dispatch('hide-loading');
         session()->flash('success', "User {$userName} has been deleted successfully");
         $this->closeDeleteModal();
     }

@@ -49,8 +49,8 @@ class ScholarProfileController extends Controller
         // Start with profile completion
         $scholarProgress = 0;
 
-        // Check if essential profile fields are filled
-        $essentialFields = ['intended_university', 'department', 'student_id', 'phone'];
+        // Check if essential profile fields are filled (only fields scholars can control)
+        $essentialFields = ['first_name', 'last_name', 'birth_date', 'gender', 'contact_number'];
         $filledFields = 0;
         foreach ($essentialFields as $field) {
             if (!empty($scholar->$field)) {
@@ -120,6 +120,7 @@ class ScholarProfileController extends Controller
     public function update(ScholarProfileUpdateRequest $request): RedirectResponse
     {
         /** @var \Illuminate\Http\Request $request */
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // All validation is handled in the ScholarProfileUpdateRequest
@@ -128,6 +129,7 @@ class ScholarProfileController extends Controller
         // Store original data for logging
         $originalData = null;
 
+        /** @var \App\Models\ScholarProfile|null $scholarProfile */
         $scholarProfile = $user->scholarProfile;
 
         if (!$scholarProfile) {
@@ -135,27 +137,10 @@ class ScholarProfileController extends Controller
             $scholarProfile = new ScholarProfile();
             $scholarProfile->user_id = $user->id;
             $scholarProfile->setAttribute('status', 'Pending');
-
-            // Default values if creating new profile
-            $scholarProfile->intended_university = 'Central Luzon State University';
-            if (!isset($validatedData['department'])) {
-                $scholarProfile->department = 'Engineering';
-            }
-            // Default department if not provided
-            if (!isset($validatedData['department'])) {
-                $scholarProfile->department = 'Engineering';
-            }
         } else {
             // Store original data for existing profile
             $originalData = $scholarProfile->toArray();
         }
-
-        // Update academic information - always set university to CLSU
-        $scholarProfile->intended_university = 'Central Luzon State University';
-        if (isset($validatedData['department'])) {
-            $scholarProfile->department = $validatedData['department'];
-        }
-        // Program field has been removed - department is now the primary field
 
 
 
@@ -169,6 +154,9 @@ class ScholarProfileController extends Controller
         if (isset($validatedData['last_name'])) {
             $scholarProfile->last_name = $validatedData['last_name'];
         }
+        if (isset($validatedData['suffix'])) {
+            $scholarProfile->suffix = $validatedData['suffix'];
+        }
         if (isset($validatedData['birth_date'])) {
             $scholarProfile->birth_date = $validatedData['birth_date'];
         }
@@ -176,100 +164,101 @@ class ScholarProfileController extends Controller
             $scholarProfile->gender = $validatedData['gender'];
         }
 
-        // Update contact information - sync both phone and contact_number fields
+        // Update contact information
         if (isset($validatedData['phone'])) {
-            $scholarProfile->phone = $validatedData['phone'];
-            $scholarProfile->contact_number = $validatedData['phone']; // Sync for admin views
-        }
-
-
-        // Update optional academic fields
-        if (isset($validatedData['start_date'])) {
-            $scholarProfile->start_date = $validatedData['start_date'];
-        }
-        // Expected completion date field has been removed
-
-        // Update bachelor's degree information
-
-        
-        // Handle profile photo removal
-        if ($request->has('remove_photo') && $request->input('remove_photo') == '1') {
+            Log::info('Updating contact_number', [
+                'user_id' => $user->id,
+                'phone_value' => $validatedData['phone'],
+                'current_contact_number' => $scholarProfile->contact_number ?? 'null'
+            ]);
             try {
-                // Delete existing photo if it exists
-                if ($scholarProfile->profile_photo) {
-                    $photoPath = public_path('images/' . $scholarProfile->profile_photo);
-                    if (file_exists($photoPath)) {
-                        unlink($photoPath);
-                    }
-                }
-                $scholarProfile->profile_photo = null;
-                Log::info('Profile photo removed for scholar profile ' . $scholarProfile->id);
+                $scholarProfile->contact_number = $validatedData['phone'];
+                Log::info('Contact number updated successfully', ['user_id' => $user->id]);
             } catch (\Exception $e) {
-                Log::error('Failed to remove profile photo: ' . $e->getMessage(), [
-                    'scholar_profile_id' => $scholarProfile->id,
-                    'exception' => $e
+                Log::error('Failed to update contact_number', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                    'phone_value' => $validatedData['phone']
                 ]);
+                throw $e;
             }
         }
 
-        // Handle profile photo upload
-        if ($request->hasFile('profile_photo')) {
-            try {
-                // Delete old photo if exists
-                if ($scholarProfile->profile_photo) {
-                    $oldPhotoPath = public_path('images/' . $scholarProfile->profile_photo);
-                    if (file_exists($oldPhotoPath)) {
-                        unlink($oldPhotoPath);
-                    }
-                }
-
-                // Ensure images directory exists
-                $imagesDir = public_path('images');
-                if (!is_dir($imagesDir)) {
-                    mkdir($imagesDir, 0755, true);
-                }
-
-                // Store new photo in public/images
-                $file = $request->file('profile_photo');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move($imagesDir, $fileName);
-                $scholarProfile->profile_photo = $fileName;
-
-                Log::info('Profile photo updated successfully for scholar profile ' . $scholarProfile->id);
-            } catch (\Exception $e) {
-                Log::error('Failed to upload profile photo: ' . $e->getMessage(), [
-                    'scholar_profile_id' => $scholarProfile->id,
-                    'exception' => $e
-                ]);
-            }
+        // Update address information
+        if (isset($validatedData['street'])) {
+            $scholarProfile->street = $validatedData['street'];
         }
+        if (isset($validatedData['village'])) {
+            $scholarProfile->village = $validatedData['village'];
+        }
+        if (isset($validatedData['town'])) {
+            $scholarProfile->town = $validatedData['town'];
+        }
+        if (isset($validatedData['province'])) {
+            $scholarProfile->province = $validatedData['province'];
+        }
+        if (isset($validatedData['zipcode'])) {
+            $scholarProfile->zipcode = $validatedData['zipcode'];
+        }
+        if (isset($validatedData['district'])) {
+            $scholarProfile->district = $validatedData['district'];
+        }
+        if (isset($validatedData['region'])) {
+            $scholarProfile->region = $validatedData['region'];
+        }
+        if (isset($validatedData['country'])) {
+            $scholarProfile->country = $validatedData['country'];
+        }
+
+
 
         try {
+            // Debug: Log the data being saved
+            Log::info('Attempting to save scholar profile', [
+                'user_id' => $user->id,
+                'validated_data' => $validatedData,
+                'scholar_profile_data' => $scholarProfile->toArray()
+            ]);
+
             $scholarProfile->save();
+
+            Log::info('Scholar profile saved successfully', ['profile_id' => $scholarProfile->id]);
 
             // Update user's name if name fields were changed
             if (isset($validatedData['first_name']) || isset($validatedData['middle_name']) || isset($validatedData['last_name'])) {
                 $newName = $scholarProfile->first_name . ' ' . ($scholarProfile->middle_name ? $scholarProfile->middle_name . ' ' : '') . $scholarProfile->last_name;
                 if ($user->name !== $newName) {
+                    Log::info('Updating user name', ['old_name' => $user->name, 'new_name' => $newName]);
                     $user->name = $newName;
                     $user->save();
                 }
             }
 
             // Create audit log using the AuditService
-            if ($originalData) {
-                $this->auditService->logUpdate('ScholarProfile', $scholarProfile->id, $originalData, $scholarProfile->toArray());
-            } else {
-                $this->auditService->logCreate('ScholarProfile', $scholarProfile->id, $scholarProfile->toArray());
+            try {
+                if ($originalData) {
+                    $this->auditService->logUpdate('ScholarProfile', $scholarProfile->id, $originalData, $scholarProfile->toArray());
+                } else {
+                    $this->auditService->logCreate('ScholarProfile', $scholarProfile->id, $scholarProfile->toArray());
+                }
+                Log::info('Audit log created successfully');
+            } catch (\Exception $auditException) {
+                Log::warning('Failed to create audit log: ' . $auditException->getMessage());
+                // Continue execution even if audit logging fails
             }
 
             return redirect()->route('scholar.profile.edit')
                 ->with('success', 'Your profile has been updated successfully.');
         } catch (\Exception $e) {
-            Log::error('Failed to update scholar profile: ' . $e->getMessage());
+            Log::error('Failed to update scholar profile', [
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(),
+                'user_id' => $user->id,
+                'validated_data' => $validatedData
+            ]);
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update scholar profile. Please try again.');
+                ->with('error', 'Failed to update scholar profile. Error: ' . $e->getMessage());
         }
     }
 

@@ -2,18 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ScholarController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\FundRequestController;
-use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\ManuscriptController;
-
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\ScholarFundRequestController;
 use App\Http\Controllers\ScholarProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
@@ -21,6 +17,7 @@ use App\Http\Controllers\Admin\StipendController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\DownloadableFormController;
+
 
 // Redirect to home page
 Route::get('/', function () {
@@ -30,7 +27,7 @@ Route::get('/', function () {
 // Scholar Login Route is handled in auth.php
 // Admin/SuperAdmin Login Route is handled in auth.php
 
-Route::get('/faculty', [PublicPageController::class, 'faculty'])->name('faculty');
+
 
 // Include authentication routes
 require __DIR__.'/auth.php';
@@ -114,14 +111,10 @@ Route::middleware(['auth:scholar'])->prefix('scholar')->name('scholar.')->group(
     Route::get('/documents/{id}/view', [DocumentController::class, 'view'])->name('documents.view');
     Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
 
-    // Notification AJAX routes (with rate limiting)
-    Route::get('/notifications/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read')->middleware('api.rate.limit:ajax');
-    Route::get('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read')->middleware('api.rate.limit:ajax');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count')->middleware('api.rate.limit:ajax');
+    // Notification AJAX routes (with rate limiting) - these override the basic routes above for AJAX calls
+    Route::get('/notifications/mark-as-read-ajax/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read-ajax')->middleware('api.rate.limit:ajax');
+    Route::get('/notifications/mark-all-as-read-ajax', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read-ajax')->middleware('api.rate.limit:ajax');
 
-    // Fund request AJAX endpoints (with rate limiting)
-    Route::post('/fund-requests/status-updates', [FundRequestController::class, 'getStatusUpdates'])->name('fund-requests.status-updates-ajax')->middleware('api.rate.limit:ajax');
-    
     // Scholar status updates endpoint (moved from API routes for proper session auth)
     Route::get('/status-updates', [\App\Http\Controllers\Scholar\StatusUpdateController::class, 'index'])->name('status-updates')->middleware('api.rate.limit:ajax');
 });
@@ -162,8 +155,6 @@ Route::middleware(['auth:web', \App\Http\Middleware\AdminMiddleware::class])->pr
 
     // Admin fund request management
     Route::get('/fund-requests', [FundRequestController::class, 'adminIndex'])->name('fund-requests.index');
-    Route::get('/fund-requests/create', [FundRequestController::class, 'create'])->name('fund-requests.create');
-    Route::post('/fund-requests', [FundRequestController::class, 'store'])->name('fund-requests.store');
     Route::post('/fund-requests/check-duplicates', [FundRequestController::class, 'checkDuplicates'])->name('fund-requests.check-duplicates');
     Route::post('/fund-requests/pre-validate', [FundRequestController::class, 'adminPreValidate'])->name('fund-requests.admin-pre-validate');
 
@@ -176,24 +167,18 @@ Route::middleware(['auth:web', \App\Http\Middleware\AdminMiddleware::class])->pr
     Route::put('/fund-requests/{id}/under-review', [FundRequestController::class, 'markAsUnderReview'])->name('fund-requests.under-review')->middleware('api.rate.limit:admin');
 
     // Document management routes
-    Route::get('/documents', [DocumentController::class, 'adminIndex'])->name('documents.index');
-    Route::get('/documents/{id}', [DocumentController::class, 'adminShow'])->name('documents.show');
     Route::get('/documents/{id}/view', [DocumentController::class, 'view'])->name('documents.view');
     Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
-    Route::put('/documents/{id}/verify', [DocumentController::class, 'verify'])->name('documents.verify')->middleware('api.rate.limit:sensitive');
-    Route::put('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('documents.reject')->middleware('api.rate.limit:sensitive');
+
 
     // Admin manuscript management
     Route::get('/manuscripts', [\App\Http\Controllers\Admin\ManuscriptController::class, 'index'])->name('manuscripts.index');
-    Route::get('/manuscripts/export', [\App\Http\Controllers\Admin\ManuscriptController::class, 'export'])->name('manuscripts.export')->middleware('api.rate.limit:export');
-    Route::get('/manuscripts/batch-download/{batchId}/{file}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'batchDownloadFile'])->name('manuscripts.batch-file')->where('file', '.*')->middleware('api.rate.limit:export');
     Route::get('/manuscripts/create', [\App\Http\Controllers\Admin\ManuscriptController::class, 'create'])->name('manuscripts.create');
     Route::post('/manuscripts', [\App\Http\Controllers\Admin\ManuscriptController::class, 'store'])->name('manuscripts.store');
+    Route::get('/manuscripts/export', [\App\Http\Controllers\Admin\ManuscriptController::class, 'export'])->name('manuscripts.export')->middleware('api.rate.limit:export');
+    Route::get('/manuscripts/batch-download/{batchId}/{file}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'batchDownloadFile'])->name('manuscripts.batch-file')->where('file', '.*')->middleware('api.rate.limit:export');
     Route::get('/manuscripts/{id}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'show'])->name('manuscripts.show');
-    Route::get('/manuscripts/{id}/edit', [\App\Http\Controllers\Admin\ManuscriptController::class, 'edit'])->name('manuscripts.edit');
-    Route::put('/manuscripts/{id}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'update'])->name('manuscripts.update');
     Route::put('/manuscripts/{id}/status', [\App\Http\Controllers\Admin\ManuscriptController::class, 'updateStatusAndNotes'])->name('manuscripts.updateStatus');
-    Route::delete('/manuscripts/{id}', [\App\Http\Controllers\Admin\ManuscriptController::class, 'destroy'])->name('manuscripts.destroy')->middleware('api.rate.limit:sensitive');
 
     // Admin reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -202,14 +187,9 @@ Route::middleware(['auth:web', \App\Http\Middleware\AdminMiddleware::class])->pr
     // Admin audit logs
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
     Route::get('/audit-logs/export', [AuditLogController::class, 'export'])->name('audit-logs.export')->middleware('api.rate.limit:export');
-    Route::get('/audit-logs/{id}', [AuditLogController::class, 'show'])->name('audit-logs.show');
 
     // Admin notifications
-    Route::get('/notifications', function() {
-        return view('admin.notifications.index-livewire');
-    })->name('notifications.index');
-    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
 
     // Admin User Management Routes
@@ -227,21 +207,21 @@ Route::middleware(['auth:web', \App\Http\Middleware\AdminMiddleware::class])->pr
     // Content Management Routes
     Route::prefix('content-management')->name('content-management.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('index');
-        
+
         // Announcement routes
         Route::get('/announcements', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('announcements.index');
         Route::post('/announcements', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeAnnouncement'])->name('announcements.store');
         Route::put('/announcements/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateAnnouncement'])->name('announcements.update');
         Route::delete('/announcements/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyAnnouncement'])->name('announcements.destroy');
         Route::patch('/announcements/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleAnnouncementStatus'])->name('announcements.toggle-status');
-        
+
         // Faculty routes
         Route::get('/faculty', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('faculty.index');
         Route::post('/faculty', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeFaculty'])->name('faculty.store');
         Route::put('/faculty/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateFaculty'])->name('faculty.update');
         Route::delete('/faculty/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyFaculty'])->name('faculty.destroy');
         Route::patch('/faculty/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleFacultyStatus'])->name('faculty.toggle-status');
-        
+
         // Form routes
         Route::get('/forms', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('forms.index');
         Route::post('/forms', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeForm'])->name('forms.store');
@@ -249,7 +229,7 @@ Route::middleware(['auth:web', \App\Http\Middleware\AdminMiddleware::class])->pr
         Route::put('/forms/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'updateForm'])->name('forms.update');
         Route::delete('/forms/{id}', [\App\Http\Controllers\Admin\ContentManagementController::class, 'destroyForm'])->name('forms.destroy');
         Route::patch('/forms/{id}/toggle-status', [\App\Http\Controllers\Admin\ContentManagementController::class, 'toggleFormStatus'])->name('forms.toggle-status');
-        
+
         // Timeline routes
         Route::get('/timelines', [\App\Http\Controllers\Admin\ContentManagementController::class, 'index'])->name('timelines.index');
         Route::post('/timelines', [\App\Http\Controllers\Admin\ContentManagementController::class, 'storeTimeline'])->name('timelines.store');
@@ -292,11 +272,8 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::post('/password/update', [SuperAdminController::class, 'changePassword'])->name('password.update');
 
     Route::get('/user-management', [SuperAdminController::class, 'userManagement'])->name('user_management');
-    Route::get('/user-management/create', [SuperAdminController::class, 'createUser'])->name('user_management.create');
-    Route::post('/user-management', [SuperAdminController::class, 'storeUser'])->name('user_management.store');
     Route::get('/user-management/{id}/edit', [SuperAdminController::class, 'editUser'])->name('user_management.edit');
     Route::put('/user-management/{id}', [SuperAdminController::class, 'updateUser'])->name('user_management.update');
-    Route::delete('/user-management/{id}', [SuperAdminController::class, 'deleteUser'])->name('user_management.delete');
 
     Route::get('/system-settings', [SuperAdminController::class, 'systemSettings'])->name('system_settings');
     Route::post('/system-settings/general', [SuperAdminController::class, 'updateGeneralSettings'])->name('system_settings.general');
@@ -310,12 +287,9 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
 
     // Application Timeline Management Routes
     Route::get('/application-timeline', [SuperAdminController::class, 'applicationTimeline'])->name('application_timeline');
-    Route::get('/application-timeline/create', [SuperAdminController::class, 'createTimelineItem'])->name('application_timeline.create');
     Route::post('/application-timeline', [SuperAdminController::class, 'storeTimelineItem'])->name('application_timeline.store');
     Route::get('/application-timeline/{id}/edit', [SuperAdminController::class, 'editTimelineItem'])->name('application_timeline.edit');
     Route::put('/application-timeline/{id}', [SuperAdminController::class, 'updateTimelineItem'])->name('application_timeline.update');
-    Route::delete('/application-timeline/{id}', [SuperAdminController::class, 'deleteTimelineItem'])->name('application_timeline.delete');
-    Route::patch('/application-timeline/{id}/toggle-status', [SuperAdminController::class, 'toggleTimelineStatus'])->name('application_timeline.toggle_status');
 
       Route::get('/notifications', function() {
         return view('super_admin.notifications.index');
@@ -325,17 +299,19 @@ Route::middleware(['auth', \App\Http\Middleware\SuperAdminMiddleware::class])->p
     Route::post('/announcements', [SuperAdminController::class, 'storeAnnouncement'])->name('announcements.store')->middleware('api.rate.limit:sensitive');
     Route::put('/announcements/{id}', [SuperAdminController::class, 'updateAnnouncement'])->name('announcements.update')->middleware('api.rate.limit:sensitive');
     Route::delete('/announcements/{id}', [SuperAdminController::class, 'deleteAnnouncement'])->name('announcements.delete')->middleware('api.rate.limit:sensitive');
-    Route::patch('/announcements/{id}/toggle-status', [SuperAdminController::class, 'toggleAnnouncementStatus'])->name('announcements.toggle_status')->middleware('api.rate.limit:admin');
 
     // Faculty Management Routes
-    Route::post('/faculty', [SuperAdminController::class, 'storeFaculty'])->name('faculty.store')->middleware('api.rate.limit:admin');
-    Route::put('/faculty/{id}', [SuperAdminController::class, 'updateFaculty'])->name('faculty.update')->middleware('api.rate.limit:admin');
+    Route::post('/faculty', [SuperAdminController::class, 'storeFaculty'])->name('faculty.store')->middleware('api.rate.limit:sensitive');
+    Route::put('/faculty/{id}', [SuperAdminController::class, 'updateFaculty'])->name('faculty.update')->middleware('api.rate.limit:sensitive');
     Route::delete('/faculty/{id}', [SuperAdminController::class, 'deleteFaculty'])->name('faculty.delete')->middleware('api.rate.limit:sensitive');
-    Route::patch('/faculty/{id}/toggle-status', [SuperAdminController::class, 'toggleFacultyStatus'])->name('faculty.toggle_status')->middleware('api.rate.limit:admin');
 
-    // Downloadable Forms Management Routes
-    Route::resource('downloadable-forms', DownloadableFormController::class)->except(['show']);
-    Route::patch('/downloadable-forms/{downloadableForm}/toggle-status', [DownloadableFormController::class, 'toggleStatus'])->name('downloadable-forms.toggle-status');
+    // Downloadable Forms Management
+    Route::get('/downloadable-forms', [DownloadableFormController::class, 'index'])->name('downloadable-forms.index');
+    Route::get('/downloadable-forms/create', [DownloadableFormController::class, 'create'])->name('downloadable-forms.create');
+    Route::post('/downloadable-forms', [DownloadableFormController::class, 'store'])->name('downloadable-forms.store');
+    Route::put('/downloadable-forms/{id}', [DownloadableFormController::class, 'update'])->name('downloadable-forms.update');
+    Route::delete('/downloadable-forms/{id}', [DownloadableFormController::class, 'destroy'])->name('downloadable-forms.destroy');
+    Route::patch('/downloadable-forms/{id}/toggle-status', [DownloadableFormController::class, 'toggleStatus'])->name('downloadable-forms.toggle-status');
     Route::post('/downloadable-forms/bulk-action', [DownloadableFormController::class, 'bulkAction'])->name('downloadable-forms.bulk-action');
 });
 
@@ -344,13 +320,46 @@ Route::get('/forms', [DownloadableFormController::class, 'index'])->name('downlo
 Route::get('/forms/{downloadableForm}', [DownloadableFormController::class, 'show'])->name('downloadable-forms.show');
 Route::get('/forms/{downloadableForm}/download', [DownloadableFormController::class, 'download'])->name('downloadable-forms.download');
 
-// Catch-all route to redirect users to appropriate dashboard
+
+
+// Session Management Routes
+Route::middleware(['auth'])->group(function () {
+    // Extend session endpoint
+    Route::post('/extend-session', function () {
+        $sessionService = app(\App\Services\SessionManagementService::class);
+        $sessionService->updateLastActivity();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Session extended successfully',
+            'last_activity' => time(),
+            'session_status' => $sessionService->getSessionStatus()
+        ]);
+    })->name('session.extend');
+    
+    // Get session status
+    Route::get('/session-status', function () {
+        $sessionService = app(\App\Services\SessionManagementService::class);
+        
+        return response()->json($sessionService->getSessionStatus());
+    })->name('session.status');
+});
+
+// Catch-all route to redirect users to appropriate dashboard - FIXED
 Route::get('/dashboard', function() {
-    if (Auth::user()->role === 'scholar') {
+    // Check if user is authenticated before accessing role
+    if (!Auth::check()) {
+        return redirect()->route('home');
+    }
+    
+    $user = Auth::user();
+    
+    if ($user->role === 'scholar') {
         return redirect()->route('scholar.dashboard');
-    } elseif (Auth::user()->role === 'super_admin') {
+    } elseif ($user->role === 'super_admin') {
         return redirect()->route('super_admin.dashboard');
     }
+    
     return redirect()->route('admin.dashboard');
 })->middleware('auth')->name('dashboard');
 

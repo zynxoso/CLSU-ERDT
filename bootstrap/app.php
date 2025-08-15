@@ -23,16 +23,22 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\CheckPasswordExpiration::class,
+            \App\Http\Middleware\SessionTimeoutMiddleware::class,
         ]);
 
         // Middleware aliases
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'password.expiry' => \App\Http\Middleware\CheckPasswordExpiration::class,
             'api.rate.limit' => \App\Http\Middleware\ApiRateLimitMiddleware::class,
             'db.security' => \App\Http\Middleware\DatabaseSecurityMiddleware::class,
+            'session.timeout' => \App\Http\Middleware\SessionTimeoutMiddleware::class,
+            'error.handling' => \App\Http\Middleware\ErrorHandlingMiddleware::class,
+            'db.error.handling' => \App\Http\Middleware\DatabaseErrorHandlingMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

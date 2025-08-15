@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ScholarProfile;
+use Illuminate\Support\Facades\DB;
 use App\Models\Document;
 use App\Models\FundRequest;
 use App\Models\Manuscript;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -32,19 +32,40 @@ class ScholarController extends Controller
     public function __construct(AuditService $auditService)
     {
         $this->auditService = $auditService;
-        $this->middleware('auth');
+        
+        // Apply scholar authentication only to scholar-specific methods
+        $this->middleware('auth:scholar')->except([
+            'index', 'create', 'store', 'show', 'edit', 'update', 'destroy',
+            'showChangePasswordForm', 'changePassword'
+        ]);
+        
+        // Apply web authentication to admin methods
+        $this->middleware('auth:web')->only([
+            'index', 'create', 'store', 'show', 'edit', 'update', 'destroy',
+            'showChangePasswordForm', 'changePassword'
+        ]);
 
-        // Only restrict scholar-specific methods
+        // Simple role-based middleware for scholar routes
         $this->middleware(function ($request, $next) {
-            // For scholar-specific routes, redirect admins to admin dashboard
-            if ($request->route()->getName() == 'scholar.dashboard') {
-                if (Auth::user()->role !== 'scholar') {
-                    return redirect()->route('admin.dashboard');
+            // Only check for scholar-specific routes
+            if ($request->routeIs('scholar.*')) {
+                $user = Auth::guard('scholar')->user();
+                
+                // Ensure user exists and has scholar role
+                if (!$user || $user->role !== 'scholar') {
+                    Auth::guard('scholar')->logout();
+                    Auth::guard('web')->logout();
+                    session()->invalidate();
+                    session()->regenerateToken();
+                    return redirect()->route('scholar.login')->with('error', 'Access denied. Please log in with your scholar credentials.');
                 }
             }
 
             return $next($request);
-        });
+        })->except([
+            'index', 'create', 'store', 'show', 'edit', 'update', 'destroy',
+            'showChangePasswordForm', 'changePassword'
+        ]);
     }
 
     /**
@@ -64,93 +85,83 @@ class ScholarController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function dashboard(NotificationService $notificationService)
+    public function dashboard()
     {
         $user = Auth::user();
-
-        // Get scholar profile
+        
+        // Get scholar profile with optimized relations
         $scholarProfile = ScholarProfile::where('user_id', $user->id)->first();
-
-        if (!$scholarProfile) {
-            // Create a dummy object for the view if no profile exists
-            $scholarProfile = new \stdClass();
-            $scholarProfile->id = null; // Add id property to prevent undefined property error
-            $scholarProfile->status = null;
-            $scholarProfile->department = null;
-            $scholarProfile->intended_university = null;
-            // Expected completion date field removed
-            $scholarProfile->start_date = null;
-        }
-
-        // Calculate scholarship progress and days remaining
+        
+        // Initialize default values
         $scholarProgress = 0;
         $daysRemaining = 0;
-        $scholar = $scholarProfile;
-
-        if (isset($scholarProfile->id)) {
-            // If it's an actual scholar profile object
-            // Progress calculation removed (expected_completion_date field removed)
-            // Could be based on scholarship duration or other metrics
+        $totalFundRequests = 0;
+        $approvedFundRequests = 0;
+        $pendingFundRequests = 0;
+        $rejectedFundRequests = 0;
+        $totalManuscripts = 0;
+        $publishedManuscripts = 0;
+        $underReviewManuscripts = 0;
+        $totalDocuments = 0;
+        $approvedDocuments = 0;
+        $pendingDocuments = 0;
+        $unreadNotifications = 0;
+        $recentFundRequests = collect();
+        $recentManuscripts = collect();
+        $recentDocuments = collect();
+        $recentNotifications = collect();
+        $totalAmountRequested = 0;
+        $totalAmountApproved = 0;
+        $totalAmountDisbursed = 0;
+        
+        if ($scholarProfile) {
+            // Calculate scholarship progress and days remaining
+            $this->calculateProgress($scholarProfile, $scholarProgress, $daysRemaining);
+            
+            // Load fund requests data
+            $this->loadFundRequestsData($scholarProfile, $totalFundRequests, $approvedFundRequests, $pendingFundRequests, $rejectedFundRequests, $recentFundRequests);
+            
+            // Load manuscripts data
+            $this->loadManuscriptsData($scholarProfile, $totalManuscripts, $publishedManuscripts, $underReviewManuscripts, $recentManuscripts);
+            
+            // Load documents data
+            $this->loadDocumentsData($scholarProfile, $totalDocuments, $approvedDocuments, $pendingDocuments, $recentDocuments);
+            
+            // Load notifications data
+            $this->loadNotificationsData($user, $unreadNotifications, $recentNotifications);
+            
+            // Load financial data
+            $this->loadFinancialData($scholarProfile, $totalAmountRequested, $totalAmountApproved, $totalAmountDisbursed);
         }
-
-        // Get fund requests data
-        $fundRequests = $scholarProfile->id ? FundRequest::where('scholar_profile_id', $scholarProfile->id)->get() : collect();
-        $pendingRequests = $fundRequests->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count();
-        $approvedRequests = $fundRequests->where('status', 'Approved')->count();
-        $rejectedRequests = $fundRequests->where('status', 'Rejected')->count();
-        $recentFundRequests = $fundRequests->sortByDesc('created_at')->take(3);
-
-        // Calculate total approved amount
-        $totalApproved = $fundRequests->where('status', 'Approved')->sum('amount');
-        $pendingRequestsCount = $pendingRequests;
-
-        // Get documents data
-        $documents = $scholarProfile->id ? Document::where('scholar_profile_id', $scholarProfile->id)->get() : collect();
-        $verifiedDocuments = $documents->where('status', 'Verified')->count();
-        $pendingDocuments = $documents->where('status', 'Uploaded')->count();
-        $rejectedDocuments = $documents->where('status', 'Rejected')->count();
-        $recentDocuments = $documents->sortByDesc('created_at')->take(3);
-
-        // Document count variables for the view
-        $verifiedDocumentsCount = $verifiedDocuments;
-        $pendingDocumentsCount = $pendingDocuments;
-        $rejectedDocumentsCount = $rejectedDocuments;
-
-        // Get manuscripts data
-        $manuscripts = $scholarProfile->id ? Manuscript::where('scholar_profile_id', $scholarProfile->id)->get() : collect();
-        $manuscriptProgress = $manuscripts->count() > 0 ?
-            round($manuscripts->sum('progress') / $manuscripts->count()) : 0;
-        $recentManuscripts = $manuscripts->sortByDesc('created_at')->take(3);
-
-        // Get real notifications for the dashboard
-        $recentActivities = collect(); // Still using mock activities for now
-        $notifications = $notificationService->getRecentNotifications($user->id, 5);
-
+        
+        // Get status and progress colors
+        $statusColor = $this->getStatusColor($scholarProfile);
+        $progressColor = $this->getProgressColor($scholarProgress);
+        
         return view('scholar.dashboard', compact(
-            'user',
             'scholarProfile',
             'scholarProgress',
             'daysRemaining',
-            'scholar',
-            'fundRequests',
-            'pendingRequests',
-            'approvedRequests',
-            'rejectedRequests',
-            'recentFundRequests',
-            'totalApproved',
-            'pendingRequestsCount',
-            'documents',
-            'verifiedDocuments',
+            'totalFundRequests',
+            'approvedFundRequests',
+            'pendingFundRequests',
+            'rejectedFundRequests',
+            'totalManuscripts',
+            'publishedManuscripts',
+            'underReviewManuscripts',
+            'totalDocuments',
+            'approvedDocuments',
             'pendingDocuments',
-            'recentDocuments',
-            'verifiedDocumentsCount',
-            'pendingDocumentsCount',
-            'rejectedDocumentsCount',
-            'manuscripts',
-            'manuscriptProgress',
+            'unreadNotifications',
+            'recentFundRequests',
             'recentManuscripts',
-            'recentActivities',
-            'notifications'
+            'recentDocuments',
+            'recentNotifications',
+            'totalAmountRequested',
+            'totalAmountApproved',
+            'totalAmountDisbursed',
+            'statusColor',
+            'progressColor'
         ));
     }
 
@@ -289,9 +300,9 @@ class ScholarController extends Controller
             if (isset($validated['village'])) {
                 $scholarProfile->village = $validated['village'];
             }
-            if (isset($validated['city'])) {
-                $scholarProfile->city = $validated['city'];
-            }
+            if (isset($validated['town'])) {
+            $scholarProfile->town = $validated['town'];
+        }
             if (isset($validated['district'])) {
                 $scholarProfile->district = $validated['district'];
             }
@@ -303,12 +314,41 @@ class ScholarController extends Controller
             $scholarProfile->intended_university = $validated['intended_university'];
             // Program field removed - using department instead
             $scholarProfile->department = $validated['department'];
+            
+            // Additional academic fields
+            if (isset($validated['major'])) {
+                $scholarProfile->major = $validated['major'];
+            }
+            if (isset($validated['intended_degree'])) {
+                $scholarProfile->intended_degree = $validated['intended_degree'];
+            }
+            if (isset($validated['level'])) {
+                $scholarProfile->level = $validated['level'];
+            }
+            if (isset($validated['course_completed'])) {
+                $scholarProfile->course_completed = $validated['course_completed'];
+            }
+            if (isset($validated['university_graduated'])) {
+                $scholarProfile->university_graduated = $validated['university_graduated'];
+            }
+            if (isset($validated['entry_type'])) {
+                $scholarProfile->entry_type = $validated['entry_type'];
+            }
+            if (isset($validated['thesis_dissertation_title'])) {
+                $scholarProfile->thesis_dissertation_title = $validated['thesis_dissertation_title'];
+            }
+            if (isset($validated['units_required'])) {
+                $scholarProfile->units_required = $validated['units_required'];
+            }
+            if (isset($validated['units_earned_prior'])) {
+                $scholarProfile->units_earned_prior = $validated['units_earned_prior'];
+            }
 
 
 $scholarProfile->setAttribute('status', $validated['status']);
             $scholarProfile->start_date = $validated['start_date'];
             // Expected completion date field removed
-            $scholarProfile->enrollment_type = $validated['enrollment_type'];
+    
             $scholarProfile->study_time = $validated['study_time'];
             $scholarProfile->scholarship_duration = $validated['scholarship_duration'];
 
@@ -366,7 +406,7 @@ $scholarProfile->setAttribute('status', $validated['status']);
     public function show($id)
     {
         try {
-            $scholar = ScholarProfile::findOrFail($id);
+            $scholar = ScholarProfile::withFullRelations()->findOrFail($id);
             return view('admin.scholars.show', compact('scholar'));
         } catch (ModelNotFoundException $e) {
             // Log the error or handle it as needed
@@ -556,18 +596,11 @@ $scholarProfile->setAttribute('status', $validated['status']);
     /**
      * Display all notifications for the scholar.
      *
-     * @param  \App\Services\NotificationService  $notificationService
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function notifications(NotificationService $notificationService)
+    public function notifications()
     {
-        $user = Auth::user();
-        $notifications = $notificationService->getRecentNotifications($user->id, 50);
-
-        // Mark all notifications as read
-        $notificationService->markAllAsRead($user->id);
-
-        return view('scholar.notifications', compact('notifications'));
+        return view('scholar.notifications');
     }
 
     /**
@@ -669,6 +702,198 @@ $scholarProfile->setAttribute('status', $validated['status']);
         } catch (\Exception $e) {
             // Log the error but don't halt the main operation
             \Illuminate\Support\Facades\Log::error('Failed to create audit log: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Calculate scholarship progress and days remaining
+     */
+    private function calculateProgress($scholarProfile, &$scholarProgress, &$daysRemaining)
+    {
+        if (!$scholarProfile->id || !$scholarProfile->start_date) {
+            $scholarProgress = 0;
+            $daysRemaining = 0;
+            return;
+        }
+        
+        $startDate = \Carbon\Carbon::parse($scholarProfile->start_date);
+        $currentDate = \Carbon\Carbon::now();
+        
+        // Assuming a typical scholarship duration of 4 years (1460 days)
+        $totalDuration = 1460; // days
+        $daysPassed = $startDate->diffInDays($currentDate);
+        
+        $scholarProgress = min(($daysPassed / $totalDuration) * 100, 100);
+        $daysRemaining = max($totalDuration - $daysPassed, 0);
+    }
+    
+    /**
+     * Load fund requests data
+     */
+    private function loadFundRequestsData($scholarProfile, &$totalFundRequests, &$approvedFundRequests, &$pendingFundRequests, &$rejectedFundRequests, &$recentFundRequests)
+    {
+        if (!$scholarProfile->id) {
+            return;
+        }
+        
+        // Optimize with single query using aggregation
+        $statusCounts = FundRequest::where('scholar_profile_id', $scholarProfile->id)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+        
+        $totalFundRequests = array_sum($statusCounts);
+        $approvedFundRequests = $statusCounts['approved'] ?? 0;
+        $pendingFundRequests = $statusCounts['pending'] ?? 0;
+        $rejectedFundRequests = $statusCounts['rejected'] ?? 0;
+        
+        // Get recent fund requests with relations
+        $recentFundRequests = FundRequest::withBasicRelations()
+            ->where('scholar_profile_id', $scholarProfile->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+    }
+    
+    /**
+     * Load manuscripts data
+     */
+    private function loadManuscriptsData($scholarProfile, &$totalManuscripts, &$publishedManuscripts, &$underReviewManuscripts, &$recentManuscripts)
+    {
+        if (!$scholarProfile->id) {
+            return;
+        }
+        
+        // Optimize with single query using aggregation
+        $statusCounts = Manuscript::where('scholar_profile_id', $scholarProfile->id)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+        
+        $totalManuscripts = array_sum($statusCounts);
+        $publishedManuscripts = $statusCounts['Published'] ?? 0;
+        $underReviewManuscripts = $statusCounts['Under Review'] ?? 0;
+        
+        // Get recent manuscripts with relations
+        $recentManuscripts = Manuscript::withBasicRelations()
+            ->where('scholar_profile_id', $scholarProfile->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+    }
+    
+    /**
+     * Load documents data
+     */
+    private function loadDocumentsData($scholarProfile, &$totalDocuments, &$approvedDocuments, &$pendingDocuments, &$recentDocuments)
+    {
+        if (!$scholarProfile->id) {
+            return;
+        }
+        
+        // Optimize with single query using joins and aggregation
+        $statusCounts = Document::join('fund_requests', function($join) use ($scholarProfile) {
+                $join->on('documents.fund_request_id', '=', 'fund_requests.id')
+                     ->where('fund_requests.scholar_profile_id', $scholarProfile->id);
+            })
+            ->orWhereExists(function($query) use ($scholarProfile) {
+                $query->select(DB::raw(1))
+                      ->from('manuscripts')
+                      ->whereColumn('manuscripts.id', 'documents.manuscript_id')
+                      ->where('manuscripts.scholar_profile_id', $scholarProfile->id);
+            })
+            ->selectRaw('documents.status, COUNT(*) as count')
+            ->groupBy('documents.status')
+            ->pluck('count', 'status')
+            ->toArray();
+        
+        $totalDocuments = array_sum($statusCounts);
+        $approvedDocuments = $statusCounts['approved'] ?? 0;
+        $pendingDocuments = $statusCounts['pending'] ?? 0;
+        
+        // Get recent documents with optimized query
+        $recentDocuments = Document::with(['fundRequest', 'manuscript'])
+            ->where(function($query) use ($scholarProfile) {
+                $query->whereHas('fundRequest', function($q) use ($scholarProfile) {
+                    $q->where('scholar_profile_id', $scholarProfile->id);
+                })
+                ->orWhereHas('manuscript', function($q) use ($scholarProfile) {
+                    $q->where('scholar_profile_id', $scholarProfile->id);
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+    }
+    
+    /**
+     * Load notifications data
+     */
+    private function loadNotificationsData($user, &$unreadNotifications, &$recentNotifications)
+    {
+        $notificationService = app(\App\Services\NotificationService::class);
+        $unreadNotifications = $notificationService->getUnreadCount($user->id);
+        
+        // Get recent notifications
+        $recentNotifications = $notificationService->getRecentNotifications($user->id, 5);
+    }
+    
+    /**
+     * Load financial data
+     */
+    private function loadFinancialData($scholarProfile, &$totalAmountRequested, &$totalAmountApproved, &$totalAmountDisbursed)
+    {
+        if (!$scholarProfile->id) {
+            return;
+        }
+        
+        $fundRequestService = app(\App\Services\FundRequestService::class);
+        $statistics = $fundRequestService->getScholarFundRequestStatistics($scholarProfile->id);
+        
+        $totalAmountRequested = $statistics['totalRequested'];
+        $totalAmountApproved = $statistics['totalApproved'];
+        
+        // Optimize disbursed amount calculation with single query
+        $totalAmountDisbursed = DB::table('disbursements')
+            ->join('fund_requests', 'disbursements.fund_request_id', '=', 'fund_requests.id')
+            ->where('fund_requests.scholar_profile_id', $scholarProfile->id)
+            ->where('fund_requests.status', 'Approved')
+            ->sum('disbursements.amount') ?? 0;
+    }
+    
+    /**
+     * Get status color for the scholar profile
+     */
+    private function getStatusColor($scholarProfile)
+    {
+        if (!$scholarProfile || !isset($scholarProfile->status)) {
+            return 'gray';
+        }
+        
+        return match($scholarProfile->status) {
+            'active' => 'green',
+            'inactive' => 'red',
+            'pending' => 'yellow',
+            'graduated' => 'blue',
+            default => 'gray'
+        };
+    }
+    
+    /**
+     * Get progress color based on completion percentage
+     */
+    private function getProgressColor($scholarProgress)
+    {
+        if ($scholarProgress >= 75) {
+            return 'green';
+        } elseif ($scholarProgress >= 50) {
+            return 'yellow';
+        } elseif ($scholarProgress >= 25) {
+            return 'orange';
+        } else {
+            return 'red';
         }
     }
 }

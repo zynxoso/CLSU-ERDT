@@ -13,21 +13,21 @@ class RequestType extends Model
      * Document requirements configuration
      */
     public const DOCUMENT_REQUIREMENTS = [
-        'TF and other school fees' => [
+        'Tuition and other school fees' => [
             'documents' => ['Registration Form/Enrollment Form'],
             'frequency' => 'semester',
             'guidance' => 'Upload your official registration or enrollment form from your institution.',
             'file_types' => ['pdf', 'jpg', 'jpeg', 'png'],
             'max_size' => 5120, // 5MB in KB
         ],
-        'Learning Materials' => [
+        'Learning Materials and/or Connectivity Allowance' => [
             'documents' => ['Official Receipt', 'List of Materials'],
             'frequency' => 'semester',
             'guidance' => 'Provide official receipts and a detailed list of learning materials purchased.',
             'file_types' => ['pdf', 'jpg', 'jpeg', 'png'],
             'max_size' => 5120,
         ],
-        'Transportation' => [
+        'Transportation Allowance' => [
             'documents' => ['Transportation Receipts', 'Travel Itinerary'],
             'frequency' => 'monthly',
             'guidance' => 'Submit transportation receipts and travel itinerary for academic purposes.',

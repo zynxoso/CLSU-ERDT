@@ -6,6 +6,8 @@ use Livewire\Component;
 use App\Models\SiteSetting;
 use App\Services\AuditService;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class SystemSettingsManagement extends Component
 {
@@ -16,6 +18,11 @@ class SystemSettingsManagement extends Component
     // Security Settings
     public $password_expiry_days = 90;
     public $max_login_attempts = 5;
+
+    // Change Password
+    public $current_password = '';
+    public $new_password = '';
+    public $new_password_confirmation = '';
 
     // UI State
     public $activeTab = 'general';
@@ -119,6 +126,69 @@ class SystemSettingsManagement extends Component
             $this->errorMessage = 'An error occurred while saving the security settings.';
         } finally {
             $this->isSaving = false;
+        }
+    }
+
+    public function changePassword()
+    {
+        $this->isSaving = true;
+        $this->clearMessages();
+
+        try {
+            $this->validate([
+                'current_password' => 'required',
+                'new_password' => 'required|min:8|confirmed',
+                'new_password_confirmation' => 'required',
+            ]);
+
+            $user = Auth::user();
+
+            // Verify current password
+            if (!Hash::check($this->current_password, $user->password)) {
+                $this->addError('current_password', 'The current password is incorrect.');
+                return;
+            }
+
+            // Update password
+            $user->update([
+                'password' => Hash::make($this->new_password),
+                'password_changed_at' => now(),
+                'password_expires_at' => now()->addDays($this->password_expiry_days),
+            ]);
+
+            // Clear password fields
+            $this->current_password = '';
+            $this->new_password = '';
+            $this->new_password_confirmation = '';
+
+            $this->auditService->log('password_changed', 'User', $user->id,
+                'Super admin password changed via system settings');
+
+            $this->successMessage = 'Password changed successfully!';
+
+        } catch (ValidationException $e) {
+            $this->setErrorBag($e->validator->errors());
+        } catch (\Exception $e) {
+            $this->errorMessage = 'An error occurred while changing the password.';
+        } finally {
+            $this->isSaving = false;
+        }
+    }
+
+    public function clearCache()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+
+            $this->auditService->log('cache_cleared', 'System', null,
+                'System cache cleared via system settings');
+
+            $this->successMessage = 'Cache cleared successfully!';
+        } catch (\Exception $e) {
+            $this->errorMessage = 'An error occurred while clearing the cache.';
         }
     }
 

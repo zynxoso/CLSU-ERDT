@@ -163,42 +163,69 @@
                     <h2 class="text-xl font-semibold text-gray-800 ml-3">Supporting Documents</h2>
                 </div>
 
-                <!-- Document Upload -->
+                <!-- Multiple Document Upload -->
                 <div>
                     <label class="block text-base font-medium text-gray-700 mb-2">
-                        Supporting Document <span class="text-gray-500">(Optional)</span>
-                        <span class="ml-2 text-gray-400 cursor-help" title="Upload relevant PDF documents up to 5MB">
+                        Supporting Documents <span class="text-gray-500">(Optional - Max 5 files)</span>
+                        <span class="ml-2 text-gray-400 cursor-help" title="Upload relevant PDF documents up to 5MB each">
                             <i class="fas fa-info-circle"></i>
                         </span>
                     </label>
                     
-                    <div class="flex items-center justify-center w-full">
+                    <div class="flex items-center justify-center w-full" x-data="{ fileInput: null }" x-init="fileInput = $refs.fileInput" @reset-file-input.window="fileInput.value = ''">
                         <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-green-300 border-dashed rounded-lg cursor-pointer bg-green-50 hover:bg-green-100 transition-colors duration-200">
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <i class="fas fa-cloud-upload-alt text-3xl text-green-500 mb-2"></i>
-                                <p class="mb-2 text-sm text-green-700">
-                                    <span class="font-semibold">Click to upload</span> or drag and drop
-                                </p>
-                                <p class="text-xs text-green-600">PDF only (Max. 5MB)</p>
+                                <div wire:loading wire:target="documents" class="flex flex-col items-center">
+                                    <i class="fas fa-spinner fa-spin text-3xl text-green-500 mb-2"></i>
+                                    <p class="text-sm text-green-700 font-semibold">Processing files...</p>
+                                </div>
+                                <div wire:loading.remove wire:target="documents" class="flex flex-col items-center">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-green-500 mb-2"></i>
+                                    <p class="mb-2 text-sm text-green-700">
+                                        <span class="font-semibold">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p class="text-xs text-green-600">PDF only (Max. 5MB each, up to 5 files)</p>
+                                </div>
                             </div>
-                            <input type="file" wire:model="document" class="hidden" accept=".pdf">
+                            <input type="file" wire:model="documents" x-ref="fileInput" class="hidden" accept=".pdf" multiple>
                         </label>
                     </div>
                     
-                    @if($document)
-                        <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-file-pdf text-green-600 mr-2"></i>
-                                <span class="text-green-800 font-medium">{{ $document->getClientOriginalName() }}</span>
-                                <span class="text-green-600 text-sm ml-2">({{ number_format($document->getSize() / 1024, 1) }} KB)</span>
+                    @if(!empty($documents))
+                        <div class="mt-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Uploaded Documents ({{ count($documents) }}/5)</span>
+                                <button type="button" wire:click="clearAllDocuments" 
+                                        class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors duration-200">
+                                    <i class="fas fa-trash mr-1"></i>Clear All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                @foreach($documents as $index => $document)
+                                    @if($document)
+                                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-file-pdf text-green-600 mr-2"></i>
+                                                    <span class="text-green-800 font-medium">{{ $document->getClientOriginalName() }}</span>
+                                                    <span class="text-green-600 text-sm ml-2">({{ number_format($document->getSize() / 1024, 1) }} KB)</span>
+                                                </div>
+                                                <button type="button" wire:click="removeDocument({{ $index }})" 
+                                                        class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
                             </div>
                         </div>
                     @endif
                     
-                    @if(isset($validationErrors['document']))
+                    @if(isset($validationErrors['documents']))
                         <div class="text-red-500 text-sm mt-1 flex items-center">
                             <i class="fas fa-times-circle mr-2"></i>
-                            {{ $validationErrors['document'] }}
+                            {{ $validationErrors['documents'] }}
                         </div>
                     @endif
                 </div>
@@ -241,15 +268,22 @@
                             </span>
                         </div>
                         <div class="py-2">
-                            <span class="text-base font-medium text-gray-600">Supporting Document:</span>
+                            <span class="text-base font-medium text-gray-600">Supporting Documents:</span>
                             <div class="mt-2">
-                                @if($document)
-                                    <div class="flex items-center text-base text-gray-800">
-                                        <i class="fas fa-file-pdf text-green-500 mr-2"></i>
-                                        <span>{{ $document->getClientOriginalName() }}</span>
+                                @if(!empty($documents))
+                                    <div class="space-y-2">
+                                        @foreach($documents as $index => $document)
+                                            @if($document)
+                                                <div class="flex items-center text-base text-gray-800">
+                                                    <i class="fas fa-file-pdf text-green-500 mr-2"></i>
+                                                    <span>{{ $document->getClientOriginalName() }}</span>
+                                                    <span class="text-gray-500 text-sm ml-2">({{ number_format($document->getSize() / 1024, 1) }} KB)</span>
+                                                </div>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 @else
-                                    <span class="text-gray-500 italic">No document uploaded</span>
+                                    <span class="text-gray-500 italic">No documents uploaded</span>
                                 @endif
                             </div>
                         </div>

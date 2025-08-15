@@ -1,0 +1,366 @@
+/* PDF Reports Shared Styles */
+
+/* Reset and base styles */
+body {
+    font-family: 'DejaVu Sans', Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgb(64 64 64);
+    margin: 0;
+    padding: 20px;
+}
+
+/* Typography */
+h1 {
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(23 23 23);
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(23 23 23);
+    margin: 15px 0 10px 0;
+}
+
+h3 {
+    font-size: 14px;
+    font-weight: bold;
+    color: rgb(23 23 23);
+    margin: 10px 0 8px 0;
+}
+
+p {
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+/* Header Information */
+.pdf-header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgb(34 197 94);
+    padding-bottom: 10px;
+}
+
+.pdf-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(23 23 23);
+    margin-bottom: 5px;
+}
+
+.pdf-period {
+    font-size: 12px;
+    color: rgb(64 64 64);
+    margin-bottom: 3px;
+}
+
+.pdf-generated {
+    font-size: 10px;
+    color: rgb(107 114 128);
+}
+
+/* Enhanced table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 11px;
+}
+
+th {
+    background-color: rgb(34 197 94);
+    color: rgb(255 255 255);
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #E0E0E0;
+    font-size: 11px;
+}
+
+td {
+    padding: 8px 10px;
+    border: 1px solid #E0E0E0;
+    vertical-align: top;
+    font-size: 10px;
+}
+
+tr:nth-child(even) {
+    background-color: #FAFAFA;
+}
+
+tr:nth-child(odd) {
+    background-color: #FFFFFF;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background-color: #E8F5E8;
+    color: #2E7D32;
+}
+
+.status-pending {
+    background-color: #FFF3E0;
+    color: #F57C00;
+}
+
+.status-approved {
+    background-color: #E8F5E8;
+    color: #2E7D32;
+}
+
+.status-rejected {
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+
+.status-verified {
+    background-color: #E8F5E8;
+    color: #2E7D32;
+}
+
+.status-graduated {
+    background-color: #E3F2FD;
+    color: #1565C0;
+}
+
+.status-discontinued {
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+
+.status-submitted {
+    background-color: #E3F2FD;
+    color: #1565C0;
+}
+
+.status-under-review {
+    background-color: #FFF3E0;
+    color: #F57C00;
+}
+
+.status-published {
+    background-color: #E8F5E8;
+    color: #2E7D32;
+}
+
+.status-completed {
+    background-color: #E8F5E8;
+    color: #2E7D32;
+}
+
+/* Summary section */
+.summary-section {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #F8F9FA;
+    border: 1px solid #E0E0E0;
+    border-radius: 5px;
+}
+
+.summary-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: rgb(23 23 23);
+    margin-bottom: 10px;
+    border-bottom: 1px solid #E0E0E0;
+    padding-bottom: 5px;
+}
+
+.summary-grid {
+    display: table;
+    width: 100%;
+}
+
+.summary-row {
+    display: table-row;
+}
+
+.summary-label {
+    display: table-cell;
+    padding: 5px 10px 5px 0;
+    font-weight: bold;
+    color: rgb(64 64 64);
+    width: 60%;
+}
+
+.summary-value {
+    display: table-cell;
+    padding: 5px 0;
+    color: rgb(23 23 23);
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Amount formatting */
+.amount {
+    font-weight: bold;
+    color: rgb(34 197 94);
+}
+
+.amount-negative {
+    color: #C62828;
+}
+
+/* Date formatting */
+.date {
+    font-size: 10px;
+    color: rgb(107 114 128);
+}
+
+/* ID and reference numbers */
+.reference-id {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: rgb(107 114 128);
+}
+
+/* Text utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.text-small {
+    font-size: 10px;
+}
+
+.text-xs {
+    font-size: 9px;
+}
+
+/* Spacing utilities */
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+/* Page break utilities */
+.page-break {
+    page-break-before: always;
+}
+
+.no-page-break {
+    page-break-inside: avoid;
+}
+
+/* Footer */
+.pdf-footer {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    text-align: center;
+    font-size: 9px;
+    color: rgb(107 114 128);
+    border-top: 1px solid #E0E0E0;
+    padding-top: 10px;
+}
+
+/* Responsive table for smaller content */
+.table-responsive {
+    font-size: 9px;
+}
+
+.table-responsive th {
+    padding: 6px 8px;
+    font-size: 9px;
+}
+
+.table-responsive td {
+    padding: 5px 8px;
+    font-size: 8px;
+}
+
+/* Special formatting for specific report types */
+.scholar-info {
+    background-color: #F8F9FA;
+    padding: 8px;
+    margin: 5px 0;
+    border-left: 3px solid rgb(34 197 94);
+}
+
+.fund-amount {
+    font-weight: bold;
+    color: rgb(34 197 94);
+    font-size: 12px;
+}
+
+.document-type {
+    font-style: italic;
+    color: rgb(107 114 128);
+}
+
+.manuscript-title {
+    font-weight: bold;
+    color: rgb(23 23 23);
+}
+
+/* Print optimizations */
+@media print {
+    body {
+        margin: 0;
+        padding: 15px;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    table {
+        page-break-inside: auto;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    
+    thead {
+        display: table-header-group;
+    }
+    
+    tfoot {
+        display: table-footer-group;
+    }
+}

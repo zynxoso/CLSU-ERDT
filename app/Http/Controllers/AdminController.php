@@ -37,16 +37,8 @@ class AdminController extends Controller
         // Siguraduhing naka-login ang user bago mag-access
         $this->middleware('auth');
 
-        // Custom middleware para sa role checking
-        // Ginagamit natin anonymous function para iwas sa conflict
-        $this->middleware(function ($request, $next) {
-            // Tingnan kung admin ba ang naka-login na user
-            if (Auth::user()->role !== 'admin') {
-                // Kung hindi admin, bawal mag-access (403 error)
-                abort(403, 'Unauthorized action. You do not have the required role.');
-            }
-            return $next($request);
-        });
+        // Authorization is handled at the route level by AdminMiddleware.
+        // Removing controller-level role check to avoid conflicts for super admins.
 
         // I-assign ang audit service sa property
         $this->auditService = $auditService;
@@ -64,11 +56,14 @@ class AdminController extends Controller
         $user = Auth::user();
 
         // Kumuha ng lahat ng data tungkol sa mga scholar
-        $scholars = ScholarProfile::all();
+        $scholars = ScholarProfile::withBasicRelations()->get();
         $totalScholars = $scholars->count(); // Kabuuang bilang ng scholars
         $pendingScholars = ScholarProfile::whereStatus('Pending')->count(); // Mga naghihintay pa
         $activeScholars = ScholarProfile::whereStatus('Active')->count(); // Mga aktibong scholars
-        $recentScholars = $scholars->sortByDesc('created_at')->take(5); // 5 pinakabagong scholars
+        $recentScholars = ScholarProfile::withBasicRelations()
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get(); // 5 pinakabagong scholars
 
         // Kumuha ng data tungkol sa mga dokumento
         $documents = Document::all();
@@ -76,7 +71,7 @@ class AdminController extends Controller
         $recentDocuments = $documents->sortByDesc('created_at')->take(5); // 5 pinakabagong dokumento
 
         // Kumuha ng data tungkol sa mga fund request
-        $fundRequests = FundRequest::all();
+        $fundRequests = FundRequest::withBasicRelations()->get();
         // Mga fund request na naghihintay pa ng approval
         $pendingFundRequests = $fundRequests->whereIn('status', [FundRequest::STATUS_SUBMITTED, FundRequest::STATUS_UNDER_REVIEW])->count();
         $approvedRequests = $fundRequests->where('status', 'Approved')->count(); // Mga na-approve na
@@ -97,8 +92,9 @@ class AdminController extends Controller
             })->sum('amount'); // I-sum ang mga amount
 
         // Kumuha ng data tungkol sa mga manuscript
-        $manuscripts = Manuscript::all();
+        $manuscripts = Manuscript::withBasicRelations()->get();
         $recentManuscripts = $manuscripts->sortByDesc('created_at')->take(5); // 5 pinakabagong manuscripts
+        $activeManuscripts = $manuscripts->whereIn('status', ['under_review', 'submitted', 'revision_required'])->count(); // Mga aktibong manuscripts
 
         // Kalkulahin ang completion metrics
         // Percentage ng mga natapos na scholars
@@ -123,11 +119,17 @@ class AdminController extends Controller
             ->limit(3) // 3 lang
             ->get();
 
+        // Get all admin user IDs for fetching admin notifications
+        $adminUserIds = User::whereIn('role', ['admin', 'super_admin'])->pluck('id');
+        
         // Kumuha ng mga recent notifications para sa admin
-        $recentNotifications = CustomNotification::where('user_id', $user->id)
+        $recentNotifications = CustomNotification::whereIn('user_id', $adminUserIds)
             ->whereIn('type', [
-                'App\\Notifications\\NewFundRequestSubmitted', // Bagong fund request
-                'App\\Notifications\\NewManuscriptSubmitted'   // Bagong manuscript
+                'NewFundRequestSubmitted', // Bagong fund request
+                'NewManuscriptSubmitted',  // Bagong manuscript
+                'fund_request',            // Fund request status changes
+                'manuscript',              // Manuscript status changes
+                'stipend_notification'     // Stipend notifications
             ])
             ->orderBy('created_at', 'desc') // Pinakabago muna
             ->limit(5) // 5 lang
@@ -154,6 +156,7 @@ class AdminController extends Controller
             'recentDocuments',
             'manuscripts',
             'recentManuscripts',
+            'activeManuscripts',
             'completionRate',
             'completionsThisYear',
             'notifications',

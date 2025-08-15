@@ -26,7 +26,7 @@ class DocumentController extends Controller
         // Kailangan naka-login para ma-access ang controller
         $this->middleware('auth');
         // Nagse-set ng authorization para sa mga actions
-        $this->authorizeResource(Document::class, 'document', ['except' => ['scholarIndex', 'scholarCreate', 'scholarFilesJson', 'ajaxUpload', 'scholarStore', 'adminIndex', 'adminShow', 'verify', 'reject', 'download', 'view']]);
+        $this->authorizeResource(Document::class, 'document', ['except' => ['scholarIndex', 'scholarCreate', 'scholarFilesJson', 'ajaxUpload', 'scholarStore', 'adminIndex', 'adminShow', 'download', 'view']]);
         $this->auditService = $auditService;
         $this->fileSecurityService = $fileSecurityService;
     }
@@ -246,62 +246,7 @@ class DocumentController extends Controller
         return view('scholar.documents.show', compact('document'));
     }
 
-    /**
-     * Verify a document.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function verify($id)
-    {
-        // Check if user is admin
-        if (Auth::user()->role !== 'admin') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
 
-        $document = Document::findOrFail($id);
-        $oldValues = $document->toArray();
-
-        $document->is_verified = true;
-        $document->verified_by = Auth::id();
-        $document->verified_at = now();
-        $document->save();
-
-        $this->auditService->logUpdate('Document', $document->id, $oldValues, $document->toArray());
-
-        return redirect()->back()->with('success', 'Document has been verified successfully');
-    }
-
-    /**
-     * Reject a document.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function reject(Request $request, $id)
-    {
-        // Check if user is admin
-        if (Auth::user()->role !== 'admin') {
-            return redirect()->route('home')->with('error', 'Unauthorized access');
-        }
-
-        $validated = $request->validate([
-            'rejection_reason' => 'required|string|max:1000',
-        ]);
-
-        $document = Document::findOrFail($id);
-        $oldValues = $document->toArray();
-
-        // Update document status
-        $document->status = 'Rejected';
-        $document->rejection_reason = $validated['rejection_reason'];
-        $document->save();
-
-        $this->auditService->logUpdate('Document', $document->id, $oldValues, $document->toArray());
-
-        return redirect()->back()->with('success', 'Document has been rejected');
-    }
 
     /**
      * Display the specified document for admin.

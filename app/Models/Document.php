@@ -25,21 +25,13 @@ class Document extends Model
         'file_size',
         'category',
         'title',
-        'is_verified',
-        'verified_by',
-        'verified_at',
         'description',
         'status',
         'security_scanned',
         'security_scanned_at',
         'security_scan_result',
         'document_category',
-        'validation_status',
-        'validation_notes',
-        'validated_by',
-        'validated_at',
         'mime_type',
-        'rejection_reason',
     ];
 
     /**
@@ -48,11 +40,8 @@ class Document extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_verified' => 'boolean',
-        'verified_at' => 'datetime',
         'security_scanned' => 'boolean',
         'security_scanned_at' => 'datetime',
-        'validated_at' => 'datetime',
     ];
 
     /**
@@ -79,21 +68,7 @@ class Document extends Model
         return $this->belongsTo(Manuscript::class);
     }
 
-    /**
-     * Get the user who verified the document.
-     */
-    public function verifiedBy()
-    {
-        return $this->belongsTo(User::class, 'verified_by');
-    }
 
-    /**
-     * Get the user who validated the document.
-     */
-    public function validatedBy()
-    {
-        return $this->belongsTo(User::class, 'validated_by');
-    }
 
     /**
      * Get the user through the scholar profile.

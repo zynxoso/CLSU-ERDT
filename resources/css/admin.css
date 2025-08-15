@@ -1,0 +1,66 @@
+/* Admin navigation enhancements */
+.nav-link {
+    @apply transition-all duration-200 ease-in-out relative overflow-hidden;
+}
+
+.nav-link::before {
+    content: '';
+    @apply absolute left-0 w-1 h-full bg-green-700 transform -translate-x-full transition-transform duration-200;
+}
+
+.nav-link:hover::before {
+    @apply translate-x-0;
+}
+
+.nav-link.active::before {
+    @apply translate-x-0;
+}
+
+.nav-section {
+    @apply space-y-2 py-2;
+}
+
+.nav-section-title {
+    @apply text-sm font-medium text-gray-400 px-4 mb-2;
+}
+
+.tooltip {
+    @apply invisible absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded-md opacity-0 transition-all duration-200 transform -translate-y-2;
+}
+
+.nav-link:hover .tooltip {
+    @apply visible opacity-100 translate-y-0;
+}
+
+/* Improved focus states */
+.nav-link:focus {
+    @apply outline-none ring-2 ring-green-500 ring-offset-2 ring-offset-white;
+}
+
+/* Loading states */
+.nav-link.loading {
+    @apply relative cursor-wait;
+}
+
+.nav-link.loading::after {
+    content: '';
+    @apply absolute inset-0 bg-white bg-opacity-50;
+}
+
+/* Active state enhancements */
+.nav-link.active {
+    @apply bg-green-50 text-green-700 font-medium;
+}
+
+/* Dropdown animations */
+.dropdown-content {
+    @apply transition-all duration-200 ease-in-out transform origin-top;
+}
+
+.dropdown-content[x-cloak] {
+    @apply opacity-0 scale-95;
+}
+
+.dropdown-content:not([x-cloak]) {
+    @apply opacity-100 scale-100;
+}

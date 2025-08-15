@@ -27,7 +27,6 @@ This comprehensive guide covers the advanced build verification system implement
   - `resources/css/app.css`
   - `resources/js/app.js`
   - `resources/css/analytics.css`
-  - `resources/css/admin-analytics.css`
 - ✅ Each entry has required properties (`file`, `isEntry`)
 
 ### 3. Asset Files
@@ -67,14 +66,14 @@ php verify-build.php
 ✅ Manifest entry exists: resources/css/app.css
 ✅ Manifest entry exists: resources/js/app.js
 ✅ Manifest entry exists: resources/css/analytics.css
-✅ Manifest entry exists: resources/css/admin-analytics.css
+
 ✅ Asset file exists: css/app-QeSexdFb.css
 ✅ Asset file exists: assets/app-D3-_jH8v.js
 ✅ Asset file exists: css/analytics-C4LStx3J.css
-✅ Asset file exists: css/admin-analytics-ahVPQMRC.css
+
 ✅ CSS file has content: app-QeSexdFb.css (102.62 KB)
 ✅ CSS file has content: analytics-C4LStx3J.css (93.60 KB)
-✅ CSS file has content: admin-analytics-ahVPQMRC.css (1.98 KB)
+
 ✅ JS file has content: app-D3-_jH8v.js (196.02 KB)
 
 ==================================================
@@ -165,7 +164,6 @@ $requiredEntries = [
     'resources/css/app.css',
     'resources/js/app.js',
     'resources/css/analytics.css',
-    'resources/css/admin-analytics.css',
     'resources/css/your-new-file.css', // Add here
 ];
 ```

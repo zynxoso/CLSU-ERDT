@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\Auth;
 
  * @property \Carbon\Carbon|null $start_date
  * @property \Carbon\Carbon|null $actual_completion_date
- * @property string|null $enrollment_type
+
  * @property string|null $study_time
  * @property string|null $scholarship_duration
 
@@ -91,7 +91,7 @@ class ScholarProfile extends Model
         // Application Details
         'entry_type', // NEW or LATERAL
         'intended_degree', // e.g., MS Physics, PHD Physics
- // Master's, PhD, Masteral, Doctoral
+        'level', // MS, PHD
         'intended_university', // Full name with campus/branch
         'department', // Department/College
         'thesis_dissertation_title',
@@ -100,7 +100,7 @@ class ScholarProfile extends Model
         'units_earned_prior',
         // Scholarship Details
         'start_date', // Scholarship start date
-        'enrollment_type', // New, Lateral
+
         'study_time', // Full-time, Part-time
         'scholarship_duration', // Duration in months
         // System fields
@@ -174,7 +174,7 @@ class ScholarProfile extends Model
         'units_earned_prior' => 'nullable|integer|min:0',
         // Scholarship Details
         'start_date' => 'nullable|date|date_format:Y-m-d',
-        'enrollment_type' => 'required|string|in:New,Lateral',
+
         'study_time' => 'required|string|in:Full-time,Part-time',
         'scholarship_duration' => 'required|integer|min:1|max:60',
         'status' => 'required|string|in:Active,Graduated,Deferred,Dropped,Inactive',
@@ -248,6 +248,28 @@ class ScholarProfile extends Model
     }
 
     /**
+     * Scope to eager load all common relationships
+     */
+    public function scopeWithFullRelations($query)
+    {
+        return $query->with([
+            'user',
+            'fundRequests.requestType',
+            'fundRequests.documents',
+            'manuscripts.documents',
+            'documents'
+        ]);
+    }
+
+    /**
+     * Scope to eager load basic relationships
+     */
+    public function scopeWithBasicRelations($query)
+    {
+        return $query->with(['user']);
+    }
+
+    /**
      * Get the manuscripts for the scholar.
      */
     public function manuscripts()
@@ -300,8 +322,12 @@ class ScholarProfile extends Model
         $addressParts = array_filter([
             $this->street,
             $this->village,
+            $this->town,
+            $this->district,
+            $this->region,
             $this->province,
-            $this->zipcode
+            $this->zipcode,
+            $this->country
         ]);
         
         return implode(', ', $addressParts);

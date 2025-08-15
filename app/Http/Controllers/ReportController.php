@@ -60,7 +60,7 @@ class ReportController extends Controller
             ],
             'manuscripts' => [
                 'total' => Manuscript::count(),
-                'draft' => Manuscript::where('status', 'Outline Submitted')->count(),
+                'submitted' => Manuscript::where('status', 'Submitted')->count(),
                 'under_review' => Manuscript::where('status', 'Under Review')->count(),
                 'completed' => Manuscript::where('status', 'Published')->count(),
                 'rejected' => Manuscript::where('status', 'Rejected')->count(),
@@ -302,12 +302,12 @@ class ReportController extends Controller
                 case 'scholars':
                     fputcsv($file, [
                         'SCHOLAR ID', 'FIRST NAME', 'MIDDLE NAME', 'LAST NAME', 'SUFFIX', 
-                        'GENDER', 'BIRTH DATE', 'CONTACT NUMBER', 'STREET', 'VILLAGE', 
+                        'EMAIL', 'GENDER', 'BIRTH DATE', 'CONTACT NUMBER', 'STREET', 'VILLAGE', 
                         'TOWN', 'PROVINCE', 'ZIPCODE', 'DISTRICT', 'REGION', 'COUNTRY',
                         'COURSE COMPLETED', 'UNIVERSITY GRADUATED', 'ENTRY TYPE', 
                         'INTENDED DEGREE', 'LEVEL', 'INTENDED UNIVERSITY', 'DEPARTMENT', 
-                        'MAJOR', 'THESIS/DISSERTATION TITLE', 'UNITS REQUIRED', 
-                        'UNITS EARNED PRIOR', 'START DATE', 'ENROLLMENT TYPE', 
+                        'THESIS/DISSERTATION TITLE', 'UNITS REQUIRED', 
+                        'UNITS EARNED PRIOR', 'START DATE', 'STUDY TIME', 
                         'SCHOLARSHIP DURATION', 'SCHOLAR STATUS'
                     ]);
                     foreach ($data as $row) {
@@ -316,15 +316,8 @@ class ReportController extends Controller
                         if ($row->gender === 'Male') $gender = 'M';
                         elseif ($row->gender === 'Female') $gender = 'F';
                         
-                        // Format level (abbreviated)
-                        $level = 'N/A';
-                        if ($row->intended_degree) {
-                            if (stripos($row->intended_degree, 'master') !== false || stripos($row->intended_degree, 'ms') !== false) {
-                                $level = 'MS';
-                            } elseif (stripos($row->intended_degree, 'phd') !== false || stripos($row->intended_degree, 'doctor') !== false) {
-                                $level = 'PHD';
-                            }
-                        }
+                        // Use the actual level field from database
+                        $level = $row->level ?? 'N/A';
                         
                         // Format dates
                         $birthDate = $row->birth_date ? $row->birth_date->format('Y-m-d') : 'N/A';
@@ -336,6 +329,7 @@ class ReportController extends Controller
                             $row->middle_name ?? 'N/A',
                             $row->last_name ?? 'N/A',
                             $row->suffix ?? 'N/A',
+                            $row->user ? $row->user->email : 'N/A',
                             $gender,
                             $birthDate,
                             $row->contact_number ?? 'N/A',
@@ -354,14 +348,13 @@ class ReportController extends Controller
                             $level,
                             $row->intended_university ?? 'N/A',
                             $row->department ?? 'N/A',
-                            $row->major ?? 'N/A',
                             $row->thesis_dissertation_title ?? 'N/A',
                             $row->units_required ?? 'N/A',
                             $row->units_earned_prior ?? 'N/A',
                             $startDate,
-                            $row->enrollment_type ?? 'N/A',
+                            $row->study_time ?? 'N/A',
                             $row->scholarship_duration ?? 'N/A',
-                            $row->scholar_status ?? 'N/A'
+                            $row->status ?? 'N/A'
                         ]);
                     }
                     break;

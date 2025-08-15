@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Announcement;
 use App\Models\User;
+use App\Services\SessionManagementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,6 +58,9 @@ class ScholarAuthenticatedSessionController extends Controller
         // Dito natin iche-check kung tama ang login credentials
         $request->authenticate('scholar');
         
+        // Mark session with last used guard for better timeout redirects
+        session(['auth.guard' => 'scholar']);
+        
         // Kunin ang user na nag-login
         $authenticatedUser = Auth::guard('scholar')->user();
         
@@ -68,29 +72,19 @@ class ScholarAuthenticatedSessionController extends Controller
         }
 
         // I-redirect ang user sa scholar dashboard
-        return redirect()->intended(route('scholar.dashboard'));
+        return redirect()->route('scholar.dashboard');
     }
 
     /**
      * Ginagamit kapag nag-logout ang scholar
      * Dito natin i-clear lahat ng session data para secure
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, SessionManagementService $sessionService): RedirectResponse
     {
-        // I-logout ang scholar sa scholar guard
-        Auth::guard('scholar')->logout();
+        // Use the centralized session management service
+        $logoutResult = $sessionService->performLogout($request);
         
-        // I-logout din sa web guard para siguradong walang natira
-        Auth::guard('web')->logout();
-
-        // I-clear lahat ng session data
-        session()->invalidate();
-        session()->regenerateToken();
-        
-        // I-clear din ang mga remember me cookies
-        session()->flush();
-
-        // Ibalik sa login page ang user
-        return redirect()->route('scholar-login');
+        return redirect()->route($logoutResult['route'])
+            ->with('success', $logoutResult['message']);
     }
 }

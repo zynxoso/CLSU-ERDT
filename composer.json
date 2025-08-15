@@ -16,7 +16,7 @@
         "laravel/ui": "^4.6",
         "livewire/livewire": "^3.6",
         "phpoffice/phpspreadsheet": "^4.3",
-        "predis/predis": "^3.0",
+
         "tightenco/ziggy": "^2.0",
         "tymon/jwt-auth": "^2.2"
     },

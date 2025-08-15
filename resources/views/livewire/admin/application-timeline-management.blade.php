@@ -74,7 +74,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th wire:click="sortByField('activity')"
+                            <th wire:click="sortBy('activity')"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200">
                                 <div class="flex items-center space-x-1">
                                     <span>Activity</span>
@@ -85,7 +85,7 @@
                                     @endif
                                 </div>
                             </th>
-                            <th wire:click="sortByField('first_semester')"
+                            <th wire:click="sortBy('first_semester')"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200">
                                 <div class="flex items-center space-x-1">
                                     <span>First Semester</span>
@@ -96,7 +96,7 @@
                                     @endif
                                 </div>
                             </th>
-                            <th wire:click="sortByField('second_semester')"
+                            <th wire:click="sortBy('second_semester')"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200">
                                 <div class="flex items-center space-x-1">
                                     <span>Second Semester</span>
@@ -107,7 +107,7 @@
                                     @endif
                                 </div>
                             </th>
-                            <th wire:click="sortByField('sort_order')"
+                            <th wire:click="sortBy('sort_order')"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200">
                                 <div class="flex items-center space-x-1">
                                     <span>Sort Order</span>

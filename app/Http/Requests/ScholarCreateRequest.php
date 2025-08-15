@@ -88,9 +88,21 @@ class ScholarCreateRequest extends FormRequest
             // Academic information
             'intended_university' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
+            'major' => ['nullable', 'string', 'max:255'],
+            'intended_degree' => ['nullable', 'string', 'max:255'],
+            'level' => ['nullable', 'string', 'in:MS,PHD'],
+            
+            // Previous Academic Background
+            'course_completed' => ['nullable', 'string', 'max:255'],
+            'university_graduated' => ['nullable', 'string', 'max:255'],
+            'entry_type' => ['nullable', 'string', 'in:NEW,LATERAL'],
+            
+            // Research Information
+            'thesis_dissertation_title' => ['nullable', 'string', 'max:500'],
+            'units_required' => ['nullable', 'integer', 'min:0', 'max:200'],
+            'units_earned_prior' => ['nullable', 'integer', 'min:0', 'max:200'],
 
 
-            'enrollment_type' => ['required', 'string', 'in:New,Lateral'],
             'study_time' => ['required', 'string', 'in:Full-time,Part-time'],
             'scholarship_duration' => ['required', 'integer', 'min:1', 'max:60'],
             'status' => [
@@ -115,7 +127,7 @@ class ScholarCreateRequest extends FormRequest
             // Location information (optional)
             'street' => ['nullable', 'string', 'max:255'],
             'village' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
+            'town' => ['nullable', 'string', 'max:255'],
             'district' => ['nullable', 'string', 'max:255'],
             'region' => ['nullable', 'string', 'max:255'],
             'province' => ['nullable', 'string', 'max:255'],

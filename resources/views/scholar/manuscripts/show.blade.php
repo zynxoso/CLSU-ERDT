@@ -18,9 +18,9 @@
                 <div class="flex justify-between mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">Manuscript Information</h2>
                     <div class="flex space-x-2">
-                        @if (in_array($manuscript->status, ['Draft', 'Revision Requested']))
+                        @if ($manuscript->status === 'Revision Requested')
                             <a href="{{ route('scholar.manuscripts.edit', $manuscript->id) }}"
-                                class="px-3 py-1 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] cursor-pointer">
+                                class="px-3 py-1 bg-primary-500 text-white rounded-lg hover:bg-primary-600 cursor-pointer">
                                 <i class="fas fa-edit mr-1"></i> Edit
                             </a>
                             <form id="submitForm{{ $manuscript->id }}"
@@ -29,7 +29,7 @@
                                 @csrf
                                 @method('PUT')
                                 <button type="button" onclick="confirmSubmit({{ $manuscript->id }})"
-                                    class="px-3 py-1 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] cursor-pointer"
+                                    class="px-3 py-1 bg-primary-500 text-white rounded-lg hover:bg-primary-600 cursor-pointer"
                                     title="Submit Manuscript">
                                     <i class="fas fa-paper-plane mr-1"></i> Submit
                                 </button>
@@ -46,7 +46,7 @@
                                 <div id="abstract-preview">
                                     {{ Str::limit($manuscript->abstract, 400, '...') }}
                                     <button
-                                        class="inline-flex items-center text-[#4A90E2] hover:text-[#357ABD] text-sm mt-2 font-medium cursor-pointer show-more"
+                                        class="inline-flex items-center text-secondary-500 hover:text-secondary-600 text-sm mt-2 font-medium cursor-pointer show-more"
                                         data-target="abstract-full">
                                         <i class="fas fa-expand-alt mr-1 text-xs"></i>
                                         Show more
@@ -55,7 +55,7 @@
                                 <div id="abstract-full" class="hidden">
                                     {{ $manuscript->abstract }}
                                     <button
-                                        class="inline-flex items-center text-[#4A90E2] hover:text-[#357ABD] text-sm mt-2 font-medium cursor-pointer show-less"
+                                        class="inline-flex items-center text-secondary-500 hover:text-secondary-600 text-sm mt-2 font-medium cursor-pointer show-less"
                                         data-target="abstract-preview">
                                         <i class="fas fa-compress-alt mr-1 text-xs"></i>
                                         Show less
@@ -76,13 +76,13 @@
                             <span class="font-bold text-gray-800 text-sm">Status:</span>
                             <span
                                 class="px-3 py-1 text-xs font-medium rounded-full
-                            @if ($manuscript->status == 'Published') bg-[#4CAF50]/20 text-[#2E7D32] border border-[#4CAF50]/30
-                            @elseif($manuscript->status == 'Accepted') bg-[#4CAF50]/20 text-[#2E7D32] border border-[#4CAF50]/30
+                            @if ($manuscript->status == 'Published') bg-primary-500/20 text-primary-800 border border-primary-500/30
+                            @elseif($manuscript->status == 'Accepted') bg-primary-500/20 text-primary-800 border border-primary-500/30
                             @elseif($manuscript->status == 'Rejected') bg-red-200 text-red-900 border border-red-300
-                            @elseif($manuscript->status == 'Under Review') bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30
-                            @elseif($manuscript->status == 'Revision Requested') bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30
-                            @elseif($manuscript->status == 'Submitted') bg-[#FFCA28]/25 text-[#975A16] border border-[#FFCA28]/30
-                            @else bg-[#B0BEC5]/25 text-[#546E7A] border border-[#B0BEC5]/30 @endif">
+                            @elseif($manuscript->status == 'Under Review') bg-warning-400/25 text-warning-700 border border-warning-400/30
+                            @elseif($manuscript->status == 'Revision Requested') bg-warning-400/25 text-warning-700 border border-warning-400/30
+                            @elseif($manuscript->status == 'Submitted') bg-warning-400/25 text-warning-700 border border-warning-400/30
+                            @else bg-neutral-400/25 text-neutral-600 border border-[rgb(176_190_197)]/30 @endif">
                                 {{ $manuscript->status }}
                             </span>
                         </div>
@@ -122,7 +122,7 @@
                                     <div id="notes-preview">
                                         {{ Str::limit($manuscript->admin_notes, 250, '...') }}
                                         <button
-                                            class="inline-flex items-center text-[#4A90E2] hover:text-[#357ABD] text-sm mt-2 font-medium cursor-pointer show-more"
+                                            class="inline-flex items-center text-secondary-500 hover:text-secondary-600 text-sm mt-2 font-medium cursor-pointer show-more"
                                             data-target="notes-full">
                                             <i class="fas fa-expand-alt mr-1 text-xs"></i>
                                             Show more
@@ -131,7 +131,7 @@
                                     <div id="notes-full" class="hidden">
                                         {{ $manuscript->admin_notes }}
                                         <button
-                                            class="inline-flex items-center text-[#4A90E2] hover:text-[#357ABD] text-sm mt-2 font-medium cursor-pointer show-less"
+                                            class="inline-flex items-center text-secondary-500 hover:text-secondary-600 text-sm mt-2 font-medium cursor-pointer show-less"
                                             data-target="notes-preview">
                                             <i class="fas fa-compress-alt mr-1 text-xs"></i>
                                             Show less
@@ -179,14 +179,14 @@
                         <p class="text-gray-400 text-sm mb-4">Reviews will appear here once submitted by reviewers</p>
                         @if ($manuscript->status == 'Under Review')
                             <div
-                                class="inline-flex items-center px-3 py-2 bg-[#FFCA28]/10 text-[#975A16] rounded-lg text-sm">
+                                class="inline-flex items-center px-3 py-2 bg-warning-400/10 text-warning-700 rounded-lg text-sm">
                                 <i class="fas fa-clock mr-2"></i>
                                 Review in progress
                             </div>
-                        @elseif(in_array($manuscript->status, ['Draft', 'Revision Requested']))
+                        @elseif(in_array($manuscript->status, ['Revision Requested']))
                             <div
-                                class="inline-flex items-center px-3 py-2 bg-[#4A90E2]/10 text-[#4A90E2] rounded-lg text-sm border border-[#4A90E2]/20">
-                                <i class="fas fa-edit mr-2 text-[#4A90E2]"></i>
+                                class="inline-flex items-center px-3 py-2 bg-secondary-500/10 text-secondary-500 rounded-lg text-sm border border-secondary-500/20">
+                                <i class="fas fa-edit mr-2 text-secondary-500"></i>
                                 Submit for review to receive feedback
                             </div>
                         @endif
@@ -231,7 +231,7 @@
         </script>
     @endpush
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
     <script>
         function confirmSubmit(manuscriptId) {
             console.log('confirmSubmit called with ID:', manuscriptId);
@@ -251,8 +251,8 @@
                 text: "Once submitted, the manuscript will be final and cannot be edited.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#4CAF50',
-                cancelButtonColor: '#dc2626',
+                confirmButtonColor: 'rgb(34 197 94)',
+                cancelButtonColor: 'rgb(220 38 38)',
                 confirmButtonText: 'Confirm'
             }).then((result) => {
                 if (result.isConfirmed) {

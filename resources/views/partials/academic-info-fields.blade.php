@@ -49,6 +49,17 @@
         ]"
         required />
 
+    <x-form-field 
+        label="Level"
+        name="level"
+        type="select"
+        :value="$scholarProfile->level ?? ''"
+        :options="[
+            'MS' => 'MS',
+            'PHD' => 'PHD'
+        ]"
+        required />
+
 
 </div>
 
@@ -79,7 +90,7 @@
         name="entry_type"
         type="select"
         :value="$scholarProfile->entry_type ?? ''"
-        :options="['new' => 'New', 'lateral' => 'Lateral']"
+        :options="['NEW' => 'New', 'LATERAL' => 'Lateral']"
         required />
 </div>
 

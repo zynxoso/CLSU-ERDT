@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Include the navigation component -->
     <x-navigation />
 
     <!-- Hero Section -->
@@ -512,194 +511,32 @@
         </div>
     </div>
 
-    <!-- Enhanced JavaScript -->
+
     <script>
-        // Mobile menu toggle
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Reading progress bar
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            const progressBar = document.getElementById('reading-progress');
-            if (progressBar) {
-                progressBar.style.width = scrolled + '%';
-            }
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Add animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in-up');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.transform').forEach(el => {
-            observer.observe(el);
-        });
+            const mobileMenuButton=document.getElementById('mobile-menu-button'),mobileMenu=document.getElementById('mobile-menu');mobileMenuButton.addEventListener('click',()=>{mobileMenu.classList.toggle('hidden');});
+            window.addEventListener('scroll',()=>{const winScroll=document.body.scrollTop||document.documentElement.scrollTop,height=document.documentElement.scrollHeight-document.documentElement.clientHeight,scrolled=(winScroll/height)*100,progressBar=document.getElementById('reading-progress');if(progressBar){progressBar.style.width=scrolled+'%';}});
+            document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener('click',function(e){e.preventDefault();const target=document.querySelector(this.getAttribute('href'));if(target){target.scrollIntoView({behavior:'smooth',block:'start'});}});});
+            const observerOptions={threshold:0.1,rootMargin:'0px 0px -50px 0px'},observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('fade-in-up');}});},observerOptions);document.querySelectorAll('.transform').forEach(el=>{observer.observe(el);});
     </script>
 
+
     <style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        /* University Logos Animation */
-        .university-logos-slider {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .university-logos-track {
-            display: flex;
-            animation: slideLogos 30s linear infinite;
-            width: calc(200% + 32px); /* Double width for seamless loop */
-        }
-
-        .university-logo-item {
-            flex: 0 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            margin: 0 1rem;
-            min-width: 120px;
-            transition: all 0.3s ease;
-        }
-
-        .university-logo-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .university-logo {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            filter: grayscale(100%) opacity(0.7);
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .university-logo:hover {
-            filter: grayscale(0%) opacity(1);
-            transform: scale(1.1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .university-logo.clsu-highlight {
-            filter: grayscale(0%) opacity(1);
-            border: 3px solid #16a34a;
-            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
-        }
-
-        .university-name {
-            margin-top: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-align: center;
-            transition: color 0.3s ease;
-        }
-
-        .university-name.clsu-name {
-            color: #16a34a;
-            font-weight: 700;
-        }
-
-        .university-logo-item:hover .university-name {
-            color: #374151;
-        }
-
-        @keyframes slideLogos {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        /* Pause animation on hover */
-        .university-logos-slider:hover .university-logos-track {
-            animation-play-state: paused;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .university-logo {
-                width: 60px;
-                height: 60px;
-            }
-
-            .university-logo-item {
-                min-width: 100px;
-                margin: 0 0.5rem;
-            }
-
-            .university-logos-track {
-                animation-duration: 25s;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .university-logo {
-                width: 50px;
-                height: 50px;
-            }
-
-            .university-logo-item {
-                min-width: 80px;
-                padding: 0.5rem;
-            }
-
-            .university-name {
-                font-size: 0.625rem;
-            }
-        }
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .fade-in-up{animation:fadeInUp 0.6s ease forwards;}
+        .university-logos-slider{width:100%;overflow:hidden;position:relative;}
+        .university-logos-track{display:flex;animation:slideLogos 30s linear infinite;width:calc(200% + 32px);}
+        .university-logo-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;margin:0 1rem;min-width:120px;transition:all 0.3s ease;}
+        .university-logo-item:hover{transform:translateY(-5px);}
+        .university-logo{width:80px;height:80px;object-fit:contain;filter:grayscale(100%) opacity(0.7);transition:all 0.3s ease;border-radius:12px;padding:8px;background:rgba(255,255,255,0.8);box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+        .university-logo:hover{filter:grayscale(0%) opacity(1);transform:scale(1.1);box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+        .university-logo.clsu-highlight{filter:grayscale(0%) opacity(1);border:3px solid #16a34a;box-shadow:0 4px 20px rgba(34,197,94,0.3);}
+        .university-name{margin-top:0.5rem;font-size:0.75rem;font-weight:600;color:rgb(107 114 128);text-align:center;transition:color 0.3s ease;}
+        .university-name.clsu-name{color:#16a34a;font-weight:700;}
+        .university-logo-item:hover .university-name{color:#374151;}
+        @keyframes slideLogos{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+        .university-logos-slider:hover .university-logos-track{animation-play-state:paused;}
+        @media (max-width:768px){.university-logo{width:60px;height:60px;}.university-logo-item{min-width:100px;margin:0 0.5rem;}.university-logos-track{animation-duration:25s;}}
+        @media (max-width:480px){.university-logo{width:50px;height:50px;}.university-logo-item{min-width:80px;padding:0.5rem;}.university-name{font-size:0.625rem;}}
     </style>
 
     <x-footer />

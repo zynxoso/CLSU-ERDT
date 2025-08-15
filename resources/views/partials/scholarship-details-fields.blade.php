@@ -13,23 +13,15 @@
         required />
     
     <x-form-field 
-        label="Enrollment Type"
-        name="enrollment_type"
-        type="select"
-        :value="$scholarProfile->enrollment_type ?? ''"
-        :options="['New' => 'New', 'Lateral' => 'Lateral']"
-        required />
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <x-form-field 
         label="Study Time"
         name="study_time"
         type="select"
         :value="$scholarProfile->study_time ?? ''"
         :options="['Full-time' => 'Full-time', 'Part-time' => 'Part-time']"
         required />
-    
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <x-form-field 
         label="Scholarship Duration (months)"
         name="scholarship_duration"

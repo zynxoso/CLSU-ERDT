@@ -175,6 +175,8 @@ class SiteSetting extends Model
         $firstSemEnd = self::get('first_semester_end');
         $secondSemStart = self::get('second_semester_start');
         $secondSemEnd = self::get('second_semester_end');
+        $summerStart = self::get('summer_term_start');
+        $summerEnd = self::get('summer_term_end');
 
         if ($firstSemStart && $firstSemEnd) {
             $firstStart = Carbon::parse($firstSemStart);
@@ -191,6 +193,15 @@ class SiteSetting extends Model
 
             if ($now->between($secondStart, $secondEnd)) {
                 return 'second';
+            }
+        }
+
+        if ($summerStart && $summerEnd) {
+            $summerStartDate = Carbon::parse($summerStart);
+            $summerEndDate = Carbon::parse($summerEnd);
+
+            if ($now->between($summerStartDate, $summerEndDate)) {
+                return 'summer';
             }
         }
 

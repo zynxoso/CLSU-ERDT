@@ -12,6 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if fund_requests table exists before trying to update it
+        if (!Schema::hasTable('fund_requests')) {
+            return;
+        }
+
         // First, update any existing 'Disbursed' status to 'Completed'
         DB::table('fund_requests')
             ->where('status', 'Disbursed')

@@ -50,7 +50,7 @@
                 Manuscript Title <span class="text-red-500">*</span>
             </label>
             <input type="text" id="title" name="title" value="{{ old('title', $manuscript->title) }}"
-                class="w-full bg-white border @error('title') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]" required>
+                class="w-full bg-white border @error('title') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500" required>
             @error('title')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
@@ -62,7 +62,7 @@
                 Abstract <span class="text-red-500">*</span>
             </label>
             <textarea id="abstract" name="abstract" rows="4"
-                class="w-full bg-white border @error('abstract') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]" required>{{ old('abstract', $manuscript->abstract) }}</textarea>
+                class="w-full bg-white border @error('abstract') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500" required>{{ old('abstract', $manuscript->abstract) }}</textarea>
             @error('abstract')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
@@ -75,7 +75,7 @@
                     Manuscript Type <span class="text-red-500">*</span>
                 </label>
                 <select id="manuscript_type" name="manuscript_type"
-                    class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]" required>
+                    class="w-full bg-white border @error('manuscript_type') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500" required>
                     <option value="">Select Type</option>
                     <option value="Outline" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Outline' ? 'selected' : '' }}>Outline</option>
                     <option value="Final" {{ old('manuscript_type', $manuscript->manuscript_type) == 'Final' ? 'selected' : '' }}>Final</option>
@@ -90,7 +90,7 @@
                     Co-Authors
                 </label>
                 <input type="text" id="co_authors" name="co_authors" value="{{ old('co_authors', $manuscript->co_authors) }}"
-                    class="w-full bg-white border @error('co_authors') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]">
+                    class="w-full bg-white border @error('co_authors') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 @error('co_authors')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -107,7 +107,7 @@
                 Upload New Manuscript File (PDF, optional)
             </label>
             <input type="file" id="file" name="file" accept=".pdf"
-                class="w-full bg-white border @error('file') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]">
+                class="w-full bg-white border @error('file') border-red-300 @else border-gray-300 @enderror rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
             @error('file')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
@@ -119,7 +119,7 @@
                 <ul class="space-y-1">
                     @foreach($manuscript->documents as $document)
                         <li class="flex items-center text-sm text-gray-600">
-                            <i class="fas fa-file-pdf text-[#4CAF50] mr-2"></i>
+                            <i class="fas fa-file-pdf text-primary-500 mr-2"></i>
                             <span class="flex-1">{{ $document->title }}</span>
                             <span class="text-xs text-gray-500 ml-2">
                                 ({{ number_format($document->file_size / 1024, 1) }} KB)
@@ -139,7 +139,7 @@
                 <a href="{{ route('scholar.manuscripts.show', $manuscript->id) }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200">
                     Cancel
                 </a>
-                <button type="submit" class="px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
+                <button type="submit" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
                     <i class="fas fa-save mr-2"></i> Update Manuscript
                 </button>
             </div>

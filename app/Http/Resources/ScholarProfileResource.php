@@ -44,7 +44,7 @@ class ScholarProfileResource extends BaseResource
 
             // Bachelor graduation year field removed
 
-            'enrollment_type' => $this->enrollment_type,
+
             'study_time' => $this->study_time,
             'scholarship_duration' => $this->scholarship_duration,
             'created_at' => $this->created_at,

@@ -24,7 +24,7 @@
     <!-- Add New Button -->
     <div class="row mb-3">
         <div class="col-md-12">
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFacultyModal">
+            <button type="button" class="btn btn-success" onclick="openModal('addFacultyModal')">
                 <i class="fas fa-plus"></i> Add New Faculty Member
             </button>
         </div>
@@ -83,8 +83,7 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-primary" 
-                                            onclick="editFaculty({{ $faculty->id }})" 
-                                            data-bs-toggle="modal" data-bs-target="#editFacultyModal">
+                                            onclick="editFaculty({{ $faculty->id }})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-{{ $faculty->is_active ? 'warning' : 'success' }}" 
@@ -120,138 +119,149 @@
 </div>
 
 <!-- Add Faculty Modal -->
-<div class="modal fade" id="addFacultyModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('admin.content-management.faculty.store') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Faculty Member</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="addFacultyModal" maxWidth="lg">
+    <x-slot name="title">
+        Add New Faculty Member
+    </x-slot>
+    
+    <form method="POST" action="{{ route('admin.content-management.faculty.store') }}" enctype="multipart/form-data">
+        @csrf
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="name" name="name" required>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">Name *</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="position" class="form-label">Position *</label>
-                            <input type="text" class="form-control" id="position" name="position" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="department" class="form-label">Department *</label>
-                            <input type="text" class="form-control" id="department" name="department" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="specialization" class="form-label">Specialization</label>
-                            <input type="text" class="form-control" id="specialization" name="specialization">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="photo" class="form-label">Photo</label>
-                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
-                            <small class="form-text text-muted">Max size: 2MB. Formats: JPEG, PNG, JPG, GIF</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control" id="sort_order" name="sort_order" min="0">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="bio" class="form-label">Biography</label>
-                            <textarea class="form-control" id="bio" name="bio" rows="4"></textarea>
-                        </div>
-                    </div>
+                <div>
+                    <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position *</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="position" name="position" required>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Create Faculty Member</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="department" name="department" required>
                 </div>
-            </form>
+                <div>
+                    <label for="specialization" class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="specialization" name="specialization">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="email" name="email">
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="phone" name="phone">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="photo" class="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                    <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="photo" name="photo" accept="image/*">
+                    <small class="text-sm text-gray-500">Max size: 2MB. Formats: JPEG, PNG, JPG, GIF</small>
+                </div>
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="sort_order" name="sort_order" min="0">
+                </div>
+            </div>
+            <div>
+                <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Biography</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="bio" name="bio" rows="4"></textarea>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('addFacultyModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Create Faculty Member</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <!-- Edit Faculty Modal -->
-<div class="modal fade" id="editFacultyModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" id="editFacultyForm" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Faculty Member</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<x-modal id="editFacultyModal" maxWidth="lg">
+    <x-slot name="title">
+        Edit Faculty Member
+    </x-slot>
+    
+    <form method="POST" id="editFacultyForm" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_name" class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_name" name="name" required>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_name" class="form-label">Name *</label>
-                            <input type="text" class="form-control" id="edit_name" name="name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_position" class="form-label">Position *</label>
-                            <input type="text" class="form-control" id="edit_position" name="position" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_department" class="form-label">Department *</label>
-                            <input type="text" class="form-control" id="edit_department" name="department" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_specialization" class="form-label">Specialization</label>
-                            <input type="text" class="form-control" id="edit_specialization" name="specialization">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="edit_email" name="email">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_phone" class="form-label">Phone</label>
-                            <input type="text" class="form-control" id="edit_phone" name="phone">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_photo" class="form-label">Photo</label>
-                            <input type="file" class="form-control" id="edit_photo" name="photo" accept="image/*">
-                            <small class="form-text text-muted">Leave empty to keep current photo</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="edit_sort_order" class="form-label">Sort Order</label>
-                            <input type="number" class="form-control" id="edit_sort_order" name="sort_order" min="0">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="edit_bio" class="form-label">Biography</label>
-                            <textarea class="form-control" id="edit_bio" name="bio" rows="4"></textarea>
-                        </div>
-                    </div>
+                <div>
+                    <label for="edit_position" class="block text-sm font-medium text-gray-700 mb-1">Position *</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_position" name="position" required>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Faculty Member</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_department" class="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_department" name="department" required>
                 </div>
-            </form>
+                <div>
+                    <label for="edit_specialization" class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_specialization" name="specialization">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_email" name="email">
+                </div>
+                <div>
+                    <label for="edit_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_phone" name="phone">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit_photo" class="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                    <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_photo" name="photo" accept="image/*">
+                    <small class="text-sm text-gray-500">Leave empty to keep current photo</small>
+                </div>
+                <div>
+                    <label for="edit_sort_order" class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_sort_order" name="sort_order" min="0">
+                </div>
+            </div>
+            <div>
+                <label for="edit_bio" class="block text-sm font-medium text-gray-700 mb-1">Biography</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-clsu-maroon focus:border-transparent" id="edit_bio" name="bio" rows="4"></textarea>
+            </div>
         </div>
-    </div>
-</div>
+        
+        <x-slot name="footer">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="closeModal('editFacultyModal')">Cancel</button>
+            <button type="submit" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Update Faculty Member</button>
+        </x-slot>
+    </form>
+</x-modal>
 
 <script>
 function editFaculty(id) {
-    // Set the form action
-    document.getElementById('editFacultyForm').action = `/admin/content-management/faculty/${id}`;
-    
-    // In a real implementation, you'd fetch the faculty data and populate the form
-    // fetch(`/admin/content-management/faculty/${id}/edit`)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         document.getElementById('edit_name').value = data.name;
-    //         document.getElementById('edit_position').value = data.position;
-    //         // ... populate other fields
-    //     });
+    fetch(`/admin/content-management/faculty/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit_name').value = data.name;
+            document.getElementById('edit_position').value = data.position;
+            document.getElementById('edit_department').value = data.department;
+            document.getElementById('edit_specialization').value = data.specialization || '';
+            document.getElementById('edit_email').value = data.email || '';
+            document.getElementById('edit_phone').value = data.phone || '';
+            document.getElementById('edit_bio').value = data.bio || '';
+            document.getElementById('edit_sort_order').value = data.sort_order || '';
+            
+            document.getElementById('editFacultyForm').action = `/admin/content-management/faculty/${id}`;
+            openModal('editFacultyModal');
+        })
+        .catch(error => console.error('Error:', error));
 }
 </script>

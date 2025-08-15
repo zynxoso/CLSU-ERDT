@@ -3,7 +3,7 @@
 @section('title', 'Manuscripts')
 
 @section('content')
-<div style="background-color: #FAFAFA; min-height: 100vh; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+<div class="bg-gray-50 min-h-screen font-sans">
     <livewire:admin.manuscript-management />
 </div>
 @endsection

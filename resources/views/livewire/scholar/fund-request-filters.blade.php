@@ -56,7 +56,7 @@
                 <label for="status" class="label">Status</label>
                 <select wire:model.live="status" id="status" class="select select-bordered w-full">
                     <option value="">All</option>
-                    <option value="Draft">Draft</option>
+
                     <option value="Submitted">Submitted</option>
                     <option value="Under Review">Under Review</option>
                     <option value="Approved">Approved</option>
@@ -107,7 +107,7 @@
                                 <td>{{ $request->created_at->format('M d, Y') }}</td>
                                 <td>
                                     <span class="badge
-                                        @if($request->status === 'Draft') badge-secondary
+                                        @if($request->status === 'Submitted') badge-secondary
                                         @elseif($request->status === 'Submitted') badge-warning
                                         @elseif($request->status === 'Under Review') badge-info
                                         @elseif($request->status === 'Approved') badge-success
@@ -120,7 +120,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('scholar.fund-requests.show', $request->id) }}" class="btn btn-sm btn-info text-white">View</a>
-                                    @if($request->status === 'Draft')
+                                    @if($request->status === 'Submitted')
                                         <a href="{{ route('scholar.fund-requests.edit', $request->id) }}" class="btn btn-sm btn-warning text-white">Edit</a>
                                     @endif
                                 </td>

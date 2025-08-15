@@ -6,6 +6,9 @@ use App\Models\FundRequest;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @method mixed route(string $param = null, mixed $default = null)
+ */
 class UpdateFundRequestRequest extends FormRequest
 {
     /**
@@ -22,7 +25,7 @@ class UpdateFundRequestRequest extends FormRequest
         }
 
         // Only draft requests can be updated
-        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
+        if ($fundRequest->status !== 'Submitted') {
             return false;
         }
 
@@ -39,7 +42,7 @@ class UpdateFundRequestRequest extends FormRequest
         return [
             'request_type_id' => 'required|exists:request_types,id',
             'amount' => 'required|numeric|min:0',
-            'status' => 'sometimes|in:' . FundRequest::STATUS_DRAFT . ',' . FundRequest::STATUS_SUBMITTED
+            'status' => 'sometimes|in:Submitted'
         ];
     }
 
@@ -68,7 +71,7 @@ class UpdateFundRequestRequest extends FormRequest
     {
         $fundRequest = $this->route('fundRequest');
 
-        if ($fundRequest->status !== FundRequest::STATUS_DRAFT) {
+        if ($fundRequest->status !== 'Submitted') {
             abort(403, 'Only draft requests can be updated.');
         }
 

@@ -1,0 +1,384 @@
+/* Manuscript Management Styles */
+
+/* Layout and Container Styles */
+.manuscript-container {
+    background-color: rgb(250, 250, 250);
+    min-height: 100vh;
+}
+
+.manuscript-header-title {
+    color: rgb(23, 23, 23);
+    font-size: 24px;
+}
+
+.manuscript-header-subtitle {
+    color: rgb(64, 64, 64);
+    font-size: 15px;
+}
+
+/* Button Styles */
+.btn-batch-download {
+    background-color: rgb(21, 128, 61);
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+}
+
+.btn-add-manuscript {
+    background-color: rgb(34, 197, 94);
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+}
+
+.btn-add-manuscript:hover {
+    background-color: rgb(21, 128, 61);
+}
+
+.btn-reset {
+    background-color: rgb(34, 197, 94);
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+}
+
+.btn-reset:hover {
+    background-color: rgb(21, 128, 61);
+}
+
+.btn-icon {
+    color: rgb(255, 255, 255) !important;
+}
+
+/* Alert Styles */
+.alert-success {
+    background-color: rgb(232, 245, 232);
+    border-color: rgb(21, 128, 61);
+    color: rgb(27, 94, 32);
+}
+
+.alert-success-icon {
+    color: rgb(21, 128, 61);
+}
+
+.alert-success-title {
+    color: rgb(27, 94, 32);
+}
+
+.alert-success-text {
+    color: rgb(21, 128, 61);
+}
+
+.alert-error {
+    background-color: rgb(255, 235, 238);
+    border-color: rgb(211, 47, 47);
+    color: rgb(183, 28, 28);
+}
+
+.alert-error-icon {
+    color: rgb(211, 47, 47);
+}
+
+.alert-error-title {
+    color: rgb(183, 28, 28);
+}
+
+.alert-error-text {
+    color: rgb(211, 47, 47);
+}
+
+/* Filter Styles */
+.filter-container {
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(224, 224, 224);
+}
+
+.filter-label {
+    color: rgb(64, 64, 64);
+    font-size: 15px;
+}
+
+.filter-input {
+    border-color: rgb(224, 224, 224);
+    font-size: 15px;
+}
+
+/* Loading Styles */
+.loading-spinner {
+    border-color: rgb(21, 128, 61);
+}
+
+/* Table Styles */
+.table-container {
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(224, 224, 224);
+}
+
+.table-header {
+    background-color: #F8F9FA;
+}
+
+.table-header-text {
+    color: rgb(115, 115, 115);
+}
+
+.table-body {
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(224, 224, 224);
+}
+
+.table-row-hover:hover {
+    background-color: #F8F9FA !important;
+}
+
+.table-cell-text {
+    color: rgb(64, 64, 64);
+    font-size: 15px;
+}
+
+.table-cell-name {
+    color: rgb(23, 23, 23);
+    font-size: 15px;
+}
+
+.table-cell-department {
+    color: rgb(115, 115, 115);
+    font-size: 13px;
+}
+
+.table-cell-date {
+    color: rgb(64, 64, 64);
+    font-size: 14px;
+}
+
+/* Scholar Avatar Styles */
+.scholar-avatar {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: rgb(34, 197, 94);
+}
+
+.scholar-avatar-icon {
+    color: rgb(34, 197, 94);
+}
+
+/* Status Badge Styles */
+.status-published {
+    background-color: #16a34a !important; /* Green - Success */
+    color: white !important;
+}
+
+.status-accepted {
+    background-color: #22c55e !important; /* Light Green - Approved */
+    color: white !important;
+}
+
+.status-revision {
+    background-color: #f59e0b !important; /* Amber - Needs Attention */
+    color: white !important;
+}
+
+.status-review {
+    background-color: #3b82f6 !important; /* Blue - In Progress */
+    color: white !important;
+}
+
+.status-submitted {
+    background-color: #6366f1 !important; /* Indigo - Submitted */
+    color: white !important;
+}
+
+.status-rejected {
+    background-color: #dc2626 !important; /* Red - Rejected */
+    color: white !important;
+}
+
+.status-default {
+    background-color: #6b7280 !important; /* Gray - Default */
+    color: white !important;
+}
+
+/* Action Button Styles */
+.action-view {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: rgb(21, 128, 61);
+}
+
+.action-view:hover {
+    background-color: rgba(34, 197, 94, 0.2);
+}
+
+.action-edit {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: rgb(34, 197, 94);
+}
+
+.action-edit:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* Modal Styles */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-container {
+    background-color: rgb(255, 255, 255);
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgb(224, 224, 224);
+    background-color: rgb(249, 250, 251);
+}
+
+.modal-header-icon {
+    background-color: rgb(21, 128, 61);
+    color: rgb(255, 255, 255);
+}
+
+.modal-title {
+    color: rgb(17, 24, 39);
+}
+
+.modal-subtitle {
+    color: rgb(107, 114, 128);
+}
+
+.modal-close {
+    color: rgb(156, 163, 175);
+}
+
+.modal-footer {
+    border-top: 1px solid rgb(224, 224, 224);
+    background-color: rgb(249, 250, 251);
+}
+
+/* Preview Counter Styles */
+.preview-counter {
+    background-color: rgb(240, 253, 244);
+    border-color: rgb(34, 197, 94);
+}
+
+.preview-counter-icon {
+    color: rgb(21, 128, 61);
+}
+
+.preview-counter-text {
+    color: rgb(21, 128, 61);
+}
+
+.preview-counter-count {
+    color: rgb(34, 197, 94);
+}
+
+/* Quick Action Buttons */
+.quick-action-btn {
+    background-color: rgb(21, 128, 61);
+    color: #e3fde6;
+}
+
+/* Download Button */
+.btn-download {
+    background-color: rgb(21, 128, 61);
+    color: rgb(255, 255, 255);
+}
+
+.btn-download:disabled {
+    background-color: rgb(189, 189, 189);
+    color: rgb(115, 115, 115);
+}
+
+/* Cancel Button */
+.btn-cancel {
+    color: rgb(64, 64, 64);
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(224, 224, 224);
+}
+
+/* Empty State */
+.empty-state-icon {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: rgb(34, 197, 94);
+    color: #9E9E9E;
+}
+
+.empty-state-title {
+    color: rgb(23, 23, 23);
+}
+
+.empty-state-text {
+    color: rgb(115, 115, 115);
+}
+
+/* Type Badge Styles */
+.type-final {
+    @apply bg-green-100 text-green-800;
+}
+
+.type-outline {
+    @apply bg-green-50 text-green-700;
+}
+
+/* Table Styles */
+.table-base {
+    border-color: rgb(224, 224, 224);
+    background-color: rgb(255, 255, 255);
+}
+
+.table-row {
+    transition: background-color 0.15s ease;
+}
+
+.table-row:hover {
+    background-color: #F8F9FA;
+}
+
+.table-date {
+    color: rgb(64, 64, 64);
+    font-size: 14px;
+}
+
+/* Manuscript Title */
+.manuscript-title {
+    color: rgb(64, 64, 64);
+    font-size: 15px;
+}
+
+/* Scholar Styles */
+.scholar-name {
+    color: rgb(23, 23, 23);
+    font-size: 15px;
+}
+
+.scholar-department {
+    color: rgb(115, 115, 115);
+    font-size: 13px;
+}
+
+/* Additional Status Badge Styles - REMOVED (consolidated above) */
+
+/* Action Button Styles */
+.action-btn-view {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: rgb(21, 128, 61);
+}
+
+.action-btn-view:hover {
+    background-color: rgba(34, 197, 94, 0.2);
+}
+
+.action-btn-edit {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: rgb(34, 197, 94);
+}
+
+.action-btn-edit:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* Empty State Styles */
+.empty-state {
+    color: rgb(115, 115, 115);
+}
+
+.empty-state-icon-color {
+    color: #9E9E9E;
+}

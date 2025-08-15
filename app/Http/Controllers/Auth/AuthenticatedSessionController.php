@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\SessionManagementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,14 +54,20 @@ class AuthenticatedSessionController extends Controller
 
         // Tingnan kung admin o super_admin ba ang nag-login
         if (in_array($user->role, ['admin', 'super_admin'])) {
-            // Kung admin/super_admin, dalhin sa admin dashboard
-            return redirect()->intended(route('admin.dashboard'));
+            // Mark session with last used guard
+            session(['auth.guard' => 'web']);
+            // Redirect based on role
+            if ($user->role === 'super_admin') {
+                return redirect()->route('super_admin.dashboard');
+            }
+            // Kung admin, dalhin sa admin dashboard
+            return redirect()->route('admin.dashboard');
         } else {
             // Kung hindi admin/super_admin, i-logout at dalhin sa scholar login
             Auth::guard('web')->logout();
             session()->invalidate();
             session()->regenerateToken();
-            return redirect()->route('scholar-login')->withErrors([
+            return redirect()->route('scholar.login')->withErrors([
                 'email' => 'Wala kang admin access. Gamitin ang scholar login.',
             ]);
         }
@@ -70,24 +77,12 @@ class AuthenticatedSessionController extends Controller
      * Ginagamit ito kapag nag-logout ang user
      * Lilinisin lahat ng session data para sa security
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, SessionManagementService $sessionService): RedirectResponse
     {
-        // I-logout ang user sa web guard (admin guard)
-        Auth::guard('web')->logout();
+        // Use the centralized session management service
+        $logoutResult = $sessionService->performLogout($request);
         
-        // I-logout din sa scholar guard para siguradong malinis ang session
-        Auth::guard('scholar')->logout();
-
-        // Burahin lahat ng session data
-        session()->invalidate();
-        
-        // Gumawa ng bagong CSRF token para sa security
-        session()->regenerateToken();
-        
-        // Burahin din ang "remember me" cookies kung meron
-        session()->flush();
-
-        // Balik sa login page pagkatapos mag-logout
-        return redirect()->route('login');
+        return redirect()->route($logoutResult['route'])
+            ->with('success', $logoutResult['message']);
     }
 }

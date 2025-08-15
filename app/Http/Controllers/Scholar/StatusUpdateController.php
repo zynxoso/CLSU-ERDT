@@ -28,7 +28,8 @@ class StatusUpdateController extends Controller
         }
 
         // Kunin ang mga fund request
-        $fundRequests = FundRequest::where('scholar_profile_id', $scholar->scholarProfile->id)
+        $fundRequests = FundRequest::withBasicRelations()
+            ->where('scholar_profile_id', $scholar->scholarProfile->id)
             ->orderBy('created_at', 'desc') // Bago muna
             ->take(5) // 5 lang
             ->get()
@@ -44,7 +45,8 @@ class StatusUpdateController extends Controller
             });
 
         // Kunin ang mga manuscript
-        $manuscripts = Manuscript::where('scholar_profile_id', $scholar->scholarProfile->id)
+        $manuscripts = Manuscript::withBasicRelations()
+            ->where('scholar_profile_id', $scholar->scholarProfile->id)
             ->orderBy('created_at', 'desc') // Bago muna
             ->take(5) // 5 lang
             ->get()

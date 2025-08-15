@@ -5,6 +5,10 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @method bool has(string $key)
+ * @method mixed input(string $key = null, mixed $default = null)
+ */
 class StoreFundRequestRequest extends FormRequest
 {
     /**
@@ -102,11 +106,11 @@ class StoreFundRequestRequest extends FormRequest
             'admin_remarks' => 'nullable|string|max:1000',
             'status' => [
                 'sometimes',
-                'in:' . \App\Models\FundRequest::STATUS_DRAFT . ',' . \App\Models\FundRequest::STATUS_SUBMITTED,
+                'in:' . \App\Models\FundRequest::STATUS_SUBMITTED,
                 function ($attribute, $value, $fail) {
-                    // Ensure only one status is submitted at a time
-                    if ($value && !in_array($value, [\App\Models\FundRequest::STATUS_DRAFT, \App\Models\FundRequest::STATUS_SUBMITTED])) {
-                        $fail('Invalid status provided. Only draft or submitted status is allowed.');
+                    // Ensure only submitted status is allowed
+                    if ($value && $value !== \App\Models\FundRequest::STATUS_SUBMITTED) {
+                        $fail('Invalid status provided. Only submitted status is allowed.');
                     }
                 }
             ],

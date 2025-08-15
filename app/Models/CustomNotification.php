@@ -30,6 +30,7 @@ class CustomNotification extends Model
         'link',
         'is_read',
         'email_sent',
+        'read_at',
     ];
 
     /**
@@ -41,6 +42,7 @@ class CustomNotification extends Model
         'is_read' => 'boolean',
         'email_sent' => 'boolean',
         'data' => 'array',
+        'read_at' => 'datetime',
     ];
 
     /**

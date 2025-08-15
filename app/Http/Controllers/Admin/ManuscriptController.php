@@ -102,7 +102,7 @@ class ManuscriptController extends Controller
     private function getFilteredManuscriptsForExport(Request $request)
     {
         // Gumawa ng query na kasama ang scholar profile, user, at documents
-        $query = Manuscript::with(['scholarProfile.user', 'documents']);
+        $query = Manuscript::withBasicRelations();
 
         // I-apply ang mga filters depende sa mga parameters na nandoon sa request
 
@@ -685,7 +685,7 @@ class ManuscriptController extends Controller
         }
 
         // Kunin ang lahat ng scholars para sa dropdown
-        $scholars = ScholarProfile::with('user')->get();
+        $scholars = ScholarProfile::withBasicRelations()->get();
         
         // I-return ang create form na may list ng scholars
         return view('admin.manuscripts.create', compact('scholars'));
@@ -712,7 +712,7 @@ class ManuscriptController extends Controller
             'abstract' => 'required|string',                                // Abstract ay required
             'manuscript_type' => 'required|string|in:Outline,Final',        // Outline o Final lang
             'co_authors' => 'nullable|string|max:255',                      // Co-authors ay optional
-            'status' => 'required|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
+            'status' => 'required|string|in:Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
             'rejection_reason' => 'nullable|string',                        // Rejection reason ay optional
             'file' => 'nullable|file|mimes:pdf|max:10240'                   // PDF file, max 10MB, optional
         ]);
@@ -779,11 +779,7 @@ class ManuscriptController extends Controller
         }
 
         // Kunin ang manuscript kasama ang related data
-        $manuscript = Manuscript::with([
-            'scholarProfile.user',  // Scholar info at user details
-            'documents',           // Mga attached documents
-            'reviewComments'       // Mga review comments kung meron
-        ])->findOrFail($id);
+        $manuscript = Manuscript::withFullRelations()->findOrFail($id);
 
         // I-return ang show view na may manuscript data
         return view('admin.manuscripts.show', compact('manuscript'));
@@ -838,7 +834,7 @@ class ManuscriptController extends Controller
             'abstract' => 'required|string',                                // Abstract ay required
             'manuscript_type' => 'required|string|in:Outline,Final',        // Outline o Final lang
             'co_authors' => 'nullable|string|max:255',                      // Co-authors ay optional
-            'status' => 'sometimes|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
+            'status' => 'sometimes|string|in:Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
             'rejection_reason' => 'nullable|string'                         // Rejection reason ay optional
         ]);
 
@@ -849,8 +845,8 @@ class ManuscriptController extends Controller
         $manuscript->title = $validated['title'];
         $manuscript->abstract = $validated['abstract'];
         $manuscript->manuscript_type = $validated['manuscript_type'];
-        $manuscript->co_authors = $validated['co_authors'];
-        $manuscript->rejection_reason = $validated['rejection_reason'];
+        $manuscript->co_authors = $validated['co_authors'] ?? null;
+        $manuscript->rejection_reason = $validated['rejection_reason'] ?? null;
 
         // I-update ang status kung nandoon sa validated data
         if (isset($validated['status'])) {
@@ -1000,7 +996,8 @@ class ManuscriptController extends Controller
 
         // I-validate ang form data
         $validated = $request->validate([
-            'status' => 'required|string|in:Draft,Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
+            'status' => 'required|string|in:Submitted,Under Review,Revision Requested,Accepted,Published,Rejected',
+            'admin_notes' => 'nullable|string',             // Admin notes ay optional
             'rejection_reason' => 'nullable|string',        // Rejection reason ay optional
             'notify_scholar' => 'sometimes|boolean'         // Checkbox para sa email notification
         ]);
@@ -1010,9 +1007,15 @@ class ManuscriptController extends Controller
         $oldStatus = $manuscript->status;
         $newStatus = $validated['status'];
 
-        // I-update ang manuscript status at rejection reason
+        // I-update ang manuscript status, admin notes, at rejection reason
         $manuscript->setAttribute('status', $newStatus);
-        $manuscript->rejection_reason = $validated['rejection_reason'] ?? $manuscript->rejection_reason;
+        $manuscript->admin_notes = $validated['admin_notes'] ?? $manuscript->admin_notes;
+        
+        // Only update rejection_reason if it exists in the validated data
+        if (array_key_exists('rejection_reason', $validated)) {
+            $manuscript->rejection_reason = $validated['rejection_reason'];
+        }
+        
         $manuscript->save();
 
         // I-log ang status change para sa audit trail
@@ -1030,7 +1033,7 @@ class ManuscriptController extends Controller
                         $manuscript,
                         $oldStatus,
                         $newStatus,
-                        $validated['rejection_reason'] ?? null
+                        array_key_exists('rejection_reason', $validated) ? $validated['rejection_reason'] : null
                     ));
                 } else {
                     // Kung hindi naka-check ang email, gumawa pa rin ng in-app notification
@@ -1039,7 +1042,7 @@ class ManuscriptController extends Controller
                     $message = "Your manuscript \"{$manuscript->title}\" status has been changed from \"{$oldStatus}\" to \"{$newStatus}\".";
 
                     // Idagdag ang rejection reason kung meron
-                    if ($validated['rejection_reason']) {
+                    if (array_key_exists('rejection_reason', $validated) && $validated['rejection_reason']) {
                         $message .= "\n\nRejection Reason: " . $validated['rejection_reason'];
                     }
 

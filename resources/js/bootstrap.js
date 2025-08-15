@@ -12,6 +12,17 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /**
+ * Alpine.js Collapse plugin configuration
+ * We'll configure this to work with Livewire's bundled Alpine.js
+ */
+import collapse from '@alpinejs/collapse';
+
+// Configure Alpine.js plugins before Livewire initializes
+document.addEventListener('alpine:init', () => {
+    window.Alpine.plugin(collapse);
+});
+
+/**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
  * allows your team to easily build robust real-time web applications.

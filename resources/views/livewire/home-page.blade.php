@@ -21,7 +21,7 @@
 
                         <!-- Call to Action Buttons -->
                         <div class="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center">
-                            <a href="{{ route('scholar-login') }}"
+                            <a href="{{ route('scholar.login') }}"
                                class="inline-flex items-center justify-center bg-white text-green-700 hover:bg-green-50 active:bg-green-100 focus:bg-green-50 focus:outline-none focus:ring-4 focus:ring-green-200 font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl active:shadow-md text-base md:text-lg min-h-[48px] w-full sm:w-auto touch-manipulation"
                                role="button"
                                aria-label="Access Scholar Portal - Login to your scholarship account"
@@ -302,7 +302,7 @@
                         </svg>
                         <span>Start Your Application</span>
                     </a>
-                    <a href="{{ route('scholar-login') }}" 
+                    <a href="{{ route('scholar.login') }}" 
                        class="inline-flex items-center justify-center bg-white text-gray-700 hover:bg-gray-100 active:bg-gray-200 focus:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 font-bold py-4 px-8 sm:px-10 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl active:shadow-md border border-gray-300 text-base sm:text-lg lg:text-xl min-h-[48px] w-full sm:w-auto touch-manipulation"
                        role="button"
                        aria-label="Access Portal - Login to your scholar portal account"
@@ -315,67 +315,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Enhanced JavaScript -->
-    <script>
-        // Reading progress bar
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            const progressBar = document.getElementById('reading-progress');
-            if (progressBar) {
-                progressBar.style.width = scrolled + '%';
-            }
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Add animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in-up');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.transform').forEach(el => {
-            observer.observe(el);
-        });
-    </script>
-    <style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-    </style>
+    </div>   
     <x-footer />
 </div>

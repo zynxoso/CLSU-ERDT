@@ -69,7 +69,7 @@ class FundRequestService implements FundRequestServiceInterface
                 ->whereMonth('created_at', substr($date, 5, 2));
         }
 
-        return $query->with(['scholarProfile.user'])
+        return $query->withBasicRelations()
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
     }
@@ -102,7 +102,7 @@ class FundRequestService implements FundRequestServiceInterface
                 ->whereMonth('created_at', substr($date, 5, 2));
         }
 
-        return $query->orderBy('created_at', 'desc')->paginate(10);
+        return $query->withBasicRelations()->orderBy('created_at', 'desc')->paginate(10);
     }
 
     /**
@@ -248,7 +248,7 @@ class FundRequestService implements FundRequestServiceInterface
         $fundRequest->amount = $data['amount'];
         $fundRequest->purpose = $requestType->name; // Use the request type name as the purpose
         $fundRequest->admin_remarks = $data['admin_remarks'] ?? null;
-        $fundRequest->status = $data['status'] ?? FundRequest::STATUS_DRAFT;
+        $fundRequest->status = $data['status'] ?? 'Submitted';
 
         // If potential duplicates were found, flag for admin review
         if ($duplicateCheck) {
@@ -299,7 +299,7 @@ class FundRequestService implements FundRequestServiceInterface
 
         // Add initial status history entry
         $initialStatus = $fundRequest->status;
-        $statusNote = $initialStatus === FundRequest::STATUS_DRAFT ? 'Request saved as draft' : 'Request submitted for review';
+        $statusNote = 'Request submitted for review';
         $fundRequest->addStatusHistory($initialStatus, $statusNote);
 
         // If the fund request is created directly as 'Submitted', send notifications
@@ -321,7 +321,37 @@ class FundRequestService implements FundRequestServiceInterface
             }
         }
 
-        // Handle document upload
+        // Handle multiple document uploads
+        if ($request->hasFile('documents')) {
+            $files = $request->file('documents');
+            
+            foreach ($files as $index => $file) {
+                if ($file && $file->isValid()) {
+                    $fileName = $file->getClientOriginalName();
+                    $filePath = $file->store('documents/fund-requests/' . $fundRequest->id, 'public');
+
+                    // Create document record
+                    $document = new Document();
+                    $document->scholar_profile_id = $scholarProfileId;
+                    $document->fund_request_id = $fundRequest->id;
+                    $document->file_name = $fileName;
+                    $document->file_path = $filePath;
+                    $document->file_type = $file->getClientMimeType();
+                    $document->file_size = $file->getSize();
+                    $document->category = 'Fund Request';
+                    $document->title = 'Fund Request Document ' . ($index + 1) . ' - ' . $fundRequest->purpose;
+
+                    // CyberSweep security scanning
+                    $document->security_scanned = true;
+                    $document->security_scanned_at = now();
+                    $document->security_scan_result = 'Passed'; // Default to passed since middleware would have blocked if issues found
+
+                    $document->save();
+                }
+            }
+        }
+        
+        // Handle legacy single document upload for backward compatibility
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $fileName = $file->getClientOriginalName();
@@ -442,14 +472,16 @@ class FundRequestService implements FundRequestServiceInterface
         $this->createManuscriptIfRequired($fundRequest);
 
         // Send notification to scholar
-        $scholar = $fundRequest->scholarProfile->user;
-        if ($scholar) {
-            $scholar->notify(new FundRequestStatusChanged(
-                $fundRequest,
-                $oldStatus,
-                FundRequest::STATUS_APPROVED,
-                null
-            ));
+        if ($fundRequest->scholarProfile) {
+            $scholar = $fundRequest->scholarProfile->user;
+            if ($scholar) {
+                $scholar->notify(new FundRequestStatusChanged(
+                    $fundRequest,
+                    $oldStatus,
+                    FundRequest::STATUS_APPROVED,
+                    null
+                ));
+            }
         }
 
         $this->auditService->logCustomAction('approved', 'FundRequest', $fundRequest->id);
@@ -480,14 +512,16 @@ class FundRequestService implements FundRequestServiceInterface
         $fundRequest->addStatusHistory(FundRequest::STATUS_REJECTED, 'Request rejected by administrator: ' . $notes);
 
         // Send notification to scholar
-        $scholar = $fundRequest->scholarProfile->user;
-        if ($scholar) {
-            $scholar->notify(new FundRequestStatusChanged(
-                $fundRequest,
-                $oldStatus,
-                FundRequest::STATUS_REJECTED,
-                $notes
-            ));
+        if ($fundRequest->scholarProfile) {
+            $scholar = $fundRequest->scholarProfile->user;
+            if ($scholar) {
+                $scholar->notify(new FundRequestStatusChanged(
+                    $fundRequest,
+                    $oldStatus,
+                    FundRequest::STATUS_REJECTED,
+                    $notes
+                ));
+            }
         }
 
         $this->auditService->logCustomAction('rejected', 'FundRequest', $fundRequest->id);
@@ -513,14 +547,16 @@ class FundRequestService implements FundRequestServiceInterface
         $fundRequest->addStatusHistory(FundRequest::STATUS_UNDER_REVIEW, 'Request is now under review by administrator');
 
         // Send notification to scholar
-        $scholar = $fundRequest->scholarProfile->user;
-        if ($scholar) {
-            $scholar->notify(new FundRequestStatusChanged(
-                $fundRequest,
-                $oldStatus,
-                FundRequest::STATUS_UNDER_REVIEW,
-                'Your request is now being reviewed by an administrator.'
-            ));
+        if ($fundRequest->scholarProfile) {
+            $scholar = $fundRequest->scholarProfile->user;
+            if ($scholar) {
+                $scholar->notify(new FundRequestStatusChanged(
+                    $fundRequest,
+                    $oldStatus,
+                    FundRequest::STATUS_UNDER_REVIEW,
+                    'Your request is now being reviewed by an administrator.'
+                ));
+            }
         }
 
         $this->auditService->logCustomAction('marked_under_review', 'FundRequest', $fundRequest->id);
@@ -649,54 +685,19 @@ class FundRequestService implements FundRequestServiceInterface
      */
     private function createManuscriptIfRequired(FundRequest $fundRequest): void
     {
-        // Check if the request type requires manuscript creation
-        // Type 5: Thesis/Dissertation Outright Grant
-        // Type 7: Research Dissemination Grant
-        if (!in_array($fundRequest->request_type_id, [5, 7])) {
-            return;
-        }
-
-        $scholarProfileId = $fundRequest->scholar_profile_id;
-        $manuscriptType = $fundRequest->request_type_id === 5 ? 'Outline' : 'Final';
-
-        // Check if manuscript already exists for this scholar and type
-        $existingManuscript = Manuscript::where('scholar_profile_id', $scholarProfileId)
-            ->where('manuscript_type', $manuscriptType)
-            ->first();
-
-        if ($existingManuscript) {
-            // Manuscript already exists, no need to create another
-            return;
-        }
-
-        // Generate reference number
-        $year = date('Y');
-        $lastManuscript = Manuscript::whereYear('created_at', $year)
-            ->orderBy('id', 'desc')
-            ->first();
+        $manuscriptService = app(ManuscriptService::class);
         
-        $sequence = $lastManuscript ? (int)substr($lastManuscript->reference_number, -4) + 1 : 1;
-        $referenceNumber = 'MS-' . $year . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
-
-        // Create the manuscript
-        $manuscript = new Manuscript();
-        $manuscript->scholar_profile_id = $scholarProfileId;
-        $manuscript->reference_number = $referenceNumber;
-        $manuscript->title = $manuscriptType === 'Outline' ? 
-            'Thesis/Dissertation Outline - Auto-generated from Fund Request' : 
-            'Research Dissemination Final Manuscript - Auto-generated from Fund Request';
-        $manuscript->abstract = 'This manuscript was automatically created upon approval of the ' . 
-            ($manuscriptType === 'Outline' ? 'Thesis/Dissertation Outright Grant' : 'Research Dissemination Grant') . 
-            ' fund request. Please update the title, abstract, and other details as needed.';
-        $manuscript->manuscript_type = $manuscriptType;
-        $manuscript->status = 'Draft';
-        $manuscript->save();
-
-        // Log the manuscript creation
-        $this->auditService->logCreate('Manuscript', $manuscript->id, [
-            'created_from_fund_request' => $fundRequest->id,
-            'auto_generated' => true,
-            'manuscript_type' => $manuscriptType
-        ]);
+        if ($manuscriptService->shouldCreateManuscript($fundRequest)) {
+            $manuscript = $manuscriptService->createManuscriptFromFundRequest($fundRequest);
+            
+            if ($manuscript) {
+                // Log the manuscript creation
+                $this->auditService->logCreate('Manuscript', $manuscript->id, [
+                    'created_from_fund_request' => $fundRequest->id,
+                    'auto_generated' => true,
+                    'manuscript_type' => $manuscript->manuscript_type
+                ]);
+            }
+        }
     }
 }

@@ -26,9 +26,19 @@ class ServerErrorException extends BaseException
     public function __construct(
         string $message = "An internal server error occurred",
         int $code = 500,
-        \Throwable $previous = null,
+        ?\Throwable $previous = null,
         array $context = []
     ) {
         parent::__construct($message, $code, $previous, $context);
+    }
+
+    /**
+     * Get the HTTP status code for this exception.
+     *
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return 500;
     }
 }

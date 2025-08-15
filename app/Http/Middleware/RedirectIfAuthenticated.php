@@ -23,15 +23,28 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
                 $user = Auth::guard($guard)->user();
                 
-                // Redirect based on user role and guard
-                if ($guard === 'scholar' || $user->role === 'scholar') {
-                    return redirect()->route('scholar.dashboard');
-                } elseif ($guard === 'web' || in_array($user->role, ['admin', 'super_admin'])) {
-                    return redirect()->route('admin.dashboard');
+                // Redirect based on guard and user role
+                if ($guard === 'scholar') {
+                    // Only redirect if user is actually a scholar
+                    if ($user->role === 'scholar') {
+                        return redirect()->route('scholar.dashboard');
+                    } else {
+                        // If not a scholar, logout from scholar guard
+                        Auth::guard('scholar')->logout();
+                        continue;
+                    }
+                } elseif ($guard === 'web' || $guard === null) {
+                    // For web guard, check admin roles
+                    if ($user->role === 'super_admin') {
+                        return redirect()->route('super_admin.dashboard');
+                    } elseif ($user->role === 'admin') {
+                        return redirect()->route('admin.dashboard');
+                    } elseif ($user->role === 'scholar') {
+                        // Scholar trying to access admin area, logout and redirect to scholar login
+                        Auth::guard('web')->logout();
+                        return redirect()->route('scholar.login');
+                    }
                 }
-                
-                // Default fallback
-                return redirect()->route('dashboard');
             }
         }
 

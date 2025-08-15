@@ -21,11 +21,9 @@ class ApplicationTimelineManagement extends Component
     public $editingTimeline = null;
     public $timelineToDelete = null;
     public $form = [
-        'title' => '',
-        'description' => '',
-        'phase' => '',
-        'start_date' => '',
-        'end_date' => '',
+        'activity' => '',
+        'first_semester' => '',
+        'second_semester' => '',
         'is_active' => true,
         'sort_order' => 0
     ];
@@ -88,11 +86,9 @@ class ApplicationTimelineManagement extends Component
             if ($timeline) {
                 $this->editingTimeline = $timeline->toArray();
                 $this->form = [
-                    'title' => $timeline->title,
-                    'description' => $timeline->description,
-                    'phase' => $timeline->phase,
-                    'start_date' => $timeline->start_date ? $timeline->start_date->format('Y-m-d') : '',
-                    'end_date' => $timeline->end_date ? $timeline->end_date->format('Y-m-d') : '',
+                    'activity' => $timeline->activity,
+                    'first_semester' => $timeline->first_semester,
+                    'second_semester' => $timeline->second_semester,
                     'is_active' => $timeline->is_active,
                     'sort_order' => $timeline->sort_order
                 ];
@@ -117,11 +113,9 @@ class ApplicationTimelineManagement extends Component
     public function resetForm()
     {
         $this->form = [
-            'title' => '',
-            'description' => '',
-            'phase' => '',
-            'start_date' => '',
-            'end_date' => '',
+            'activity' => '',
+            'first_semester' => '',
+            'second_semester' => '',
             'is_active' => true,
             'sort_order' => 0
         ];
@@ -133,11 +127,9 @@ class ApplicationTimelineManagement extends Component
         $this->startProcessing();
 
         $this->validate([
-            'form.title' => 'required|string|max:255',
-            'form.description' => 'nullable|string',
-            'form.phase' => 'required|string|max:255',
-            'form.start_date' => 'required|date',
-            'form.end_date' => 'nullable|date|after:form.start_date',
+            'form.activity' => 'required|string|max:255',
+            'form.first_semester' => 'required|string|max:255',
+            'form.second_semester' => 'required|string|max:255',
             'form.sort_order' => 'required|integer|min:0',
         ]);
 

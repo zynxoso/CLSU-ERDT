@@ -3,39 +3,39 @@
 @section('title', 'Create Manuscript')
 
 @section('content')
-<div style="background-color: #FAFAFA; min-height: 100vh; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+<div class="bg-gray-50 min-h-screen font-sans">
 <div class="space-y-6" x-data="manuscriptForm()">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold" style="color: #212121; font-size: 24px;">Manuscript Creation</h1>
-            <p class="mt-1" style="color: #424242; font-size: 15px;">Create a new manuscript entry in the system step-by-step.</p>
+            <h1 class="text-2xl font-bold text-gray-900">Manuscript Creation</h1>
+            <p class="mt-1 text-gray-600 text-sm">Create a new manuscript entry in the system step-by-step.</p>
         </div>
     </div>
 
     <!-- Step Indicator -->
-    <div class="w-full rounded-full h-2.5 mb-6" style="background-color: #E0E0E0;">
-        <div class="h-2.5 rounded-full" style="background-color: #4CAF50;" :style="`width: ${stepPercentage()}%`"></div>
+    <div class="w-full rounded-full h-2.5 mb-6 bg-gray-300">
+        <div class="h-2.5 rounded-full bg-green-500" :style="`width: ${stepPercentage()}%`"></div>
     </div>
-    <div class="flex justify-between mb-4 text-sm font-medium" style="color: #757575;">
-        <span :class="{'font-bold': currentStep >= 1}" :style="currentStep >= 1 ? 'color: #4CAF50' : 'color: #757575'">Author Info</span>
-        <span :class="{'font-bold': currentStep >= 2}" :style="currentStep >= 2 ? 'color: #4CAF50' : 'color: #757575'">Manuscript Details</span>
-        <span :class="{'font-bold': currentStep >= 3}" :style="currentStep >= 3 ? 'color: #4CAF50' : 'color: #757575'">File & Status</span>
-        <span :class="{'font-bold': currentStep === 4}" :style="currentStep === 4 ? 'color: #4CAF50' : 'color: #757575'">Review & Submit</span>
+    <div class="flex justify-between mb-4 text-sm font-medium text-gray-500">
+        <span :class="{'font-bold': currentStep >= 1}" :style="currentStep >= 1 ? 'color: rgb(34 197 94)' : 'color: rgb(115 115 115)'">Author Info</span>
+        <span :class="{'font-bold': currentStep >= 2}" :style="currentStep >= 2 ? 'color: rgb(34 197 94)' : 'color: rgb(115 115 115)'">Manuscript Details</span>
+        <span :class="{'font-bold': currentStep >= 3}" :style="currentStep >= 3 ? 'color: rgb(34 197 94)' : 'color: rgb(115 115 115)'">File & Status</span>
+        <span :class="{'font-bold': currentStep === 4}" :style="currentStep === 4 ? 'color: rgb(34 197 94)' : 'color: rgb(115 115 115)'">Review & Submit</span>
     </div>
 
 
     <!-- Form Content -->
-    <div class="rounded-lg shadow-sm border p-6" style="background-color: white; border-color: #E0E0E0;">
+    <div class="rounded-lg shadow-sm border p-6 bg-white border-gray-300">
 
         <!-- Success/Error Messages -->
         @if(session('success'))
-            <div class="mb-4 px-4 py-3 rounded-lg" style="background-color: rgba(76, 175, 80, 0.1); color: #4CAF50; font-size: 15px;">
+            <div class="mb-4 px-4 py-3 rounded-lg bg-green-50 text-green-600 text-sm">
                 <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div class="mb-4 px-4 py-3 rounded-lg" style="background-color: #FFEBEE; color: #D32F2F; font-size: 15px;">
+            <div class="mb-4 px-4 py-3 rounded-lg bg-red-50 text-red-600 text-sm">
                 <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
             </div>
         @endif
@@ -45,17 +45,17 @@
 
             <!-- Step 1: Author Information -->
             <section x-show="isStep(1)" class="transition-all duration-300">
-                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                    <i class="fas fa-user-graduate mr-2" style="color: #4CAF50;"></i>
+                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: rgb(23 23 23); font-size: 18px;">
+                    <i class="fas fa-user-graduate mr-2" style="color: rgb(34 197 94);"></i>
                     Author Information (Step 1 of 4)
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Scholar -->
                     <div>
-                        <label for="scholar_id" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">
+                        <label for="scholar_id" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">
                             Scholar <span style="color: #D32F2F;">*</span>
                         </label>
-                        <select id="scholar_id" name="scholar_id" required class="w-full border rounded-lg px-4 py-2" style="border-color: #E0E0E0; font-size: 15px;">
+                        <select id="scholar_id" name="scholar_id" required class="w-full border rounded-lg px-4 py-2" style="border-color: rgb(224 224 224); font-size: 15px;">
                             <option value="">Select Scholar</option>
                             @foreach(\App\Models\ScholarProfile::with('user')->get() as $scholar)
                                 <option value="{{ $scholar->id }}" {{ old('scholar_id') == $scholar->id ? 'selected' : '' }}>
@@ -69,8 +69,8 @@
                     </div>
                     <!-- Co-Authors -->
                     <div>
-                        <label for="co_authors" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Co-Authors</label>
-                        <input type="text" id="co_authors" name="co_authors" value="{{ old('co_authors') }}" class="w-full border rounded-lg px-4 py-2" style="border-color: #E0E0E0; font-size: 15px;" placeholder="Separate names with commas">
+                        <label for="co_authors" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Co-Authors</label>
+                        <input type="text" id="co_authors" name="co_authors" value="{{ old('co_authors') }}" class="w-full border rounded-lg px-4 py-2" style="border-color: rgb(224 224 224); font-size: 15px;" placeholder="Separate names with commas">
                         @error('co_authors')
                             <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
@@ -80,31 +80,31 @@
 
             <!-- Step 2: Manuscript Information -->
             <section x-show="isStep(2)" class="transition-all duration-300">
-                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                    <i class="fas fa-file-alt mr-2" style="color: #4CAF50;"></i>
+                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: rgb(23 23 23); font-size: 18px;">
+                    <i class="fas fa-file-alt mr-2" style="color: rgb(34 197 94);"></i>
                     Manuscript Information (Step 2 of 4)
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Title -->
                     <div class="md:col-span-2">
-                        <label for="title" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Manuscript Title <span style="color: #D32F2F;">*</span></label>
-                        <input type="text" id="title" name="title" value="{{ old('title') }}" required class="w-full border rounded-lg px-4 py-2" style="border-color: #E0E0E0; font-size: 15px;" placeholder="Enter manuscript title">
+                        <label for="title" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Manuscript Title <span style="color: #D32F2F;">*</span></label>
+                        <input type="text" id="title" name="title" value="{{ old('title') }}" required class="w-full border rounded-lg px-4 py-2" style="border-color: rgb(224 224 224); font-size: 15px;" placeholder="Enter manuscript title">
                         @error('title')
                             <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
                     </div>
                     <!-- Abstract -->
                     <div class="md:col-span-2">
-                        <label for="abstract" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Abstract <span style="color: #D32F2F;">*</span></label>
-                        <textarea id="abstract" name="abstract" rows="5" required class="w-full border rounded-lg px-4 py-2 resize-vertical" style="border-color: #E0E0E0; font-size: 15px;" placeholder="Enter manuscript abstract">{{ old('abstract') }}</textarea>
+                        <label for="abstract" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Abstract <span style="color: #D32F2F;">*</span></label>
+                        <textarea id="abstract" name="abstract" rows="5" required class="w-full border rounded-lg px-4 py-2 resize-vertical" style="border-color: rgb(224 224 224); font-size: 15px;" placeholder="Enter manuscript abstract">{{ old('abstract') }}</textarea>
                         @error('abstract')
                             <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
                     </div>
                     <!-- Manuscript Type -->
                     <div>
-                        <label for="manuscript_type" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Manuscript Type <span style="color: #D32F2F;">*</span></label>
-                        <select id="manuscript_type" name="manuscript_type" required class="w-full border rounded-lg px-4 py-2" style="border-color: #E0E0E0; font-size: 15px;">
+                        <label for="manuscript_type" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Manuscript Type <span style="color: #D32F2F;">*</span></label>
+                        <select id="manuscript_type" name="manuscript_type" required class="w-full border rounded-lg px-4 py-2" style="border-color: rgb(224 224 224); font-size: 15px;">
                             <option value="">Select Type</option>
                             <option value="Outline" {{ old('manuscript_type') == 'Outline' ? 'selected' : '' }}>Outline</option>
                             <option value="Final" {{ old('manuscript_type') == 'Final' ? 'selected' : '' }}>Final</option>
@@ -118,27 +118,27 @@
 
             <!-- Step 3: File and Status -->
             <section x-show="isStep(3)" class="transition-all duration-300">
-                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                    <i class="fas fa-upload mr-2" style="color: #4CAF50;"></i>
+                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: rgb(23 23 23); font-size: 18px;">
+                    <i class="fas fa-upload mr-2" style="color: rgb(34 197 94);"></i>
                     File and Status (Step 3 of 4)
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- File Upload -->
                     <div>
-                        <label for="file" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Upload Manuscript File (PDF)</label>
+                        <label for="file" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Upload Manuscript File (PDF)</label>
                         <div class="relative">
-                            <input type="file" id="file" name="file" accept=".pdf" class="w-full border rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold" style="border-color: #E0E0E0; font-size: 15px; file:background-color: rgba(76, 175, 80, 0.1); file:color: #4CAF50;">
+                            <input type="file" id="file" name="file" accept=".pdf" class="w-full border rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold" style="border-color: rgb(224 224 224); font-size: 15px; file:background-color: rgba(76, 175, 80, 0.1); file:color: rgb(34 197 94);">
                         </div>
-                        <p class="text-sm mt-1" style="color: #757575; font-size: 14px;"><i class="fas fa-info-circle mr-1" style="color: #4CAF50;"></i>Optional. Max size: 10MB</p>
+                        <p class="text-sm mt-1" style="color: rgb(115 115 115); font-size: 14px;"><i class="fas fa-info-circle mr-1" style="color: rgb(34 197 94);"></i>Optional. Max size: 10MB</p>
                         @error('file')
                             <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
                     </div>
                     <!-- Status -->
                     <div>
-                        <label for="status" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Status <span style="color: #D32F2F;">*</span></label>
-                        <select id="status" name="status" required class="w-full border rounded-lg px-4 py-2" style="border-color: #E0E0E0; font-size: 15px;">
-                            <option value="Draft" {{ old('status', 'Draft') == 'Draft' ? 'selected' : '' }}>Draft</option>
+                        <label for="status" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Status <span style="color: #D32F2F;">*</span></label>
+                        <select id="status" name="status" required class="w-full border rounded-lg px-4 py-2" style="border-color: rgb(224 224 224); font-size: 15px;">
+
                             <option value="Submitted" {{ old('status') == 'Submitted' ? 'selected' : '' }}>Submitted</option>
                             <option value="Under Review" {{ old('status') == 'Under Review' ? 'selected' : '' }}>Under Review</option>
                             <option value="Revision Required" {{ old('status') == 'Revision Required' ? 'selected' : '' }}>Revision Required</option>
@@ -155,14 +155,14 @@
 
             <!-- Step 4: Additional Information -->
             <section x-show="isStep(4)" class="transition-all duration-300">
-                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: #212121; font-size: 18px;">
-                    <i class="fas fa-sticky-note mr-2" style="color: #4CAF50;"></i>
+                <h2 class="text-lg font-semibold mb-4 flex items-center" style="color: rgb(23 23 23); font-size: 18px;">
+                    <i class="fas fa-sticky-note mr-2" style="color: rgb(34 197 94);"></i>
                     Additional Information (Step 4 of 4)
                 </h2>
                 <div class="grid grid-cols-1 gap-6">
                     <div>
-                        <label for="admin_notes" class="block text-sm font-medium mb-2" style="color: #424242; font-size: 15px;">Admin Notes</label>
-                        <textarea id="admin_notes" name="admin_notes" rows="4" class="w-full border rounded-lg px-4 py-2 resize-vertical" style="border-color: #E0E0E0; font-size: 15px;" placeholder="Add any additional notes or comments">{{ old('admin_notes') }}</textarea>
+                        <label for="admin_notes" class="block text-sm font-medium mb-2" style="color: rgb(64 64 64); font-size: 15px;">Admin Notes</label>
+                        <textarea id="admin_notes" name="admin_notes" rows="4" class="w-full border rounded-lg px-4 py-2 resize-vertical" style="border-color: rgb(224 224 224); font-size: 15px;" placeholder="Add any additional notes or comments">{{ old('admin_notes') }}</textarea>
                         @error('admin_notes')
                             <p class="text-sm mt-1 flex items-center" style="color: #D32F2F; font-size: 14px;"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
@@ -171,12 +171,12 @@
             </section>
 
             <!-- Form Actions -->
-            <div class="border-t pt-6 mt-6" style="border-color: #E0E0E0;">
+            <div class="border-t pt-6 mt-6" style="border-color: rgb(224 224 224);">
                 <div class="flex justify-between items-center">
                     <!-- Previous Button -->
                     <button type="button" @click="prevStep()" x-show="currentStep > 1"
                            class="inline-flex items-center justify-center px-6 py-2 rounded-lg"
-                           style="background-color: #757575; color: white; font-size: 15px;">
+                           style="background-color: rgb(115 115 115); color: rgb(255 255 255); font-size: 15px;">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Previous
                     </button>
@@ -186,7 +186,7 @@
                     <!-- Next Button -->
                     <button type="button" @click="nextStep()" x-show="currentStep < totalSteps"
                             class="inline-flex items-center justify-center px-6 py-2 rounded-lg"
-                            style="background-color: #4CAF50; color: white; font-size: 15px;">
+                            style="background-color: rgb(34 197 94); color: rgb(255 255 255); font-size: 15px;">
                         Next
                         <i class="fas fa-arrow-right ml-2"></i>
                     </button>
@@ -194,7 +194,7 @@
                     <!-- Submit Button -->
                     <button type="submit" x-show="currentStep === totalSteps"
                             class="inline-flex items-center justify-center px-6 py-2 rounded-lg focus:outline-none"
-                            style="background-color: #4CAF50; color: white; font-size: 15px;">
+                            style="background-color: rgb(34 197 94); color: rgb(255 255 255); font-size: 15px;">
                         <i class="fas fa-save mr-2"></i>
                         Create Manuscript
                     </button>

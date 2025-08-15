@@ -34,7 +34,7 @@ class SuperAdminController extends Controller
     public function __construct(AuditService $auditService)
     {
         $this->middleware('auth');
-        $this->middleware('role:super_admin');
+        // Removed conflicting 'role:super_admin' middleware as routes already use SuperAdminMiddleware
         $this->auditService = $auditService;
     }
 

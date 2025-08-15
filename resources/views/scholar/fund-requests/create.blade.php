@@ -34,28 +34,28 @@
         }
 
         .step-indicator.active {
-            background-color: #4CAF50;
-            color: white;
+            background-color: rgb(34 197 94);
+            color: rgb(255 255 255);
         }
 
         .step-indicator.completed {
-            background-color: #4CAF50;
-            color: white;
+            background-color: rgb(34 197 94);
+            color: rgb(255 255 255);
         }
 
         /* Enhanced validation states */
         .validation-success {
-            border-color: #4CAF50 !important;
+            border-color: rgb(34 197 94) !important;
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
 
         .validation-warning {
-            border-color: #F59E0B !important;
+            border-color: rgb(245 158 11) !important;
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
         }
 
         .validation-error {
-            border-color: #EF4444 !important;
+            border-color: rgb(239 68 68) !important;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
 
@@ -66,7 +66,7 @@
 
         /* Currency input styling */
         .currency-input {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: theme(fontFamily.sans);
             font-variant-numeric: tabular-nums;
         }
 
@@ -130,7 +130,7 @@
                             text: "{{ session('success') }}",
                             icon: 'success',
                             confirmButtonText: 'OK',
-                            confirmButtonColor: '#4CAF50'
+                            confirmButtonColor: 'rgb(34 197 94)'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 console.log('Redirecting to fund requests index');
@@ -153,7 +153,7 @@
                             text: "{{ session('error') }}",
                             icon: 'error',
                             confirmButtonText: 'OK',
-                            confirmButtonColor: '#EF4444'
+                            confirmButtonColor: 'rgb(239 68 68)'
                         });
                     });
                 </script>
@@ -177,7 +177,7 @@
                             text: errorText,
                             icon: 'error',
                             confirmButtonText: 'OK',
-                            confirmButtonColor: '#EF4444'
+                            confirmButtonColor: 'rgb(239 68 68)'
                         });
                     });
                 </script>
@@ -185,12 +185,12 @@
 
             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
                 <!-- Important Information Box -->
-                <div class="mb-5 p-4 bg-[#E3F2FD] border border-[#90CAF9] rounded-lg">
-                    <h3 class="text-lg font-semibold text-[#1976D2] mb-2 flex items-center">
-                        <i class="fas fa-info-circle mr-2 " style="color: #1976D2;"></i>
+                <div class="mb-5 p-4 bg-info-50 border border-info-300 rounded-lg">
+                    <h3 class="text-lg font-semibold text-info-600 mb-2 flex items-center">
+                        <i class="fas fa-info-circle mr-2 " style="color: rgb(29 78 216);"></i>
                         Important Information
                     </h3>
-                    <div class="space-y-2 text-[#1565C0]">
+                    <div class="space-y-2 text-info-700">
                         <p class="text-base">Your fund request will be reviewed by an administrator after submission.</p>
                         <p class="text-base">Each request type has a maximum allowable amount based on your program level.
                         </p>
@@ -206,7 +206,7 @@
                     <div id="step-1" class="step-content active">
                         <div class="flex items-center mb-4">
                             <div
-                                class="w-8 h-8 rounded-full bg-[#4CAF50] text-white flex items-center justify-center text-lg font-semibold">
+                                class="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center text-lg font-semibold">
                                 1</div>
                             <h2 class="text-xl font-semibold text-gray-800 ml-3">Request Details</h2>
                         </div>
@@ -221,7 +221,7 @@
                             </label>
                             <div class="relative">
                                 <select id="request_type_id" name="request_type_id"
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition-colors duration-200 bg-white appearance-none"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 bg-white appearance-none"
                                     required>
                                     <option value="">Select Request Type</option>
                                     @foreach ($requestTypes as $type)
@@ -244,6 +244,11 @@
                                     <i class="fas fa-times-circle mr-2"></i>{{ $message }}
                                 </p>
                             @enderror
+                            <!-- Request Type Info Display -->
+                            <div id="request-type-info" class="text-xs text-blue-600 mt-2 font-medium h-auto hidden">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <span id="request-type-info-text"></span>
+                            </div>
                         </div>
 
                         <div class="mb-6">
@@ -255,7 +260,7 @@
                                 </span>
                             </label>
                             <div
-                                class="inline-flex justify-between bg-gray-100 rounded border border-gray-200 w-full hover:border-[#4CAF50] focus-within:border-[#4CAF50] focus-within:ring-2 focus-within:ring-[#4CAF50]/20 transition-all duration-200">
+                                class="inline-flex justify-between bg-gray-100 rounded border border-gray-200 w-full hover:border-primary-500 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-[rgb(76_175_80)]/20 transition-all duration-200">
                                 <div class="inline bg-gray-200 py-2 px-4 text-gray-600 select-none rounded-l">₱</div>
                                 <input type="text" id="amount" name="amount" value="{{ old('amount') }}" required
                                     class="currency-input bg-transparent py-2 text-gray-600 px-4 focus:outline-none w-full text-base"
@@ -263,12 +268,12 @@
 
                             </div>
                             <div id="amount-limit-info"
-                                class="text-sm text-[#1976D2] mt-2 font-medium h-5 flex items-center">
+                                class="text-sm text-info-600 mt-2 font-medium h-5 flex items-center">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 <span></span>
                             </div>
                             <div id="amount-warning"
-                                class="text-sm text-[#F57C00] mt-2 font-medium h-5 hidden flex items-center">
+                                class="text-sm text-warning-600 mt-2 font-medium h-5 hidden flex items-center">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>
                                 <span id="amount-warning-text"></span>
                             </div>
@@ -294,7 +299,7 @@
 
                         <div class="flex justify-end">
                             <button type="button" id="next-step-1"
-                                class="px-6 py-2.5 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center text-base">
+                                class="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center text-base">
                                 Next: Documents <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>
@@ -304,7 +309,7 @@
                     <div id="step-2" class="step-content hidden">
                         <div class="flex items-center mb-4">
                             <div
-                                class="w-8 h-8 rounded-full bg-[#4CAF50] text-white flex items-center justify-center text-lg font-semibold">
+                                class="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center text-lg font-semibold">
                                 2</div>
                             <h2 class="text-xl font-semibold text-gray-800 ml-3">Supporting Documents</h2>
                         </div>
@@ -323,46 +328,57 @@
 
                         <div class="mb-6">
                             <label for="dropzone-file" class="block text-base font-medium text-gray-700 mb-2">
-                                Supporting Document <span class="text-gray-500">(Optional)</span>
+                                Supporting Documents <span class="text-gray-500">(Optional)</span>
                                 <span class="ml-2 text-gray-400 cursor-help"
-                                    title="Upload relevant documents such as registration forms, receipts, quotations, or other supporting materials. Only PDF files up to 5MB are accepted.">
+                                    title="Upload relevant documents such as registration forms, receipts, quotations, or other supporting materials. Only PDF files up to 5MB each are accepted. Maximum 5 files.">
                                     <i class="fas fa-info-circle"></i>
                                 </span>
                             </label>
                             <div class="flex items-center justify-center w-full">
                                 <label for="dropzone-file"
-                                    class="flex flex-col items-center justify-center w-full min-h-[8rem] sm:min-h-[12rem] md:min-h-[16rem] border-2 border-[#4CAF50] border-dashed rounded-lg cursor-pointer bg-[#E8F5E9] hover:bg-[#C8E6C9] transition-colors duration-200 px-2 sm:px-6">
+                                    class="flex flex-col items-center justify-center w-full min-h-[8rem] sm:min-h-[12rem] md:min-h-[16rem] border-2 border-primary-500 border-dashed rounded-lg cursor-pointer bg-[rgb(232_245_233)] hover:bg-[rgb(200_230_201)] transition-colors duration-200 px-2 sm:px-6">
                                     <div class="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 w-full">
-                                        <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 text-[#4CAF50]"
+                                        <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 text-primary-500"
                                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                             viewBox="0 0 20 16">
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                                 stroke-width="2"
                                                 d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
                                         </svg>
-                                        <p class="mb-2 text-sm sm:text-base text-[#2E7D32] text-center"><span
+                                        <p class="mb-2 text-sm sm:text-base text-primary-800 text-center"><span
                                                 class="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p class="text-xs sm:text-sm text-[#388E3C] text-center">PDF only (Max. 5MB)</p>
+                                        <p class="text-xs sm:text-sm text-primary-700 text-center">PDF only (Max. 5MB each, up to 5 files)</p>
                                     </div>
-                                    <input id="dropzone-file" name="document" type="file" class="hidden"
-                                        accept=".pdf">
+                                    <input id="dropzone-file" name="documents[]" type="file" class="hidden"
+                                        accept=".pdf" multiple>
                                 </label>
                             </div>
-                            <div id="selected-file-info" class="mt-4"></div>
+                            <div id="selected-file-info" class="mt-4">
+                                <div id="uploaded-files-header" class="hidden mb-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-700">Uploaded Documents (<span id="file-count">0</span>/5)</span>
+                                        <button type="button" id="clear-all-files" 
+                                                class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors duration-200">
+                                            <i class="fas fa-trash mr-1"></i>Clear All
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="files-container"></div>
+                            </div>
                             <p class="text-sm text-gray-600 mt-2">Upload supporting documents like registration forms,
-                                receipts, or other relevant files in PDF format only.</p>
+                                receipts, or other relevant files in PDF format only. You can upload up to 5 files.</p>
                         </div>
 
                         <!-- Data Privacy Agreement -->
-                        <div class="mb-6 p-4 bg-[#E3F2FD] border border-[#90CAF9] rounded-lg">
+                        <div class="mb-6 p-4 bg-info-50 border border-info-300 rounded-lg">
                             <div class="flex items-start">
                                 <input type="checkbox" id="privacy-agreement-checkbox" name="privacy_agreement"
-                                    class="mt-1 mr-3 h-4 w-4 text-[#4CAF50] border-gray-300 rounded focus:ring-[#4CAF50]"
+                                    class="mt-1 mr-3 h-4 w-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
                                     required>
                                 <div class="flex-1">
-                                    <label for="privacy-agreement-checkbox" class="text-base text-[#1565C0]">
+                                    <label for="privacy-agreement-checkbox" class="text-base text-info-700">
                                         I agree to the <button type="button" id="open-privacy-modal"
-                                            class="text-[#1976D2] hover:text-[#1565C0] underline transition-colors duration-150 font-medium">Data
+                                            class="text-info-600 hover:text-info-700 underline transition-colors duration-150 font-medium">Data
                                             Privacy Agreement</button> for document uploads.
                                     </label>
                                     <div id="privacy-agreement-error" class="text-red-500 text-sm mt-1 hidden">
@@ -374,11 +390,11 @@
 
                         <div class="flex justify-between">
                             <button type="button" id="prev-step-2"
-                                class="px-6 py-2.5 bg-[#4A90E2] text-white rounded-lg hover:bg-[#357ABD] transition-all duration-200 shadow-md hover:shadow-lg flex items-center text-base">
+                                class="px-6 py-2.5 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center text-base">
                                 <i class="fas fa-arrow-left mr-2"></i> Previous
                             </button>
                             <button type="button" id="next-step-2"
-                                class="px-6 py-2.5 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center text-base">
+                                class="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center text-base">
                                 Next: Review <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>
@@ -388,12 +404,12 @@
                     <div id="step-3" class="step-content hidden">
                         <div class="flex items-center mb-4">
                             <div
-                                class="w-8 h-8 rounded-full bg-[#4CAF50] text-white flex items-center justify-center text-lg font-semibold">
+                                class="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center text-lg font-semibold">
                                 3</div>
                             <h2 class="text-xl font-semibold text-gray-800 ml-3">Review & Submit</h2>
                         </div>
 
-                        <div class="bg-[#F5F5F5] rounded-lg p-6 mb-6 border border-gray-200">
+                        <div class="bg-neutral-100 rounded-lg p-6 mb-6 border border-gray-200">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Review Your Request</h3>
                             <div class="space-y-4">
                                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
@@ -404,14 +420,19 @@
                                     <span class="text-base font-medium text-gray-600">Amount:</span>
                                     <div class="text-right">
                                         <span id="review-amount" class="text-base text-gray-800 font-semibold"></span>
-                                        <span id="review-amount-max" class="text-sm text-[#4CAF50] block"></span>
+                                        <span id="review-amount-max" class="text-sm text-primary-500 block"></span>
                                     </div>
                                 </div>
                                 <div class="py-2">
-                                    <span class="text-base font-medium text-gray-600">Supporting Document:</span>
-                                    <div id="review-document" class="mt-2 flex items-center text-base text-gray-800">
-                                        <i class="fas fa-file-pdf text-[#4CAF50] mr-2"></i>
-                                        <span></span>
+                                    <span class="text-base font-medium text-gray-600">Supporting Documents:</span>
+                                    <div id="review-documents" class="mt-2 text-base text-gray-800">
+                                        <div id="review-documents-list" class="space-y-2">
+                                            <!-- Documents will be populated here -->
+                                        </div>
+                                        <div id="no-documents-message" class="flex items-center text-gray-500">
+                                            <i class="fas fa-file-pdf text-gray-400 mr-2"></i>
+                                            <span>No documents uploaded</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -419,11 +440,11 @@
 
                         <div class="flex justify-between">
                             <button type="button" id="prev-step-3"
-                                class="px-6 py-2.5 bg-[#4A90E2] text-white rounded-lg hover:bg-[#357ABD] transition-all duration-200 shadow-md hover:shadow-lg flex items-center text-base">
+                                class="px-6 py-2.5 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center text-base">
                                 <i class="fas fa-arrow-left mr-2"></i> Previous
                             </button>
                             <button type="submit" id="submit-button"
-                                class="px-6 py-2.5 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                class="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                                 <i class="fas fa-paper-plane mr-2"></i> Submit Request
                             </button>
                         </div>
@@ -441,7 +462,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden" role="dialog"
         aria-modal="true" aria-labelledby="privacy-modal-title">
         <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl border border-gray-200">
-            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 bg-[#4CAF50]">
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 bg-primary-500">
                 <h3 id="privacy-modal-title" class="text-lg font-semibold text-white">Data Privacy Agreement</h3>
                 <button type="button" id="close-privacy-modal-btn"
                     class="text-white hover:text-gray-200 focus:outline-none" aria-label="Close modal">
@@ -453,40 +474,40 @@
                     <p class="text-base mb-4">By uploading documents to the CLSU-ERDT Scholar Management System, you
                         acknowledge and agree to the following:</p>
 
-                    <h4 class="font-semibold text-[#2E7D32] mt-6 mb-2 text-base">1. Information Collection and Use</h4>
+                    <h4 class="font-semibold text-primary-800 mt-6 mb-2 text-base">1. Information Collection and Use</h4>
                     <p class="text-base">The documents you upload may contain personal information that will be collected
                         and processed for the purpose of evaluating and processing your fund request. This information will
                         be used solely for administrative purposes related to your scholarship.</p>
 
-                    <h4 class="font-semibold text-[#2E7D32] mt-6 mb-2 text-base">2. Data Storage and Security</h4>
+                    <h4 class="font-semibold text-primary-800 mt-6 mb-2 text-base">2. Data Storage and Security</h4>
                     <p class="text-base">Your uploaded documents will be stored securely within our system. We implement
                         appropriate technical and organizational measures to protect your personal information against
                         unauthorized access, alteration, disclosure, or destruction.</p>
 
-                    <h4 class="font-semibold text-[#2E7D32] mt-6 mb-2 text-base">3. Data Sharing</h4>
+                    <h4 class="font-semibold text-primary-800 mt-6 mb-2 text-base">3. Data Sharing</h4>
                     <p class="text-base">Your information may be shared with authorized personnel involved in the
                         scholarship administration process, including but not limited to administrators, evaluators, and
                         relevant institutional departments. Your information will not be shared with third parties outside
                         of this context without your consent, unless required by law.</p>
 
-                    <h4 class="font-semibold text-[#2E7D32] mt-6 mb-2 text-base">4. Retention Period</h4>
+                    <h4 class="font-semibold text-primary-800 mt-6 mb-2 text-base">4. Retention Period</h4>
                     <p class="text-base">Your documents will be retained for the duration of your scholarship program and
                         for a reasonable period thereafter for record-keeping purposes, after which they will be securely
                         deleted or anonymized in accordance with our data retention policies.</p>
 
-                    <h4 class="font-semibold text-[#2E7D32] mt-6 mb-2 text-base">5. Your Rights</h4>
+                    <h4 class="font-semibold text-primary-800 mt-6 mb-2 text-base">5. Your Rights</h4>
                     <p class="text-base">You have the right to access, correct, or request deletion of your personal
                         information. You may also withdraw your consent at any time, though this may affect our ability to
                         process your fund request.</p>
 
-                    <h4 class="font-semibold text-[#2E7D32] mt-6 mb-2 text-base">6. Contact Information</h4>
+                    <h4 class="font-semibold text-primary-800 mt-6 mb-2 text-base">6. Contact Information</h4>
                     <p class="text-base">If you have any questions about this privacy agreement or our data handling
                         practices, please contact the CLSU-ERDT administration office.</p>
                 </div>
             </div>
             <div class="flex justify-end gap-2 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-lg">
                 <button type="button" id="agree-privacy-btn"
-                    class="px-6 py-2.5 bg-[#4CAF50] text-white rounded-lg hover:bg-[#43A047] transition-all duration-200 shadow-md hover:shadow-lg flex items-center text-base">
+                    class="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center text-base">
                     <i class="fas fa-check mr-2"></i> I Agree
                 </button>
             </div>
@@ -495,60 +516,26 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Global error handler for debugging
-            window.addEventListener('error', function(e) {
-                console.error('=== GLOBAL ERROR DEBUG ===');
-                console.error('Error message:', e.message);
-                console.error('Error filename:', e.filename);
-                console.error('Error line:', e.lineno);
-                console.error('Error column:', e.colno);
-                console.error('Error object:', e.error);
-                console.error('Stack trace:', e.error ? e.error.stack : 'No stack trace available');
-            });
 
-            // Global unhandled promise rejection handler
-            window.addEventListener('unhandledrejection', function(e) {
-                console.error('=== UNHANDLED PROMISE REJECTION DEBUG ===');
-                console.error('Reason:', e.reason);
-                console.error('Promise:', e.promise);
-            });
 
             // Network status monitoring
-            window.addEventListener('online', function() {
-                console.log('=== NETWORK STATUS ===');
-                console.log('Network status: ONLINE');
-            });
-
             window.addEventListener('offline', function() {
-                console.log('=== NETWORK STATUS ===');
-                console.log('Network status: OFFLINE');
                 Swal.fire({
                     title: 'Network Error',
                     text: 'You appear to be offline. Please check your internet connection.',
                     icon: 'warning',
-                    confirmButtonColor: '#F59E0B'
+                    confirmButtonColor: 'rgb(245 158 11)'
                 });
             });
 
-            console.log('=== FUND REQUEST FORM DEBUG INITIALIZED ===');
-            console.log('Current URL:', window.location.href);
-            console.log('User Agent:', navigator.userAgent);
-            console.log('Network status:', navigator.onLine ? 'ONLINE' : 'OFFLINE');
+
             // Enhanced form submission handling with debugging
             const form = document.getElementById('multi-step-form');
             if (form) {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
 
-                    console.log('=== FUND REQUEST FORM SUBMISSION DEBUG ===');
-
                     try {
-                        // Debug: Log form data before processing
-                        const formData = new FormData(this);
-                        console.log('Form Data before processing:');
-                        for (let [key, value] of formData.entries()) {
-                            console.log(`${key}: ${value}`);
-                        }
 
                         // Validate required fields
                         const requestTypeId = document.getElementById('request_type_id').value;
@@ -556,34 +543,26 @@
                         const privacyCheckbox = document.getElementById('privacy-agreement-checkbox');
                         const fileInput = document.getElementById('dropzone-file');
 
-                        console.log('Field validation:');
-                        console.log('Request Type ID:', requestTypeId);
-                        console.log('Amount Input Value:', amountInput.value);
-                        console.log('Amount Raw Value:', amountInput.dataset.rawValue);
-                        console.log('Privacy Agreement Checked:', privacyCheckbox.checked);
-                        console.log('File Selected:', fileInput.files.length > 0 ? fileInput.files[0].name :
-                            'None');
+
 
                         // Validate request type
                         if (!requestTypeId) {
-                            console.error('Validation Error: Request type not selected');
                             Swal.fire({
                                 title: 'Validation Error',
                                 text: 'Please select a request type.',
                                 icon: 'error',
-                                confirmButtonColor: '#EF4444'
+                                confirmButtonColor: 'rgb(239 68 68)'
                             });
                             return;
                         }
 
                         // Validate amount
                         if (!amountInput.value) {
-                            console.error('Validation Error: Amount not provided');
                             Swal.fire({
                                 title: 'Validation Error',
                                 text: 'Please enter an amount.',
                                 icon: 'error',
-                                confirmButtonColor: '#EF4444'
+                                confirmButtonColor: 'rgb(239 68 68)'
                             });
                             return;
                         }
@@ -592,115 +571,76 @@
                         let finalAmount = '';
                         if (amountInput.dataset.rawValue) {
                             finalAmount = amountInput.dataset.rawValue;
-                            console.log('Using raw value:', finalAmount);
                         } else if (amountInput.value.includes('₱')) {
                             finalAmount = amountInput.value.replace(/[₱,\s]/g, '');
-                            console.log('Cleaned currency formatted value:', finalAmount);
                         } else {
                             finalAmount = amountInput.value.replace(/[^0-9.]/g, '');
-                            console.log('Cleaned unformatted value:', finalAmount);
                         }
 
                         // Validate final amount
                         const numericAmount = parseFloat(finalAmount);
                         if (isNaN(numericAmount) || numericAmount <= 0) {
-                            console.error('Validation Error: Invalid amount:', finalAmount);
                             Swal.fire({
                                 title: 'Validation Error',
                                 text: 'Please enter a valid amount greater than zero.',
                                 icon: 'error',
-                                confirmButtonColor: '#EF4444'
+                                confirmButtonColor: 'rgb(239 68 68)'
                             });
                             return;
                         }
 
                         // Set the clean amount value
                         amountInput.value = finalAmount;
-                        console.log('Final amount set to:', finalAmount);
 
                         // Validate file if uploaded
                         if (fileInput.files.length > 0) {
                             const file = fileInput.files[0];
-                            console.log('File validation:');
-                            console.log('File name:', file.name);
-                            console.log('File type:', file.type);
-                            console.log('File size:', file.size, 'bytes');
 
                             if (file.type !== 'application/pdf') {
-                                console.error('File validation error: Invalid file type');
                                 Swal.fire({
                                     title: 'File Error',
                                     text: 'Please upload only PDF files.',
                                     icon: 'error',
-                                    confirmButtonColor: '#EF4444'
+                                    confirmButtonColor: 'rgb(239 68 68)'
                                 });
                                 return;
                             }
 
                             const maxSize = 5 * 1024 * 1024; // 5MB
                             if (file.size > maxSize) {
-                                console.error('File validation error: File too large');
                                 Swal.fire({
                                     title: 'File Error',
                                     text: 'Please upload a PDF file smaller than 5MB.',
                                     icon: 'error',
-                                    confirmButtonColor: '#EF4444'
+                                    confirmButtonColor: 'rgb(239 68 68)'
                                 });
                                 return;
                             }
 
                             // Check privacy agreement if file is uploaded
                             if (!privacyCheckbox.checked) {
-                                console.error('Validation Error: Privacy agreement not checked');
                                 Swal.fire({
                                     title: 'Privacy Agreement Required',
                                     text: 'Please agree to the Data Privacy Agreement to upload documents.',
                                     icon: 'warning',
-                                    confirmButtonColor: '#F59E0B'
+                                    confirmButtonColor: 'rgb(245 158 11)'
                                 });
                                 return;
                             }
                         }
 
-                        // Final form data log
-                        const finalFormData = new FormData(this);
-                        console.log('Final Form Data:');
-                        for (let [key, value] of finalFormData.entries()) {
-                            if (value instanceof File) {
-                                console.log(`${key}: File - ${value.name} (${value.size} bytes)`);
-                            } else {
-                                console.log(`${key}: ${value}`);
-                            }
-                        }
 
-                        console.log('All validations passed. Submitting form...');
 
                         // Show loading state
-                        Swal.fire({
-                            title: 'Submitting Fund Request',
-                            text: 'Please wait while we process your request...',
-                            icon: 'info',
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            showConfirmButton: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        // Submit the form
+                        // Submit the form directly without loading indicator
                         this.submit();
 
                     } catch (error) {
-                        console.error('Form submission error:', error);
-                        console.error('Error stack:', error.stack);
-
                         Swal.fire({
                             title: 'Submission Error',
-                            text: 'An unexpected error occurred. Please check the console for details and try again.',
+                            text: 'An unexpected error occurred. Please try again.',
                             icon: 'error',
-                            confirmButtonColor: '#EF4444',
-                            footer: `<small>Error: ${error.message}</small>`
+                            confirmButtonColor: 'rgb(239 68 68)'
                         });
                     }
                 });
@@ -716,41 +656,56 @@
                     period: 'per semester',
                     footnote: 'Full tuition coverage as billed'
                 },
-                2: { // Stipend
-                    name: 'Stipend',
+                2: { // Learning Materials
+                    name: 'Learning Materials',
+                    masters: 15000,
+                    doctoral: 20000,
+                    description: 'Books, supplies, and learning materials allowance',
+                    period: 'per semester',
+                    footnote: 'For educational materials and supplies'
+                },
+                3: { // Transportation
+                    name: 'Transportation',
+                    masters: 8000,
+                    doctoral: 10000,
+                    description: 'Transportation allowance for academic activities',
+                    period: 'per month',
+                    footnote: 'For academic-related transportation'
+                },
+                4: { // Research Dissemination Grant
+                    name: 'Research Dissemination Grant',
                     masters: 30000,
-                    doctoral: 38000,
+                    doctoral: 50000,
+                    description: 'Grant for research publication and conference presentation',
+                    period: 'per event',
+                    footnote: 'For research publication and conference presentation'
+                },
+                5: { // Mentor's Fee
+                    name: 'Mentor\'s Fee',
+                    masters: 25000,
+                    doctoral: 40000,
+                    description: 'Payment for thesis/dissertation mentor',
+                    period: 'per semester',
+                    footnote: 'For thesis/dissertation mentorship'
+                },
+                6: { // Stipend
+                    name: 'Stipend',
+                    masters: 15000,
+                    doctoral: 20000,
                     description: 'Monthly living allowance for scholars',
                     period: 'per month',
                     footnote: 'Monthly stipend for living expenses'
                 },
-                3: { // Learning Materials and Connectivity Allowance
-                    name: 'Learning Materials and Connectivity Allowance',
-                    masters: 20000,
-                    doctoral: 20000,
-                    description: 'Allowance for books, materials, and connectivity',
-                    period: 'per academic year',
-                    footnote: 'For educational materials and internet connectivity'
-                },
-                4: { // Transportation Allowance - Special handling
-                    name: 'Transportation Allowance',
-                    masters: null, // Special case - no fixed amount
-                    doctoral: null, // Special case - no fixed amount
-                    description: 'One (1) actual economy class round trip per academic year',
-                    period: 'per academic year',
-                    footnote: 'Given only to students who study outside their home province',
-                    isTransportation: true
-                },
-                5: { // Thesis/Dissertation Outright Grant
-                    name: 'Thesis/Dissertation Outright Grant',
+                7: { // Thesis/Dissertation Grant
+                    name: 'Thesis/Dissertation Grant',
                     masters: 60000,
                     doctoral: 100000,
                     description: 'Grant for thesis or dissertation expenses',
                     period: 'one-time',
                     footnote: 'For thesis/dissertation related expenses'
                 },
-                6: { // Research Support Grant - Equipment
-                    name: 'Research Support Grant - Equipment',
+                8: { // Research Equipment Grant
+                    name: 'Research Equipment Grant',
                     masters: 225000,
                     doctoral: 475000,
                     description: 'Grant for research equipment and materials',
@@ -807,10 +762,8 @@
             const steps = ['step-1', 'step-2', 'step-3'];
             let currentStep = 0;
 
-            // Enhanced amount validation with detailed entitlement information and debugging
+            // Enhanced amount validation with detailed entitlement information
             function validateAmount() {
-                console.log('=== AMOUNT VALIDATION DEBUG ===');
-
                 const amountInput = document.getElementById('amount');
                 const amountLimitInfo = document.getElementById('amount-limit-info');
                 const amountWarning = document.getElementById('amount-warning');
@@ -818,13 +771,8 @@
                 const amountWarningText = document.getElementById('amount-warning-text');
                 const amountErrorText = document.getElementById('amount-error-text');
 
-                console.log('Amount input value:', amountInput.value);
-                console.log('Amount raw value:', amountInput.dataset.rawValue);
-                console.log('Request type selected:', requestTypeSelect.value);
-
                 // If no request type is selected, clear all validation messages
                 if (!requestTypeSelect.value) {
-                    console.log('No request type selected, clearing validation messages');
                     amountLimitInfo.textContent = '';
                     amountWarning.classList.add('hidden');
                     amountError.classList.add('hidden');
@@ -844,21 +792,20 @@
                             'validation-success');
                         amountInput.classList.add('border-gray-300');
 
-                        // Show limit information
+                        // Show limit information in request type section
+                        const requestTypeInfo = document.getElementById('request-type-info');
+                        const requestTypeInfoText = document.getElementById('request-type-info-text');
+                        
                         if (limit.isTransportation) {
-                            amountLimitInfo.innerHTML = `
-                            <div class="text-xs text-blue-600 mb-1 font-medium">
+                            requestTypeInfoText.innerHTML = `
                                 <strong>${limit.name}:</strong> ${limit.description}<br>
                                 <em class="text-blue-500">${limit.footnote}</em>
-                            </div>
-                        `;
+                            `;
                         } else if (limit[programType] === null) {
-                            amountLimitInfo.innerHTML = `
-                            <div class="text-xs text-blue-600 mb-1 font-medium">
+                            requestTypeInfoText.innerHTML = `
                                 <strong>${limit.name}:</strong> ${limit.description} (${limit.period})<br>
                                 <em class="text-blue-500">${limit.footnote}</em>
-                            </div>
-                        `;
+                            `;
                         } else {
                             const limitAmount = limit[programType];
                             let limitDisplay =
@@ -872,28 +819,27 @@
 
                             limitDisplay += `<br><em class="text-xs">${limit.footnote}</em>`;
 
-                            amountLimitInfo.innerHTML =
-                                `<div class="text-xs text-blue-600 mb-1 font-medium">${limitDisplay}</div>`;
+                            requestTypeInfoText.innerHTML = limitDisplay;
                         }
-                        amountLimitInfo.className = 'text-xs text-blue-600 mb-1 font-medium h-auto';
+                        
+                        // Show the request type info section
+                        requestTypeInfo.classList.remove('hidden');
+                        
+                        // Reset amount limit info to default
+                        amountLimitInfo.innerHTML = '<i class="fas fa-info-circle mr-2"></i><span></span>';
+                        amountLimitInfo.className = 'text-sm text-info-600 mt-2 font-medium h-5 flex items-center';
                     }
                     return true;
                 }
 
                 const requestTypeId = parseInt(requestTypeSelect.value);
-                console.log('Parsed request type ID:', requestTypeId);
 
                 // Use raw value for validation if available, otherwise parse the current value
                 const rawValue = amountInput.dataset.rawValue || amountInput.value.replace(/[₱,\s]/g, '');
                 const amount = parseFloat(rawValue);
                 const limit = requestTypeLimits[requestTypeId];
 
-                console.log('Raw value for validation:', rawValue);
-                console.log('Parsed amount:', amount);
-                console.log('Limit data:', limit);
-
                 if (!limit) {
-                    console.error('Request type limit not found for ID:', requestTypeId);
                     amountLimitInfo.textContent = 'Request type not found';
                     amountError.classList.remove('hidden');
                     amountErrorText.textContent = 'Invalid request type selected';
@@ -910,16 +856,10 @@
                 const isMasterOfEngineering = userDegree.toLowerCase().includes('master of engineering') ||
                     userDegree.toLowerCase().includes('m.eng');
 
-                console.log('User degree:', userDegree);
-                console.log('Is Master of Engineering:', isMasterOfEngineering);
-
                 // Restricted grants for Master of Engineering
-                const restrictedForMEng = [5, 6, 7,
-                    8
-                ]; // Thesis/Dissertation, Research Support, Research Dissemination, Mentor's Fee
+                const restrictedForMEng = [5, 6, 7, 8]; // Thesis/Dissertation, Research Support, Research Dissemination, Mentor's Fee
 
                 if (isMasterOfEngineering && restrictedForMEng.includes(requestTypeId)) {
-                    console.log('Request type restricted for Master of Engineering');
                     amountLimitInfo.textContent = `${limit.name}: Not applicable to Master of Engineering scholars`;
                     amountError.classList.remove('hidden');
                     amountErrorText.textContent =
@@ -1000,8 +940,8 @@
                     } else {
                         console.log('Amount within acceptable range');
                         amountLimitInfo.innerHTML =
-                            `<div class="text-xs text-[#2E7D32] mb-1 font-medium">${limitDisplay}</div>`;
-                        amountLimitInfo.className = 'text-xs text-[#2E7D32] mb-1 font-medium h-auto';
+                            `<div class="text-xs text-primary-800 mb-1 font-medium">${limitDisplay}</div>`;
+                        amountLimitInfo.className = 'text-xs text-primary-800 mb-1 font-medium h-auto';
                         amountInput.classList.remove('border-gray-300');
                         amountInput.classList.add('validation-success');
                     }
@@ -1099,6 +1039,12 @@
                 requestTypeSelect.addEventListener('change', function() {
                     const selectedOption = this.options[this.selectedIndex];
                     const requestTypeName = selectedOption.text;
+                    const requestTypeInfo = document.getElementById('request-type-info');
+
+                    // Hide request type info if no selection
+                    if (!this.value) {
+                        requestTypeInfo.classList.add('hidden');
+                    }
 
                     // Always validate amount when request type changes to show limits
                     validateAmount();
@@ -1218,7 +1164,7 @@
                         title: 'Validation Error',
                         text: 'Please fill in all required fields in Step 1.',
                         icon: 'warning',
-                        confirmButtonColor: '#F59E0B'
+                        confirmButtonColor: 'rgb(245 158 11)'
                     });
                     return false;
                 }
@@ -1233,7 +1179,7 @@
                         title: 'Amount Error',
                         text: 'Please correct the amount before proceeding.',
                         icon: 'error',
-                        confirmButtonColor: '#EF4444'
+                        confirmButtonColor: 'rgb(239 68 68)'
                     });
                     return false;
                 }
@@ -1246,7 +1192,6 @@
                 const requestTypeText = requestTypeSelect.options[requestTypeSelect.selectedIndex].text;
                 const amountInput = document.getElementById('amount');
                 const fileInput = document.getElementById('dropzone-file');
-                const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'No document uploaded';
 
                 document.getElementById('review-request-type').textContent = requestTypeText;
 
@@ -1271,7 +1216,27 @@
                 }
                 document.getElementById('review-amount').textContent = formattedAmount;
 
-                document.getElementById('review-document').textContent = fileName;
+                // Update documents review section
+                const reviewDocumentsList = document.getElementById('review-documents-list');
+                const noDocumentsMessage = document.getElementById('no-documents-message');
+                
+                reviewDocumentsList.innerHTML = '';
+                
+                if (uploadedFiles.length > 0) {
+                    noDocumentsMessage.style.display = 'none';
+                    uploadedFiles.forEach(file => {
+                        const docElement = document.createElement('div');
+                        docElement.className = 'flex items-center text-gray-800';
+                        docElement.innerHTML = `
+                            <i class="fas fa-file-pdf text-primary-500 mr-2"></i>
+                            <span class="font-medium">${file.name}</span>
+                            <span class="text-sm text-gray-500 ml-2">(${(file.size / 1024).toFixed(1)} KB)</span>
+                        `;
+                        reviewDocumentsList.appendChild(docElement);
+                    });
+                } else {
+                    noDocumentsMessage.style.display = 'flex';
+                }
             }
 
             // Step navigation
@@ -1337,98 +1302,169 @@
                 }
             });
 
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    if (fileInput.files && fileInput.files[0] && !privacyCheckbox.checked) {
-                        openPrivacyModal();
-                    }
-                });
-            }
-
-            // File upload handling
-            const infoDiv = document.getElementById('selected-file-info');
-
-            function getFileIcon(type) {
-                if (type === 'application/pdf') {
-                    return '<i class="fas fa-file-pdf text-red-500 text-2xl mr-2"></i>';
-                } else {
-                    return '<i class="fas fa-file-alt text-gray-400 text-2xl mr-2"></i>';
+            // Privacy agreement handling for file uploads
+            function checkPrivacyAgreement() {
+                if (fileInput.files && fileInput.files.length > 0 && !privacyCheckbox.checked) {
+                    openPrivacyModal();
                 }
             }
 
-            function clearFile() {
+            // Multiple file upload handling
+            const filesContainer = document.getElementById('files-container');
+            const uploadedFilesHeader = document.getElementById('uploaded-files-header');
+            const fileCountSpan = document.getElementById('file-count');
+            const clearAllBtn = document.getElementById('clear-all-files');
+            let uploadedFiles = [];
+            const maxFiles = 5;
+
+            function getFileIcon(type) {
+                if (type === 'application/pdf') {
+                    return '<i class="fas fa-file-pdf text-red-500 text-lg mr-2"></i>';
+                } else {
+                    return '<i class="fas fa-file-alt text-gray-400 text-lg mr-2"></i>';
+                }
+            }
+
+            function updateFileCount() {
+                fileCountSpan.textContent = uploadedFiles.length;
+                if (uploadedFiles.length > 0) {
+                    uploadedFilesHeader.classList.remove('hidden');
+                } else {
+                    uploadedFilesHeader.classList.add('hidden');
+                }
+            }
+
+            function removeFile(index) {
+                uploadedFiles.splice(index, 1);
+                updateFileDisplay();
+                updateFileCount();
+                
+                // Update the file input
+                const dt = new DataTransfer();
+                uploadedFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+            }
+
+            function clearAllFiles() {
+                uploadedFiles = [];
                 fileInput.value = '';
-                infoDiv.innerHTML = '';
+                updateFileDisplay();
+                updateFileCount();
+            }
+
+            function updateFileDisplay() {
+                filesContainer.innerHTML = '';
+                uploadedFiles.forEach((file, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'p-3 bg-green-50 border border-green-200 rounded-lg';
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                ${getFileIcon(file.type)}
+                                <span class="text-green-800 font-medium">${file.name}</span>
+                                <span class="text-green-600 text-sm ml-2">(${(file.size / 1024).toFixed(1)} KB)</span>
+                            </div>
+                            <button type="button" onclick="removeFile(${index})" 
+                                    class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    filesContainer.appendChild(card);
+                });
+            }
+
+            // Make removeFile function global
+            window.removeFile = removeFile;
+
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', clearAllFiles);
             }
 
             if (fileInput) {
                 fileInput.addEventListener('change', function(e) {
-                    console.log('=== FILE UPLOAD DEBUG ===');
-                    console.log('File input changed');
+                    console.log('=== MULTIPLE FILE UPLOAD DEBUG ===');
+                    console.log('Files selected:', fileInput.files.length);
 
-                    infoDiv.innerHTML = '';
-                    if (fileInput.files && fileInput.files[0]) {
-                        const file = fileInput.files[0];
+                    const newFiles = Array.from(fileInput.files);
+                    const validFiles = [];
 
-                        console.log('File selected:');
-                        console.log('Name:', file.name);
-                        console.log('Type:', file.type);
-                        console.log('Size:', file.size, 'bytes');
-                        console.log('Last Modified:', new Date(file.lastModified));
+                    for (const file of newFiles) {
+                        console.log('Processing file:', file.name, file.type, file.size);
+
+                        // Check if we've reached the maximum number of files
+                        if (uploadedFiles.length + validFiles.length >= maxFiles) {
+                            Swal.fire({
+                                title: 'Maximum Files Reached',
+                                text: `You can only upload up to ${maxFiles} files.`,
+                                icon: 'warning',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: 'rgb(245 158 11)'
+                            });
+                            break;
+                        }
 
                         // Validate file type (PDF only)
                         if (file.type !== 'application/pdf') {
-                            console.error('File validation failed: Invalid file type');
+                            console.error('File validation failed: Invalid file type for', file.name);
                             Swal.fire({
                                 title: 'Invalid File Type',
-                                text: 'Please upload only PDF files.',
+                                text: `"${file.name}" is not a PDF file. Please upload only PDF files.`,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
-                                confirmButtonColor: '#EF4444'
+                                confirmButtonColor: 'rgb(239 68 68)'
                             });
-                            clearFile();
-                            return;
+                            continue;
                         }
 
                         // Validate file size (5MB = 5 * 1024 * 1024 bytes)
                         const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-                        console.log('File size check:', file.size, 'vs max', maxSize);
-
                         if (file.size > maxSize) {
-                            console.error('File validation failed: File too large');
+                            console.error('File validation failed: File too large for', file.name);
                             Swal.fire({
                                 title: 'File Too Large',
-                                text: 'Please upload a PDF file smaller than 5MB.',
+                                text: `"${file.name}" is larger than 5MB. Please upload smaller files.`,
                                 icon: 'error',
                                 confirmButtonText: 'OK',
-                                confirmButtonColor: '#EF4444'
+                                confirmButtonColor: 'rgb(239 68 68)'
                             });
-                            clearFile();
-                            return;
+                            continue;
                         }
 
-                        console.log('File validation passed');
+                        // Check for duplicate files
+                        const isDuplicate = uploadedFiles.some(existingFile => 
+                            existingFile.name === file.name && existingFile.size === file.size
+                        );
+                        
+                        if (isDuplicate) {
+                            console.warn('Duplicate file detected:', file.name);
+                            Swal.fire({
+                                title: 'Duplicate File',
+                                text: `"${file.name}" has already been uploaded.`,
+                                icon: 'warning',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: 'rgb(245 158 11)'
+                            });
+                            continue;
+                        }
 
-                        const card = document.createElement('div');
-                        card.className =
-                            'flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-white border border-blue-200 rounded-lg p-2 sm:p-3 shadow transition-all duration-300 animate-fade-in w-full overflow-x-auto';
-                        card.style.marginBottom = '0.5rem';
-                        card.innerHTML = `
-                    <span>${getFileIcon(file.type)}</span>
-                    <div class="flex-1">
-                        <div class="font-semibold text-gray-800 text-sm">${file.name}</div>
-                        <div class="text-xs text-gray-500">${(file.size/1024).toFixed(1)} KB</div>
-                    </div>
-                    <button type="button" title="Remove file" class="remove-file-btn text-gray-400 hover:text-red-500 p-1 rounded transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-300">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-
-                        const removeBtn = card.querySelector('.remove-file-btn');
-                        removeBtn.addEventListener('click', clearFile);
-
-                        infoDiv.appendChild(card);
+                        validFiles.push(file);
+                        console.log('File validation passed for:', file.name);
                     }
+
+                    // Add valid files to the uploaded files array
+                     uploadedFiles.push(...validFiles);
+                     
+                     // Update the file input with all uploaded files
+                     const dt = new DataTransfer();
+                     uploadedFiles.forEach(file => dt.items.add(file));
+                     fileInput.files = dt.files;
+
+                     updateFileDisplay();
+                     updateFileCount();
+                     
+                     // Check privacy agreement if files are uploaded
+                     checkPrivacyAgreement();
                 });
             }
 

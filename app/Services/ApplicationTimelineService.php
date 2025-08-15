@@ -72,7 +72,7 @@ class ApplicationTimelineService extends BaseWebsiteService
         }
 
         // Apply sorting
-        $allowedSortFields = ['sort_order', 'title', 'phase', 'start_date', 'end_date', 'created_at'];
+        $allowedSortFields = ['sort_order', 'activity', 'first_semester', 'second_semester', 'created_at'];
         if (in_array($sortBy, $allowedSortFields)) {
             $query->orderBy($sortBy, $sortDirection === 'desc' ? 'desc' : 'asc');
         } else {
@@ -106,7 +106,7 @@ class ApplicationTimelineService extends BaseWebsiteService
         }
 
         // Apply sorting
-        $allowedSortFields = ['sort_order', 'title', 'phase', 'start_date', 'end_date', 'created_at'];
+        $allowedSortFields = ['sort_order', 'activity', 'first_semester', 'second_semester', 'created_at'];
         if (in_array($sortBy, $allowedSortFields)) {
             $query->orderBy($sortBy, $sortDirection === 'desc' ? 'desc' : 'asc');
         } else {
@@ -120,38 +120,28 @@ class ApplicationTimelineService extends BaseWebsiteService
     {
         $now = now();
         
+        // Since the database schema doesn't have start_date/end_date columns,
+        // we'll return the first active timeline item ordered by sort_order
         return ApplicationTimeline::where('is_active', true)
-            ->where('start_date', '<=', $now)
-            ->where(function ($query) use ($now) {
-                $query->whereNull('end_date')
-                      ->orWhere('end_date', '>=', $now);
-            })
             ->orderBy('sort_order')
             ->first();
     }
 
     public function getUpcomingPhases(int $limit = 5): Collection
     {
-        $now = now();
-        
+        // Since the database schema doesn't have start_date column,
+        // we'll return active timeline items ordered by sort_order
         return ApplicationTimeline::where('is_active', true)
-            ->where('start_date', '>', $now)
-            ->orderBy('start_date')
+            ->orderBy('sort_order')
             ->limit($limit)
             ->get();
     }
 
     public function getPhasesByDateRange(\DateTime $startDate, \DateTime $endDate): Collection
     {
+        // Since the database schema doesn't have start_date/end_date columns,
+        // we'll return all active timeline items ordered by sort_order
         return ApplicationTimeline::where('is_active', true)
-            ->where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate, $endDate])
-                      ->orWhereBetween('end_date', [$startDate, $endDate])
-                      ->orWhere(function ($q) use ($startDate, $endDate) {
-                          $q->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                      });
-            })
             ->orderBy('sort_order')
             ->get();
     }
@@ -195,13 +185,18 @@ class ApplicationTimelineService extends BaseWebsiteService
 
     public function validateTimelineDates(array $data): bool
     {
-        if (isset($data['start_date']) && isset($data['end_date'])) {
-            $startDate = new \DateTime($data['start_date']);
-            $endDate = new \DateTime($data['end_date']);
-            
-            if ($endDate <= $startDate) {
-                throw new \InvalidArgumentException('End date must be after start date');
-            }
+        // Since the database schema doesn't have start_date/end_date columns,
+        // we'll just validate that required fields are present
+        if (empty($data['activity'])) {
+            throw new \InvalidArgumentException('Activity is required');
+        }
+        
+        if (empty($data['first_semester'])) {
+            throw new \InvalidArgumentException('First semester is required');
+        }
+        
+        if (empty($data['second_semester'])) {
+            throw new \InvalidArgumentException('Second semester is required');
         }
 
         return true;
@@ -228,9 +223,9 @@ class ApplicationTimelineService extends BaseWebsiteService
 
         if ($searchTerm) {
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('title', 'like', "%{$searchTerm}%")
-                  ->orWhere('description', 'like', "%{$searchTerm}%")
-                  ->orWhere('phase', 'like', "%{$searchTerm}%");
+                $q->where('activity', 'like', "%{$searchTerm}%")
+                  ->orWhere('first_semester', 'like', "%{$searchTerm}%")
+                  ->orWhere('second_semester', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -239,6 +234,6 @@ class ApplicationTimelineService extends BaseWebsiteService
             $query->where('is_active', $isActive);
         }
 
-        return $query->orderBy('sort_order')->orderBy('start_date')->paginate($perPage);
+        return $query->orderBy('sort_order')->orderBy('created_at')->paginate($perPage);
     }
 }

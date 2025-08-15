@@ -22,7 +22,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         // Debug middleware removed as per cleanup task
-        \App\Http\Middleware\CyberSweepMiddleware::class, // Added for enhanced security scanning
+        \App\Http\Middleware\ErrorHandlingMiddleware::class, // Global error handling
     ];
 
     /**
@@ -42,6 +42,7 @@ class Kernel extends HttpKernel
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\CheckPasswordExpiration::class,
             \App\Http\Middleware\SessionTimeoutMiddleware::class,
+            \App\Http\Middleware\PreventBackButtonMiddleware::class,
         ],
 
         'api' => [
@@ -85,5 +86,8 @@ class Kernel extends HttpKernel
         'api.rate.limit' => \App\Http\Middleware\ApiRateLimitMiddleware::class,
         'db.security' => \App\Http\Middleware\DatabaseSecurityMiddleware::class,
         'session.timeout' => \App\Http\Middleware\SessionTimeoutMiddleware::class,
+        'error.handling' => \App\Http\Middleware\ErrorHandlingMiddleware::class,
+        'db.error.handling' => \App\Http\Middleware\DatabaseErrorHandlingMiddleware::class,
+        'prevent.back' => \App\Http\Middleware\PreventBackButtonMiddleware::class,
     ];
 }

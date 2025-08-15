@@ -26,9 +26,19 @@ class BadRequestException extends BaseException
     public function __construct(
         string $message = "The request contains invalid data",
         int $code = 400,
-        \Throwable $previous = null,
+        ?\Throwable $previous = null,
         array $context = []
     ) {
         parent::__construct($message, $code, $previous, $context);
+    }
+
+    /**
+     * Kunin ang HTTP status code para sa exception na ito.
+     *
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return 400;
     }
 }

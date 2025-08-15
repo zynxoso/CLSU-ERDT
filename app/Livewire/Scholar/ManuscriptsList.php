@@ -78,7 +78,7 @@ class ManuscriptsList extends Component
         }
 
         // Check if manuscript can be submitted
-        if (!in_array($manuscript->status, ['Draft', 'Revision Requested'])) {
+        if ($manuscript->status !== 'Revision Requested') {
             session()->flash('error', 'Only draft or manuscripts requiring revision can be submitted');
             return;
         }
@@ -114,7 +114,8 @@ class ManuscriptsList extends Component
             return redirect()->route('scholar.dashboard')->with('error', 'Scholar profile not found');
         }
 
-        $manuscripts = Manuscript::where('scholar_profile_id', $scholarProfile->id)
+        $manuscripts = Manuscript::withFullRelations()
+            ->where('scholar_profile_id', $scholarProfile->id)
             ->when($this->status, function ($query) {
                 return $query->where('status', $this->status);
             })

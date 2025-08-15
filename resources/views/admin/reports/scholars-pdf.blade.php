@@ -7,10 +7,10 @@
     <style>
         /* Reset and base styles */
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: theme(fontFamily.pdf);
             font-size: 12px;
             line-height: 1.4;
-            color: #424242;
+            color: rgb(64 64 64);
             margin: 0;
             padding: 20px;
         }
@@ -24,8 +24,8 @@
         }
 
         th {
-            background-color: #4CAF50;
-            color: white;
+            background-color: rgb(34 197 94);
+            color: rgb(255 255 255);
             font-weight: bold;
             text-align: left;
             padding: 10px;
@@ -77,7 +77,7 @@
             margin-top: 15px;
             text-align: center;
             font-size: 9px;
-            color: #757575;
+            color: rgb(115 115 115);
         }
     </style>
 </head>
@@ -108,9 +108,10 @@
                         <td>
                             <span class="status-badge
                                 @if($scholar->status == 'Active') status-active
-                                @elseif($scholar->status == 'Pending') status-pending
                                 @elseif($scholar->status == 'Graduated') status-graduated
-                                @elseif($scholar->status == 'Discontinued') status-discontinued
+                                @elseif($scholar->status == 'Deferred') status-deferred
+                                @elseif($scholar->status == 'Dropped') status-dropped
+                                @elseif($scholar->status == 'Inactive') status-inactive
                                 @endif">
                                 {{ $scholar->status }}
                             </span>
@@ -121,7 +122,7 @@
             </tbody>
         </table>
     @else
-        <div style="text-align: center; padding: 20px; color: #757575; background-color: #FAFAFA; border-radius: 8px; border: 1px solid #E0E0E0;">
+        <div style="text-align: center; padding: 20px; color: rgb(115 115 115); background-color: #FAFAFA; border-radius: 8px; border: 1px solid #E0E0E0;">
             No scholars found matching your criteria.
         </div>
     @endif
